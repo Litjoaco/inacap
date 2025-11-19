@@ -1,0 +1,351 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleta de Sorteos - INACAP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        header { background: linear-gradient(to right, #D90429, #A9001F); color: white; }
+        .btn-primary { background-color: #D90429; border-color: #D90429; }
+        .card-header { background-color: #fff; border-bottom: 1px solid #dee2e6; }
+        #roulette-container { position: relative; width: 100%; padding-top: 100%; margin: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
+        #roulette-container::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 18%; height: 18%; background-color: #fff; border-radius: 50%; background-image: url("{% static 'img/logo_inacap_azul.png' %}"); background-size: 80%; background-position: center; background-repeat: no-repeat; box-shadow: 0 0 15px rgba(0,0,0,0.2); z-index: 6; }
+        #roulette-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: transform 8s cubic-bezier(0.1, 0.5, 0.2, 1); }
+        #roulette-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 25px solid transparent; border-right: 25px solid transparent; border-top: 40px solid #D90429; z-index: 10; filter: drop-shadow(0 4px 5px rgba(0,0,0,0.3)); }
+        .btn-spin { background-color: #D90429; border-color: #D90429; color: white; font-weight: bold; padding: 15px 0; font-size: 1.5rem; border-radius: 50px; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(217, 4, 41, 0.4); }
+        .btn-spin:hover { background-color: #A9001F; box-shadow: 0 6px 15px rgba(217, 4, 41, 0.6); color: white; }
+        .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
+        .winner-modal .modal-content { background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 20px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .winner-modal .modal-header { background: linear-gradient(to right, #D90429, #A9001F); color: white; border-top-left-radius: 20px; border-top-right-radius: 20px; border-bottom: none; }
+        .winner-modal .winner-photo { width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 5px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-top: -75px; }
+    </style>
+</head>
+<body>
+
+<header class="p-3 shadow-sm d-flex justify-content-between align-items-center">
+    <div>
+        <h4 class="mb-0">Ruleta de Sorteos</h4>
+        <small class="text-white-50">Panel de Administración</small>
+    </div>
+    <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light">Volver al Panel</a>
+</header>
+
+<main class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header">
+                    <div class="row align-items-center g-3">
+                        <div class="col-md-12">
+                            <label for="reunion-filter" class="form-label fw-bold">Seleccionar participantes:</label>
+                            <select id="reunion-filter" class="form-select">
+                                <option value="">-- Por favor, elige una opción --</option>
+                                <option value="todos">Todos los Usuarios Registrados</option>
+                                <optgroup label="Asistentes por Evento">
+                                    {% for reunion in reuniones %}
+                                        <option value="{{ reunion.id }}">{{ reunion.detalle }} ({{ reunion.fecha|date:"d/m/Y" }})</option>
+                                    {% endfor %}
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-lg-5 text-center">
+                    <div id="roulette-wrapper" class="mx-auto" style="max-width: 500px;">
+                        <div id="roulette-container">
+                            <div id="roulette-pointer"></div>
+                            <canvas id="roulette-canvas"></canvas>
+                        </div>
+                    </div>
+                    <div class="mt-4 d-grid">
+                        <button id="spin-btn" class="btn btn-spin" disabled><i class="bi bi-play-fill"></i> ¡GIRAR!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                    <h5 class="mb-0 me-2"><i class="bi bi-trophy-fill me-2"></i>Historial de Ganadores Recientes</h5>
+                    {% if ganadores_recientes %}
+                    <form action="{% url 'panel-admin:limpiar_historial_sorteos' %}" method="POST" id="clear-history-form" class="d-inline mt-2 mt-md-0">
+                        {% csrf_token %}
+                        <button type="button" id="clear-history-btn" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash3-fill me-1"></i> Limpiar Historial
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Ganador</th>
+                                    <th>RUT</th>
+                                    <th>Sorteo de</th>
+                                    <th>Fecha</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ganador in ganadores_recientes %}
+                                <tr>
+                                    <td>{{ ganador.ganador.nombre }} {{ ganador.ganador.apellido }}</td>
+                                    <td>{{ ganador.ganador.rut }}</td>
+                                    <td>{{ ganador.fuente_participantes }}</td>
+                                    <td>{{ ganador.fecha_sorteo|date:"d/m/Y H:i" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="4" class="text-center text-muted">Aún no hay ganadores registrados.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div class="confetti-container" id="confetti-container"></div>
+
+<div class="modal fade winner-modal" id="winnerModal" tabindex="-1" aria-labelledby="winnerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center">
+            <div class="modal-header justify-content-center">
+                <h4 class="modal-title fw-bold" id="winnerModalLabel">¡Tenemos un Ganador!</h4>
+            </div>
+            <div class="modal-body p-4">
+                <img src="" id="winner-photo" class="winner-photo" alt="Foto del ganador">
+                <h2 class="mt-3 mb-1" id="winner-name" style="color: #D90429;"></h2>
+                <p class="text-muted fs-5" id="winner-rubro"></p>
+                <p class="mt-3">¡Muchas felicidades por haber ganado el sorteo!</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pb-4">
+                <button type="button" class="btn btn-lg btn-success" data-bs-dismiss="modal">
+                    <i class="bi bi-award-fill me-2"></i>¡Genial!
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/sweetalert2.min.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('roulette-canvas');
+    const ctx = canvas.getContext('2d');
+    const spinBtn = document.getElementById('spin-btn');
+    const reunionFilter = document.getElementById('reunion-filter');
+    const winnerModal = new bootstrap.Modal(document.getElementById('winnerModal'));
+    const clearHistoryBtn = document.getElementById('clear-history-btn');
+
+    // Lógica para el botón de limpiar historial
+    if (clearHistoryBtn) {
+        clearHistoryBtn.addEventListener('click', function() {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡Se borrará todo el historial de ganadores y no podrás revertirlo!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, ¡limpiar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('clear-history-form').submit();
+                }
+            });
+        });
+    }
+
+    let participants = [];
+    let rotation = 0;
+    let isSpinning = false;
+    const confettiColors = ["#D90429", "#A9001F", "#6c757d", "#FFFFFF"];
+
+    function drawRoulette() {
+        const numSegments = participants.length;
+        if (numSegments === 0) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            return;
+        }
+        const anglePerSegment = 2 * Math.PI / numSegments;
+        const radius = canvas.width / 2;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = `bold ${Math.max(10, 20 - numSegments * 0.2)}px Arial`;
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+
+        const redGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        redGradient.addColorStop(0, '#D90429');
+        redGradient.addColorStop(1, '#A9001F');
+
+        participants.forEach((participant, i) => {
+            const angle = i * anglePerSegment;
+            ctx.fillStyle = (i % 2 === 0) ? redGradient : "#FFFFFF";
+
+            ctx.beginPath();
+            ctx.moveTo(radius, radius);
+            ctx.arc(radius, radius, radius - 5, angle, angle + anglePerSegment);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.save();
+            ctx.fillStyle = (i % 2 !== 0) ? "#A9001F" : "white";
+            ctx.translate(radius, radius);
+            ctx.rotate(angle + anglePerSegment / 2);
+            ctx.fillText(participant.nombre_corto, radius / 1.7, 0);
+            ctx.restore();
+        });
+    }
+
+    function spin() {
+        if (isSpinning || participants.length < 2) {
+            Swal.fire('Participantes insuficientes', 'Se necesitan al menos 2 participantes para girar la ruleta.', 'warning');
+            return;
+        }
+        isSpinning = true;
+        spinBtn.disabled = true;
+        reunionFilter.disabled = true;
+
+        const randomSpins = Math.floor(Math.random() * 5) + 5;
+        const randomStopAngle = Math.random() * 360;
+        const totalRotation = (randomSpins * 360) + randomStopAngle;
+
+        rotation += totalRotation;
+        canvas.style.transform = `rotate(${rotation}deg)`;
+
+        setTimeout(() => {
+            const numSegments = participants.length;
+            const anglePerSegment = 360 / numSegments;
+            const effectiveRotation = rotation % 360;
+            const winnerIndex = Math.floor((360 - effectiveRotation) / anglePerSegment) % numSegments;
+            const winner = participants[winnerIndex];
+
+            showWinner(winner);
+
+            fetch("{% url 'panel-admin:registrar_ganador_sorteo' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    ganador_id: winner.id,
+                    fuente_id: reunionFilter.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'ok') {
+                    // Mostramos un mensaje de éxito y luego recargamos
+                    Swal.fire({ title: '¡Ganador Registrado!', text: 'El historial se está actualizando.', icon: 'success', timer: 1500, showConfirmButton: false })
+                        .then(() => location.reload());
+                }
+            })
+            .catch(error => console.error('Error al registrar ganador:', error));
+
+            isSpinning = false;
+            spinBtn.disabled = false;
+            reunionFilter.disabled = false;
+        }, 8000);
+    }
+
+    function showWinner(winner) {
+        launchConfetti();
+        document.getElementById('winner-photo').src = winner.foto_url;
+        document.getElementById('winner-name').textContent = winner.nombre_completo;
+        document.getElementById('winner-rubro').textContent = winner.rubro || 'Rol no especificado';
+        winnerModal.show();
+    }
+
+    async function loadParticipants() {
+        const reunionId = reunionFilter.value;
+        if (!reunionId) {
+            participants = [];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            spinBtn.disabled = true;
+            return;
+        }
+
+        Swal.fire({
+            title: 'Cargando participantes...',
+            didOpen: () => { Swal.showLoading() },
+            allowOutsideClick: false
+        });
+
+        try {
+            const response = await fetch(`{% url 'panel-admin:obtener_participantes_ruleta' %}?reunion_id=${reunionId}`);
+            const data = await response.json();
+
+            if (data.error || !data.participantes) {
+                throw new Error(data.error || 'Respuesta inválida del servidor.');
+            }
+
+            participants = data.participantes || [];
+            if (participants.length > 0) {
+                canvas.width = 500;
+                canvas.height = 500;
+                drawRoulette();
+                spinBtn.disabled = false;
+                Swal.fire({title: '¡Listo!', text: `${participants.length} participantes cargados en la ruleta.`, icon: 'success', timer: 1500, showConfirmButton: false});
+            } else {
+                spinBtn.disabled = true;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                Swal.fire('Vacío', 'No se encontraron participantes para esta selección.', 'info');
+            }
+        } catch (error) {
+            console.error('Error loading participants:', error);
+            Swal.fire('Error', 'No se pudieron cargar los participantes.', 'error');
+        } 
+    }
+
+    const confettiContainer = document.getElementById('confetti-container');
+    function launchConfetti() {
+        for (let i = 0; i < 100; i++) {
+            const confetti = document.createElement('div');
+            confetti.style.position = 'absolute';
+            confetti.style.width = `${Math.random() * 10 + 5}px`;
+            confetti.style.height = `${Math.random() * 10 + 5}px`;
+            confetti.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.top = `${-20}px`;
+            const anim = `fall ${Math.random() * 3 + 2}s linear forwards`;
+            confetti.style.animation = anim;
+            confettiContainer.appendChild(confetti);
+        }
+
+        setTimeout(() => {
+            confettiContainer.innerHTML = '';
+        }, 5000);
+    }
+
+    if (!document.getElementById('fall-animation-style')) {
+        const style = document.createElement('style');
+        style.id = 'fall-animation-style';
+        style.innerHTML = `@keyframes fall { to { transform: translateY(100vh) rotate(${Math.random() * 720}deg); opacity: 1; } }`;
+        document.head.appendChild(style);
+    }
+
+    spinBtn.addEventListener('click', spin);
+    reunionFilter.addEventListener('change', loadParticipants);
+
+    canvas.width = 500;
+    canvas.height = 500;
+});
+</script>
+
+</body>
+</html>

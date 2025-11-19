@@ -1,0 +1,132 @@
+{% extends 'inicio.html' %}
+{% load static %}
+ 
+{% block contenido %}
+<main class="container my-5">
+    <div class="text-center mb-5">
+        <h1>Directorio de Miembros</h1>
+        <p class="lead text-muted">Conecta con otros profesionales y emprendedores de la comunidad.</p>
+    </div>
+
+    <!-- Formulario de Búsqueda y Filtro -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label for="q" class="form-label">Buscar por nombre</label>
+                    <input type="text" name="q" class="form-control" placeholder="Buscar por nombre..." value="{{ request.GET.q }}">
+                </div>
+                <div class="col-md-2">
+                    <label for="rubro" class="form-label">Rol</label>
+                    <select name="rubro" class="form-select">
+                        <option value="">Todos los Roles</option>
+                        {% for item in RUBRO_CHOICES %}
+                                {% if item.1|first|length == 2 %} {# Es un optgroup si el primer elemento de la lista es una tupla (key, value) #}
+                                <optgroup label="{{ item.0 }}">
+                                    {% for key, value in item.1 %}<option value="{{ key }}" {% if request.GET.rubro == key %}selected{% endif %}>{{ value }}</option>{% endfor %}
+                                </optgroup>
+                            {% else %} {# Es una opción simple #}
+                                <option value="{{ item.0 }}" {% if request.GET.rubro == item.0 %}selected{% endif %}>{{ item.1 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="sede" class="form-label">Sede</label>
+                    <select name="sede" class="form-select">
+                        <option value="">Todas las Sedes</option>
+                        {% for item in SEDE_CHOICES %}
+                            {% if item.1|first|length == 2 %} {# Es un optgroup #}
+                                <optgroup label="{{ item.0 }}">
+                                    {% for key, value in item.1 %}
+                                        <option value="{{ key }}" {% if request.GET.sede == key %}selected{% endif %}>{{ value }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% else %} {# Es una opción simple #}
+                                <option value="{{ item.0 }}" {% if request.GET.sede == item.0 %}selected{% endif %}>{{ item.1 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="carrera" class="form-label">Carrera</label>
+                    <select name="carrera" class="form-select">
+                        <option value="">Todas las Carreras</option>
+                        {% for item in CARRERA_CHOICES %}
+                            {% if item.1|first|length == 2 %} {# Es un optgroup #}
+                                <optgroup label="{{ item.0 }}">
+                                    {% for key, value in item.1 %}
+                                        <option value="{{ key }}" {% if request.GET.carrera == key %}selected{% endif %}>{{ value }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            {% else %} {# Es una opción simple #}
+                                <option value="{{ item.0 }}" {% if request.GET.carrera == item.0 %}selected{% endif %}>{{ item.1 }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>Filtrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de Miembros -->
+    <div class="row g-4">
+        {% for miembro in miembros %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center shadow-sm d-flex flex-column {% if not miembro.perfil_publico %}opacity-50{% endif %}">
+                    <div class="card-body">
+                        <a href="{% url 'perfil_publico' miembro.id %}">
+                            {% if miembro.foto %}
+                                <img src="{{ miembro.foto.url }}" alt="Foto de {{ miembro.nombre }}" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                            {% else %}
+                                <img src="{% static 'img/persn.jpg' %}" alt="Sin foto" class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                            {% endif %}
+                        </a>
+                        <h5 class="card-title">{{ miembro.nombre }} {{ miembro.apellido }}</h5>
+                        <p class="card-text text-muted mb-1"><i class="bi bi-person-badge-fill me-1"></i>{{ miembro.get_rubro_real_display|default:"Sin rol" }}</p>
+                        {% if miembro.carrera %}<p class="card-text text-muted mb-1"><i class="bi bi-mortarboard-fill me-1"></i>{{ miembro.get_carrera_real_display }}</p>{% endif %}
+                        {% if miembro.sede %}<p class="card-text text-muted mb-1"><i class="bi bi-building-fill me-1"></i>Sede {{ miembro.get_sede_real_display }}</p>{% endif %}
+                        
+                        {# Eliminado: nombre_empresa ya no existe #}
+
+                        {% if request.user_is_admin and not miembro.perfil_publico %}
+                            <span class="badge bg-danger">Oculto</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-white border-0 pt-0">
+                        <a href="{% url 'perfil_publico' miembro.id %}" class="btn btn-outline-primary btn-sm mt-auto mb-2">Ver Perfil</a>
+                        
+                        {% if request.user_is_admin and request.user_id != miembro.id %}
+                        <div class="admin-actions border-top pt-2 mt-2">
+                            <small class="text-muted d-block mb-1">Acciones de Admin</small>
+                            <a href="{% url 'panel-admin:toggle_destacado_usuario' miembro.id %}" class="btn btn-sm {% if miembro.destacado %}btn-warning{% else %}btn-outline-warning{% endif %}" title="{% if miembro.destacado %}Quitar destacado{% else %}Destacar miembro{% endif %}">
+                                <i class="bi {% if miembro.destacado %}bi-star-fill{% else %}bi-star{% endif %}"></i>
+                            </a>
+                            {% if miembro.perfil_publico %}
+                                <a href="{% url 'panel-admin:toggle_visibilidad_usuario' miembro.id %}" class="btn btn-sm btn-outline-secondary" title="Ocultar del directorio">
+                                    <i class="bi bi-eye-slash-fill"></i>
+                                </a>
+                            {% else %}
+                                <button class="btn btn-sm btn-secondary" disabled title="El usuario ha configurado su perfil como privado."><i class="bi bi-eye-slash-fill"></i></button>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info text-center">
+                    No se encontraron miembros que coincidan con tu búsqueda.
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

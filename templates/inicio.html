@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inacap</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { 
+            font-family: 'Poppins', Arial, sans-serif; 
+            background-color: #f4f7f6;
+            
+            /* --- INICIO: Solución para Sticky Footer --- */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            /* --- FIN: Solución para Sticky Footer --- */
+        }
+        /* Hace que el contenido principal ocupe el espacio disponible */
+        main {
+            flex: 1 0 auto;
+        }
+        .navbar {
+            background: linear-gradient(to right, #D90429, #A9001F);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+
+        /* El header se elimina para usar el navbar de Bootstrap */
+        .testimonial {
+            position: relative;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px; /* Aumentado el padding para más espacio interno */
+            margin-bottom: 15px;
+            background-color: #fff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Para contener el pseudo-elemento */
+        }
+        .testimonial::before {
+            content: '“';
+            position: absolute;
+            top: -20px;
+            left: 5px;
+            font-size: 100px;
+            color: #e9ecef;
+            z-index: 0;
+            line-height: 1;
+        }
+        .testimonial-body {
+            font-style: italic;
+            color: #495057;
+            flex-grow: 1;
+            position: relative; /* Para que esté sobre el pseudo-elemento */
+        }
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+        footer { background: linear-gradient(to right, #D90429, #A9001F); color: white; padding: 30px 20px; }
+        footer a { color: white; text-decoration: none; } 
+        footer h6 { margin-bottom: 10px; }
+        
+        /* Estilos para la sección de bienvenida (carrusel) */
+        #heroCarousel {
+            margin-bottom: 3rem; /* Espacio antes de la siguiente sección */
+            border-radius: 0; /* Ocupa todo el ancho */
+        }
+
+        .hero-section {
+            height: 80vh; /* Altura del 80% de la ventana */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background-size: cover;
+            background-position: center;
+            text-align: center;
+        }
+        /* Nueva forma: Clases para cada fondo del carrusel */
+        .hero-slide-1 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("{% static 'img/fondo.png' %}");
+        }
+        .hero-slide-2 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("{% static 'img/fondo2.jpg' %}");
+        }
+        .hero-slide-3 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("{% static 'img/fondo3.jpg' %}");
+        }
+        .hero-slide-4 {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("{% static 'img/fondo4.jpg' %}");
+        }
+        /* --- Fin de la nueva forma --- */
+
+        .hero-content {
+            max-width: 800px;
+            padding: 2rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
+        }
+        .hero-content h1 {
+            font-weight: 700;
+            font-size: 3.2rem;
+        }
+        .hero-content p {
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .hero-content .btn {
+            font-weight: 600;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        .hero-content .btn:hover {
+            transform: scale(1.05);
+        }
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            padding: 1.2rem;
+        }
+
+        /* Estilos de las tarjetas de reunión */
+        .reunion-card-wrapper { position: relative; }
+        .reunion-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            background-color: #fff;
+            height: 100%; /* Asegura que todas las tarjetas en una fila tengan la misma altura */
+        }
+        .reunion-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        .reunion-date-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #343a40;
+            padding: 8px 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 400; /* Letra más delgada */
+            line-height: 1;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+        }
+        .reunion-date-badge i { color: #D90429; }
+        .reunion-card-img {
+            height: 200px; 
+            object-fit: cover; 
+            border-top-left-radius: 12px; 
+            border-top-right-radius: 12px;
+        }
+        .card-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .reunion-countdown {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 2;
+        }
+
+        /* Estilos para la lista de detalles en el modal */
+        .modal-details {
+            list-style: none;
+            padding-left: 0;
+        }
+        .modal-details li { margin-bottom: 0.75rem; }
+        
+
+        /* Estilos mejorados para los modales */
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+        .modal-header {
+            background: linear-gradient(to right, #D90429, #A9001F);
+            color: white;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+        }
+        .modal-header .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        /* Estilos para la nueva sección de estadísticas y "cómo funciona" */
+        .how-it-works-section {
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            padding: 2.5rem 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid #e9ecef;
+        }
+        .feature-item, .stat-item {
+            text-align: center;
+        }
+        .feature-item i {
+            font-size: 2.5rem;
+            color: #D90429;
+            margin-bottom: 0.5rem;
+        }
+        .stat-item .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #D90429;
+        }
+        .stat-item .stat-label {
+            font-size: 1rem;
+            color: #6c757d;
+        }
+        .cta-section {
+            background: linear-gradient(to right, #D90429, #A9001F);
+            color: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .cta-section h3 {
+            font-weight: 700;
+        }
+        .cta-section .btn-cta {
+            background-color: white;
+            color: #D90429;
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+        }
+
+        /* Estilos para las burbujas de chat de soporte (movido aquí) */
+        .chat-bubble-admin { background-color: #FADBDD; }
+        .chat-bubble-user { background-color: #e9ecef; }
+
+        /* --- INICIO: Estilos para Header Interactivo --- */
+        @media (min-width: 992px) { /* Solo se aplica en pantallas grandes (PC) */
+            /* Estilo para la búsqueda colapsable */
+            .search-form-interactive {
+                position: relative;
+            }
+            .search-form-interactive .form-control {
+                width: 0;
+                padding: .375rem 0;
+                border: none;
+                opacity: 0;
+                transition: width 0.4s ease-in-out, opacity 0.3s ease-in-out, padding 0.4s ease-in-out;
+            }
+            .search-form-interactive.active .form-control {
+                width: 200px; /* Ancho del buscador al expandirse */
+                padding: .375rem .75rem;
+                opacity: 1;
+                border: 1px solid #ced4da;
+            }
+
+            /* Estilo para el perfil interactivo */
+            .profile-interactive .profile-name {
+                max-width: 0;
+                overflow: hidden;
+                opacity: 0;
+                transition: max-width 0.4s ease-in-out, opacity 0.3s ease-in-out, margin-left 0.4s ease-in-out;
+                white-space: nowrap;
+                margin-left: 0;
+            }
+            .profile-interactive:hover .profile-name {
+                max-width: 150px; /* Ancho para el nombre */
+                opacity: 1;
+                margin-left: 0.5rem; /* Espacio entre la imagen y el nombre */
+            }
+        }
+        /* --- FIN: Estilos para Header Interactivo --- */
+
+        /* --- INICIO: Estilos para el Menú de Navegación Inferior (Móvil) --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to right, #D90429, #A9001F);
+            border-top: 1px solid #e9ecef;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1030; /* Asegura que esté sobre el contenido */
+        }
+        .bottom-nav .nav-link {
+            flex-grow: 1; /* Distribución equitativa */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 5px;
+            color: rgba(255, 255, 255, 0.7); /* Íconos inactivos con ligera transparencia */
+            font-size: 0.7rem; /* Tamaño del texto pequeño */
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
+        }
+        .bottom-nav .nav-link i {
+            font-size: 1.5rem; /* Tamaño de los íconos */
+            margin-bottom: 2px;
+        }
+        .bottom-nav .nav-link:hover {
+            color: #ffffff; /* Color blanco sólido al pasar el mouse */
+        }
+        .bottom-nav .nav-link.active {
+            color: #ffffff; /* El ícono activo es blanco sólido */
+            background-color: rgba(255, 255, 255, 0.15); /* Fondo sutil para destacar */
+            border-radius: 10px;
+            transform: scale(1.05); /* Un poco más grande para resaltar */
+        }
+        /* --- FIN: Estilos para el Menú de Navegación Inferior (Móvil) --- */
+
+        /* --- INICIO: Media Query para el padding del menú móvil --- */
+        @media (max-width: 991.98px) { /* Se aplica hasta el breakpoint 'lg' de Bootstrap */
+            body {
+                padding-bottom: 80px; /* Espacio para el menú fijo inferior en móviles */
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark" style="padding: 0.8rem 0;" id="mainNav">
+    <div class="container">
+        <!-- Logo y nombre -->
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'inicio' %}">
+            <img src="{% static 'img/logo.png' %}" class="img-fluid rounded me-3" alt="Logo Inacap" style="height:55px;">
+            <div>
+                <span class="fw-bold fs-4 d-block" style="line-height: 1;">Inacap</span>
+                <small class="d-none d-sm-block" style="font-size: 0.7rem; opacity: 0.8;">Formando a los profesionales del mañana</small>
+            </div>
+        </a>
+        
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav ms-auto align-items-center">
+                {% if usuario %} 
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'directorio_miembros' %}">Explorar</a>
+                </li>
+
+                <li class="nav-item d-none d-lg-block">
+                    <form action="{% url 'directorio_miembros' %}" method="GET" class="d-flex align-items-center search-form-interactive" id="interactiveSearch">
+                        <input type="text" name="q" class="form-control form-control-sm" placeholder="Buscar miembros...">
+                        <button class="btn btn-outline-light ms-2" type="button" id="searchToggleBtn"><i class="bi bi-search"></i></button>
+                    </form>
+                </li>
+                <li class="nav-item d-none d-lg-block ms-2">
+                    <button class="btn btn-outline-light" type="button" data-bs-toggle="modal" data-bs-target="#qrModal" title="Mi QR">
+                        <i class="bi bi-qr-code"></i>
+                    </button>
+                </li>
+
+                <!-- Botón Panel Admin (si el usuario es admin o ayudante) -->
+                {% if usuario.es_admin or usuario.es_ayudante %}
+                <li class="nav-item d-none d-lg-block ms-2">
+                    <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-light"><i class="bi bi-shield-lock-fill me-1"></i> Admin</a>
+                </li>
+                {% endif %}
+
+                <li class="nav-item dropdown ms-lg-2">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center profile-interactive" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {% if usuario.foto %}
+                            <img src="{{ usuario.foto.url }}" alt="Usuario" class="rounded-circle" style="width:35px; height:35px; object-fit:cover;">
+                        {% else %}
+                            <img src="{% static 'img/persn.jpg' %}" alt="Usuario" class="rounded-circle" style="width:35px; height:35px; object-fit:cover;">
+                        {% endif %}
+                        <span class="profile-name">{{ usuario.nombre }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="{% url 'perfil' %}"><i class="bi bi-person-fill me-2"></i>Ver Mi Perfil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                    <li class="nav-item"><a href="{% url 'registro' %}" class="btn btn-light">Registro</a></li>
+                    <li class="nav-item ms-2"><a href="{% url 'login' %}" class="btn btn-outline-light">Iniciar Sesión</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Contenedor para los mensajes de Django (ahora fuera del main) -->
+{% if messages %}
+<div id="django-messages" style="display: none;">
+    {% for message in messages %}
+    <div class="django-message"
+         data-text="{{ message }}"
+         data-icon="{{ message.tags }}"
+         data-title="{{ message.tags|capfirst }}">
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+
+{% block contenido %}
+
+<!-- Carrusel de Bienvenida (Ahora fuera del main container) -->
+<div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="7000">
+    <div class="carousel-inner">
+        {% include 'carousel_slides.html' %}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span><span class="visually-hidden">Anterior</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span><span class="visually-hidden">Siguiente</span>
+    </button>
+</div>
+
+<main class="container mt-4">    
+    <!-- Sección de Próximas Reuniones (Movida aquí para darle prioridad) -->
+    <div class="row g-4" id="eventos">
+        <div class="col-12">
+            <h2 class="text-center mb-4">Próximos Eventos</h2>
+            <div class="row g-lg-4 g-3">
+                {% for reunion in reuniones %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="reunion-card-wrapper">
+                        <div class="reunion-date-badge">
+                            <i class="bi bi-clock-history me-1"></i>
+                            {% if reunion.dias_restantes == 0 %}Hoy{% elif reunion.dias_restantes == 1 %}Mañana{% else %}Faltan {{ reunion.dias_restantes }} días{% endif %}
+                        </div>
+                        <div class="card reunion-card" data-bs-toggle="modal" data-bs-target="#reunionModal{{ reunion.id }}">
+                            {% if reunion.imagen %}
+                            <img src="{{ reunion.imagen.url }}" class="card-img-top reunion-card-img" alt="{{ reunion.detalle }}">
+                            {% endif %}
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">{{ reunion.detalle }}</h5>
+                                <p class="card-text text-muted flex-grow-1">{{ reunion.descripcion|truncatewords:20 }}</p>
+                                <div class="mt-auto pt-2">
+                                    <p class="text-muted small mb-2"><i class="bi bi-geo-alt-fill me-2 text-primary"></i>{{ reunion.ubicacion }}</p>
+                                    
+                                {% if usuario %}
+                                    {% if usuario in reunion.asistentes.all %}
+                                        <button class="btn btn-success w-100" disabled><i class="bi bi-patch-check-fill me-1"></i> Asistencia Confirmada</button>
+                                    {% elif usuario in reunion.interesados.all %}
+                                        <button class="btn btn-outline-danger w-100 toggle-interes-btn"
+                                                data-reunion-id="{{ reunion.id }}"
+                                                data-action-url="{% url 'toggle_interes' reunion.id %}">
+                                            <i class="bi bi-x-circle-fill me-1"></i> Quitar interés
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-primary w-100 toggle-interes-btn"
+                                                data-reunion-id="{{ reunion.id }}"
+                                                data-action-url="{% url 'toggle_interes' reunion.id %}">
+                                            <i class="bi bi-hand-thumbs-up-fill me-1"></i> Quiero asistir
+                                        </button>
+                                    {% endif %}
+                                {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        No hay eventos programados por el momento.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales para cada reunión -->
+    {% for reunion in reuniones %}
+    <div class="modal fade" id="reunionModal{{ reunion.id }}" tabindex="-1" aria-labelledby="reunionModalLabel{{ reunion.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reunionModalLabel{{ reunion.id }}">{{ reunion.detalle }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    {% if reunion.imagen %}
+                        <div class="text-center mb-4">
+                            <img src="{{ reunion.imagen.url }}" class="img-fluid rounded shadow-sm" style="max-height: 300px;" alt="{{ reunion.detalle }}">
+                        </div>
+                    {% endif %}
+                    <p>{{ reunion.descripcion }}</p>
+                    <hr class="my-4">
+                    <ul class="modal-details">
+                        <li><i class="bi bi-calendar-event me-2 text-success"></i><strong>Fecha:</strong> {{ reunion.fecha|date:"l, d \d\e F, Y" }} a las {{ reunion.fecha|date:"H:i" }} hrs.</li>
+                        <li><i class="bi bi-geo-alt-fill me-2 text-success"></i><strong>Lugar:</strong> {{ reunion.ubicacion }}</li>
+                        {% if reunion.direccion %}<li><i class="bi bi-signpost-split-fill me-2 text-success"></i><strong>Dirección:</strong> {{ reunion.direccion }}</li>{% endif %}
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    {% if usuario %}
+                        {% if usuario in reunion.asistentes.all %}
+                            <button class="btn btn-success" disabled><i class="bi bi-patch-check-fill me-1"></i> Asistencia Confirmada</button>
+                        {% elif usuario in reunion.interesados.all %}
+                            <button class="btn btn-outline-danger toggle-interes-btn"
+                                    data-reunion-id="{{ reunion.id }}"
+                                    data-action-url="{% url 'toggle_interes' reunion.id %}">
+                                <i class="bi bi-x-circle-fill me-1"></i> Quitar interés
+                            </button>
+                        {% else %}
+                            <button class="btn btn-primary toggle-interes-btn"
+                                    data-reunion-id="{{ reunion.id }}"
+                                    data-action-url="{% url 'toggle_interes' reunion.id %}">
+                                <i class="bi bi-hand-thumbs-up-fill me-1"></i> Quiero asistir
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if not usuario %}
+    <hr class="my-5 opacity-25">
+    <!-- Sección: Cómo Funciona y Estadísticas -->
+    <div class="how-it-works-section">
+        <div class="row gy-4 align-items-center">
+            <div class="col-12 text-center mb-4">
+                <h2>Conéctate con Eventos Universitarios</h2>
+                <p class="lead text-muted">Descubre, participa y enriquece tu experiencia académica.</p>
+            </div>
+            <!-- Pasos -->
+            <div class="col-md-4 feature-item">
+                <i class="bi bi-search"></i>
+                <h5 class="fw-bold">1. Explora Oportunidades</h5>
+                <p>Encuentra eventos, charlas y talleres relevantes para tu carrera y tus intereses.</p>
+            </div>
+            <div class="col-md-4 feature-item">
+                <i class="bi bi-calendar-event-fill"></i>
+                <h5 class="fw-bold">2. Confirma tu Asistencia</h5>
+                <p>Asegura tu cupo con un solo clic y recibe toda la información que necesitas.</p>
+            </div>
+            <div class="col-md-4 feature-item">
+                <i class="bi bi-people-fill"></i>
+                <h5 class="fw-bold">3. Conecta y Aprende</h5>
+                <p>Participa activamente, conoce a otros miembros y expande tu red de contactos.</p>
+            </div>
+            <!-- Estadísticas -->
+            <div class="col-12"><hr class="my-4"></div>
+            <div class="col-md-4 stat-item">
+                <div class="stat-number">{{ total_usuarios }}</div>
+                <div class="stat-label">Miembros Activos</div>
+            </div>
+            <div class="col-md-4 stat-item">
+                <div class="stat-number">{{ total_reuniones }}</div>
+                <div class="stat-label">Eventos Realizados</div>
+            </div>
+            <div class="col-md-4 stat-item">
+                <div class="stat-number">{{ testimonios.count }}</div>
+                <div class="stat-label">Testimonios Compartidos</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <hr class="my-5 opacity-25">
+
+    <div class="row g-4 mb-5">
+        <!-- Sección de Testimonios Reorganizada -->
+        <div class="col-12">
+            <h2 class="text-center mb-4">¿Qué Dice Nuestra Comunidad?</h2>
+            {% if testimonios %}
+            <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    {% for testimonio in testimonios %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <div class="testimonial shadow-sm mx-auto" style="max-width: 700px;">
+                            <p class="testimonial-body">"{{ testimonio.comentarios }}"</p>
+                            <hr>
+                            <div class="testimonial-author">
+                                {% if testimonio.usuario.foto %}
+                                <img src="{{ testimonio.usuario.foto.url }}" alt="Foto de {{ testimonio.usuario.nombre }}" class="rounded-circle me-3" style="width: 45px; height: 45px; object-fit: cover;">
+                                {% else %}
+                                <img src="{% static 'img/person.jpg' %}" alt="Sin foto" class="rounded-circle me-3" style="width: 45px; height: 45px; object-fit: cover;">
+                                {% endif %}
+                                <div>
+                                    <strong class="d-block">{{ testimonio.usuario.nombre }} {{ testimonio.usuario.apellido }}</strong>
+                                    <small class="text-muted">{{ testimonio.usuario.get_rubro_real_display }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Siguiente</span>
+                </button>
+            </div>
+            {% else %}
+            <div class="alert alert-secondary text-center">Aún no hay testimonios destacados.</div>
+            {% endif %}
+        </div>
+
+    </div>
+</main>
+{% endblock contenido %}
+
+<!-- Scripts (movido aquí para que se cargue en todas las plantillas hijas) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script id="page-specific-scripts">
+document.addEventListener('DOMContentLoaded', function () {
+    // --- Lógica para la búsqueda interactiva en PC ---
+    const searchForm = document.getElementById('interactiveSearch');
+    const searchToggleBtn = document.getElementById('searchToggleBtn');
+    const searchInput = searchForm ? searchForm.querySelector('input') : null;
+
+    if (searchToggleBtn && searchInput) {
+        searchToggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Si el formulario ya está activo y tiene texto, lo envía. Si no, lo activa/desactiva.
+            if (searchForm.classList.contains('active') && searchInput.value.trim() !== '') {
+                searchForm.submit();
+            } else {
+                searchForm.classList.toggle('active');
+                if (searchForm.classList.contains('active')) {
+                    searchInput.focus();
+                }
+            }
+        });
+    }
+
+    // --- Lógica para los botones de interés en reuniones ---
+        // Obtenemos el token CSRF del cookie para las peticiones POST
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+
+        document.querySelectorAll('.toggle-interes-btn').forEach(button => {
+            button.addEventListener('click', function (event) {
+                event.preventDefault();
+                const reunionId = this.dataset.reunionId;
+                const url = this.dataset.actionUrl;
+
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrftoken,
+                        'Content-Type': 'application/json'
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Buscamos todos los botones para la misma reunión (en la tarjeta y en el modal)
+                    document.querySelectorAll(`.toggle-interes-btn[data-reunion-id="${reunionId}"]`).forEach(btn => {
+                        if (data.status === 'added') {
+                            btn.classList.remove('btn-primary');
+                            btn.classList.add('btn-outline-danger');
+                            btn.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i> Quitar interés';
+                        } else if (data.status === 'removed') {
+                            btn.classList.remove('btn-outline-danger');
+                            btn.classList.add('btn-primary');
+                            btn.innerHTML = '<i class="bi bi-hand-thumbs-up-fill me-1"></i> Quiero asistir';
+                        }
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+            });
+        });
+
+    // --- Lógica para mostrar mensajes de Django con SweetAlert2 ---
+    const messageElements = document.querySelectorAll('#django-messages .django-message');
+    messageElements.forEach(function(el) {
+        Swal.fire({
+            // Usamos un toast para mensajes de éxito (como el de bienvenida)
+            toast: el.dataset.icon === 'success',
+            position: el.dataset.icon === 'success' ? 'top-end' : 'center',
+            icon: el.dataset.icon,
+            title: el.dataset.text,
+            showConfirmButton: false,
+            timer: 3500, // 3.5 segundos
+            timerProgressBar: true
+        });
+    });
+    });
+</script>
+
+<footer class="mt-5">
+    <div class="container">
+        <div class="row align-items-center mb-3">
+            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                <h5>Inacap</h5>
+                <p class="mb-0">Formando a los profesionales del mañana</p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="https://www.instagram.com/inacap_oficial?igsh=MXNiOTN6NzgwcHZzcw==" target="_blank" class="ms-2">Instagram</a>
+                {% if usuario %}| <a href="{% url 'crear_ticket_soporte' %}" class="ms-2">Soporte</a>{% endif %}
+            </div>
+        </div>
+        <div class="text-center mt-4 border-top border-white border-opacity-25 pt-3">
+            <small>&copy; 2025 Inacap. Todos los derechos reservados.</small>
+        </div>
+    </div>
+</footer>
+
+<!-- Modal QR (traído desde perfil.html) -->
+{% if usuario %}
+<div class="modal fade" id="qrModal" tabindex="-1" aria-labelledby="qrModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-header">
+        <h5 class="modal-title" id="qrModalLabel">Tu Código QR de Asistencia</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-muted small">Muestra este código en el acceso del evento para registrar tu asistencia de forma rápida.</p>
+        {% if usuario.qr_code %}
+            <img src="{{ usuario.qr_code.url }}" alt="Código QR de {{ usuario.nombre }}" class="img-fluid rounded mb-3" style="max-width: 250px;">
+            <h5 class="fw-bold">¡Escanéame!</h5>
+            <p>{{ usuario.nombre }} {{ usuario.apellido }}</p>
+            <a href="{{ usuario.qr_code.url }}" class="btn btn-success" download="qr_ecosistemala_{{ usuario.rut }}.png">
+                <i class="bi bi-download me-1"></i> Descargar QR
+            </a>
+        {% else %}
+            <p class="alert alert-warning">Tu código QR aún no ha sido generado. Por favor, contacta a soporte.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Menú de Navegación Inferior para Móviles -->
+{% if usuario %}
+<footer class="bottom-nav d-lg-none">
+    <div class="d-flex justify-content-around p-2">
+        <a class="nav-link {% if request.resolver_match.url_name == 'inicio' %}active{% endif %}" href="{% url 'inicio' %}">
+            <i class="bi bi-house-door-fill"></i>
+            <small class="d-block">Inicio</small>
+        </a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'directorio_miembros' %}active{% endif %}" href="{% url 'directorio_miembros' %}">
+            <i class="bi bi-people-fill"></i>
+            <small class="d-block">Explorar</small>
+        </a>
+        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#qrModal"> {# El QR es un modal, no necesita estado activo #}
+            <i class="bi bi-qr-code"></i>
+            <small class="d-block">Mi QR</small>
+        </a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'mis_reuniones' %}active{% endif %}" href="{% url 'mis_reuniones' %}">
+            <i class="bi bi-calendar-check-fill"></i>
+            <small class="d-block">Actividad</small>
+        </a>
+        <a class="nav-link {% if request.resolver_match.url_name in 'perfil,editar_perfil,configuracion' %}active{% endif %}" href="{% url 'perfil' %}">
+            <i class="bi bi-person-circle"></i>
+            <small class="d-block">Perfil</small>
+        </a>
+    </div>
+</footer>
+{% else %}
+<!-- Barra inferior para visitantes -->
+<footer class="bottom-nav d-lg-none">
+    <div class="d-flex justify-content-around p-2">
+        <a href="{% url 'login' %}" class="btn btn-outline-light flex-grow-1 me-2">
+            Iniciar Sesión
+        </a>
+        <a href="{% url 'registro' %}" class="btn btn-light flex-grow-1">
+            Regístrate
+        </a>
+    </div>
+</footer>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,280 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Perfil - Inacap</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background: linear-gradient(to right, #D90429, #A9001F);
+            padding: 15px 20px;
+            color: white;
+        }
+        main {
+            flex: 1;
+        }
+        .card {
+            border-radius: 10px;
+        }
+        footer {
+            background: linear-gradient(to right, #D90429, #A9001F);
+            color: white;
+            padding: 30px 20px;
+        }
+        footer a {
+            color: white;
+            text-decoration: none;
+        }
+        /* --- Estilos para el nuevo selector de imagen --- */
+        .profile-pic-wrapper {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto;
+            border: 3px solid #ddd;
+        }
+        .profile-pic {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .profile-pic-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .profile-pic-wrapper:hover .profile-pic-overlay {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+<header class="d-flex justify-content-between align-items-center p-3">
+    <div class="container d-flex justify-content-between align-items-center">
+        <!-- Logo y nombre -->
+        <a href="{% url 'inicio' %}" class="d-flex align-items-center text-white text-decoration-none"> 
+            <img src="{% static 'img/logo.png' %}" class="img-fluid rounded me-2" alt="Logo Inacap" style="height:50px;">
+            <div>
+                <span class="fw-bold fs-5 d-block">Inacap</span>
+                <small>Formando a los profesionales del mañana</small>
+            </div>
+        </a>
+    </div>
+</header>
+
+<main class="container my-5">
+    <div class="card shadow p-4 mx-auto" style="max-width: 600px;">
+        <h2 class="mb-4 text-center">Editar Perfil</h2>
+        <form method="POST" enctype="multipart/form-data" class="form-container">
+            {% csrf_token %} 
+
+            <!-- Bloque para mostrar errores generales del formulario -->
+            {% if form.non_field_errors or form.errors %}
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">¡Ups! Algo salió mal.</h4>
+                <p>Por favor, corrige los siguientes errores para continuar:</p>
+                <hr>
+                {{ form.non_field_errors }}
+                {% for field in form %}{% for error in field.errors %}<p class="mb-1"><strong>{{ field.label }}:</strong> {{ error }}</p>{% endfor %}{% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre *</label>
+                    {{ form.nombre }}
+                    {% for error in form.nombre.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.apellido.id_for_label }}" class="form-label">Apellido *</label>
+                    {{ form.apellido }}
+                    {% for error in form.apellido.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.rut.id_for_label }}" class="form-label">RUT *</label>
+                    {{ form.rut }}
+                    {% for error in form.rut.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">Email *</label>
+                    {{ form.email }}
+                    {% for error in form.email.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6" id="sedeContainer">
+                    <label for="{{ form.sede.id_for_label }}" class="form-label">{{ form.sede.label }}</label>
+                    {{ form.sede }}
+                    {% for error in form.sede.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6" id="sedeOtroContainer" style="display: none;">
+                    <label for="{{ form.sede_otro.id_for_label }}" class="form-label">Especifica tu sede *</label>
+                    {{ form.sede_otro }}
+                    {% for error in form.sede_otro.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6" id="carreraContainer">
+                    <label for="{{ form.carrera.id_for_label }}" class="form-label">{{ form.carrera.label }}</label>
+                    {{ form.carrera }}
+                    {% for error in form.carrera.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6" id="carreraOtroContainer" style="display: none;">
+                    <label for="{{ form.carrera_otro.id_for_label }}" class="form-label">Especifica tu carrera *</label>
+                    {{ form.carrera_otro }}
+                    {% for error in form.carrera_otro.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6" id="rubroContainer">
+                    <label for="{{ form.rubro.id_for_label }}" class="form-label">{{ form.rubro.label }}</label>
+                    {{ form.rubro }}
+                    {% for error in form.rubro.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6" id="otroRubroContainer" style="display: none;">
+                    <label for="{{ form.rubro_otro.id_for_label }}" class="form-label">Especifica tu rol *</label>
+                    {{ form.rubro_otro }}
+                    {% for error in form.rubro_otro.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-md-6">
+                    <label for="{{ form.telefono.id_for_label }}" class="form-label">Teléfono</label>
+                    {{ form.telefono }}
+                    {% for error in form.telefono.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                </div>
+                
+                <!-- Campo Cantidad de Asistencias (solo para Ayudante/Admin) -->
+                {% if form.cantidad_asistencias %}
+                <div class="col-md-6">
+                    <label for="{{ form.cantidad_asistencias.id_for_label }}" class="form-label">Cantidad de Asistencias</label>
+                    {{ form.cantidad_asistencias }}
+                </div>
+                {% endif %}
+                <div class="col-12 text-center">
+                    <label class="form-label d-block mb-3">Foto de Perfil</label>
+                    <div class="profile-pic-wrapper">
+                        <img id="fotoPreview" src="{% if usuario.foto %}{{ usuario.foto.url }}{% else %}{% static 'img/persn.jpg' %}{% endif %}" alt="Foto de perfil" class="profile-pic">
+                        <div class="profile-pic-overlay">
+                            <label for="{{ form.foto.id_for_label }}" class="btn btn-sm btn-light" title="Cambiar foto">
+                                <i class="bi bi-camera-fill fs-5"></i>
+                            </label>
+                            {% if usuario.foto %}
+                            <label for="{{ form.foto.id_for_label }}-clear_id" class="btn btn-sm btn-danger" title="Eliminar foto">
+                                <i class="bi bi-trash3-fill fs-5"></i>
+                            </label>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="d-none">
+                        {{ form.foto }}
+                    </div>
+                    {% for error in form.foto.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    <small class="form-text text-muted mt-2 d-block">Pasa el mouse sobre la imagen para cambiarla.</small>
+                </div>
+
+                <!-- Sección de Roles de Administrador (solo visible para admins) -->
+                {% if form.es_admin %}
+                <div class="col-12">
+                    <hr>
+                    <h5 class="mb-3">Permisos de Administrador</h5>
+                    <div class="d-flex justify-content-around">
+                        <div class="form-check form-switch">
+                            {{ form.es_admin }}
+                            <label class="form-check-label" for="{{ form.es_admin.id_for_label }}">Administrador</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            {{ form.es_ayudante }}
+                            <label class="form-check-label" for="{{ form.es_ayudante.id_for_label }}">Ayudante</label>
+                        </div>
+                        <div class="form-check form-switch">
+                            {{ form.es_totem }}
+                            <label class="form-check-label" for="{{ form.es_totem.id_for_label }}">Tótem</label>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="text-center mt-4 d-grid gap-2">
+                <button type="submit" class="btn btn-dark">Guardar Cambios</button>
+                {% if request.session.usuario_id != usuario.id and request.user_is_admin or request.user_is_ayudante %}
+                    <a href="{% url 'panel-admin:gestion_usuarios' %}" class="btn btn-secondary">Cancelar</a>
+                {% else %}
+                    <a href="{% url 'perfil' %}" class="btn btn-secondary">Cancelar</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer class="mt-auto">
+    <div class="container text-center py-3">
+        <small>&copy; 2025 Inacap. Todos los derechos reservados.</small>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Vista previa de la foto
+    const fotoInput = document.getElementById('{{ form.foto.id_for_label }}');
+    const fotoPreview = document.getElementById('fotoPreview'); 
+
+    fotoInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                fotoPreview.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Lógica para mostrar/ocultar el campo "Otro Rol", "Otra Sede", "Otra Carrera"
+    document.addEventListener('DOMContentLoaded', function() {
+        const rubroSelect = document.getElementById('{{ form.rubro.id_for_label }}');
+        const otroRubroContainer = document.getElementById('otroRubroContainer');
+        const rubroContainer = document.getElementById('rubroContainer');
+
+        const sedeSelect = document.getElementById('{{ form.sede.id_for_label }}');
+        const sedeOtroContainer = document.getElementById('sedeOtroContainer');
+        const sedeContainer = document.getElementById('sedeContainer');
+
+        const carreraSelect = document.getElementById('{{ form.carrera.id_for_label }}');
+        const carreraOtroContainer = document.getElementById('carreraOtroContainer');
+        const carreraContainer = document.getElementById('carreraContainer');
+
+        function toggleVisibility(selectElement, otherContainerElement, mainContainerElement) {
+            const isOtro = selectElement.value === 'otro';
+            otherContainerElement.style.display = isOtro ? 'block' : 'none';
+            mainContainerElement.classList.toggle('col-md-12', isOtro);
+            mainContainerElement.classList.toggle('col-md-6', !isOtro);
+        }
+
+        [rubroSelect, sedeSelect, carreraSelect].forEach(select => {
+            if (select) {
+                const otherContainer = select === rubroSelect ? otroRubroContainer : (select === sedeSelect ? sedeOtroContainer : carreraOtroContainer);
+                const mainContainer = select === rubroSelect ? rubroContainer : (select === sedeSelect ? sedeContainer : carreraContainer);
+                select.addEventListener('change', () => toggleVisibility(select, otherContainer, mainContainer));
+                toggleVisibility(select, otherContainer, mainContainer); // Ejecutar al cargar la página
+            }
+        });
+    });
+</script>
+</body>
+</html>

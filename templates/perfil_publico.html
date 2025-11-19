@@ -1,0 +1,31 @@
+{% extends 'inicio.html' %}
+{% load static %}
+
+{% block contenido %}
+<main class="container my-5">
+    <div class="card shadow-sm text-center mx-auto p-4" style="max-width: 600px; border-radius: 10px;">
+        {% if usuario.foto %}
+            <img src="{{ usuario.foto.url }}" alt="Avatar de {{ usuario.nombre }}" class="rounded-circle mx-auto" style="width: 120px; height: 120px; object-fit: cover; margin-bottom: 15px;">
+        {% else %}
+            <img src="{% static 'img/persn.jpg' %}" alt="Avatar por defecto" class="rounded-circle mx-auto" style="width: 120px; height: 120px; object-fit: cover; margin-bottom: 15px;">
+        {% endif %}
+
+        <h3 class="mt-2">{{ usuario.nombre }} {{ usuario.apellido }}</h3>
+        <p class="text-muted mb-1"><i class="bi bi-person-badge-fill me-1"></i>{{ usuario.rubro|default:"Sin rubro especificado" }}</p>
+        <div class="text-start">
+            <p class="text-center text-muted mt-3"><i class="bi bi-envelope-fill me-1"></i>{{ usuario.email }} | <i class="bi bi-telephone-fill ms-2 me-1"></i>{{ usuario.telefono|default:"No especificado" }}</p>
+        </div>
+
+        {% if usuario.nombre_empresa %}
+            <hr class="my-4">
+            <div class="text-start">
+                <h5 class="text-center mb-3"><i class="bi bi-building me-2"></i>{{ usuario.nombre_empresa }}</h5>
+                {% if usuario.rubro_empresa %}<p><strong>Rubro:</strong> {{ usuario.rubro_empresa }}</p>{% endif %}
+                {% if usuario.descripcion_empresa %}<p><strong>Descripción:</strong> {{ usuario.descripcion_empresa }}</p>{% endif %}
+                {% if usuario.web_empresa %}<p><strong>Sitio Web:</strong> <a href="{{ usuario.web_empresa }}" target="_blank">{{ usuario.web_empresa }}</a></p>{% endif %}
+                {% if usuario.buscando %}<p class="text-primary fst-italic mt-3"><i class="bi bi-search me-1"></i><strong>Busca:</strong> {{ usuario.buscando }}</p>{% endif %}
+            </div>
+        {% endif %}
+    </div>
+</main>
+{% endblock contenido %}
