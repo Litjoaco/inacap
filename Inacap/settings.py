@@ -138,3 +138,5 @@ MEDIA_URL='/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# --- INICIO: Definir modelo de usuario personalizado ---
+AUTH_USER_MODEL = 'usuario.Usuario'
