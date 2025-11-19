@@ -810,44 +810,26 @@ def obtener_participantes_ruleta(request):
 @solo_admin_required
 def registrar_ganador_sorteo(request):
     """
-    Endpoint API para guardar el ganador de un sorteo en el historial.
+    Endpoint API para guardar el ganador de un sorteo en la base de datos.
     """
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
             ganador_id = data.get('ganador_id')
             fuente_id = data.get('fuente_id')
-
             ganador = get_object_or_404(Usuario, id=ganador_id)
             
-            fuente_texto = "Desconocido"
             if fuente_id == 'todos':
                 fuente_texto = "Todos los Usuarios"
-            elif fuente_id and fuente_id.isdigit():
+            else:
                 reunion = get_object_or_404(Reunion, id=fuente_id)
                 fuente_texto = f"Asistentes a {reunion.detalle}"
-
-            GanadorSorteo.objects.create(
-                ganador=ganador,
-                fuente_participantes=fuente_texto
-            )
+            
+            GanadorSorteo.objects.create(ganador=ganador, fuente_participantes=fuente_texto)
             return JsonResponse({'status': 'ok', 'message': 'Ganador registrado con éxito.'})
-        except (json.JSONDecodeError, KeyError, Usuario.DoesNotExist, Reunion.DoesNotExist):
+        except (json.JSONDecodeError, KeyError, Usuario.DoesNotExist, Reunion.DoesNotExist, ValueError):
             return JsonResponse({'status': 'error', 'message': 'Datos inválidos.'}, status=400)
-
     return JsonResponse({'status': 'error', 'message': 'Método no permitido'}, status=405)
-
-@solo_admin_required
-def limpiar_historial_sorteos(request):
-    """
-    Elimina todos los registros del historial de ganadores.
-    """
-    if request.method == 'POST':
-        GanadorSorteo.objects.all().delete()
-        messages.success(request, 'El historial de ganadores ha sido limpiado.')
-        return redirect('panel-admin:ruleta_ganador')
-    
-    return redirect('panel-admin:ruleta_ganador')
 
 @solo_admin_required
 def limpiar_historial_sorteos(request):
