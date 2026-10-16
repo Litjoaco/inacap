@@ -5,7 +5,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from usuario.models import Usuario, RUBRO_CHOICES, SEDE_CHOICES, CARRERA_CHOICES
-from usuario.forms import AdminUsuarioForm, AyudanteUsuarioForm, UsuarioForm
+from usuario.forms import AdminUsuarioForm, AyudanteUsuarioForm, UsuarioForm, validate_rut
 from .models import Reunion, EtiquetaPlantilla, Encuesta, RespuestaEncuesta, SoporteTicket, TicketRespuesta, GanadorSorteo
 from .forms import ReunionForm, EtiquetaPlantillaForm, EncuestaForm, SoporteTicketAdminForm, TicketRespuestaForm
 from django.urls import reverse
@@ -2450,65 +2450,100 @@ def crear_usuario_rapido_asistencia(request, reunion_id):
             }
         }, status=409)
 
-    form = UsuarioForm(data)
-    if form.is_valid():
-        usuario = form.save()
+    rut_raw = data.get('rut', '')
+    is_valid_rut, rut_limpio = validate_rut(rut_raw)
 
-        # Acreditar asistencia al evento
-        if marcar_asistencia:
-            if not reunion.asistentes.filter(id=usuario.id).exists():
-                reunion.asistentes.add(usuario)
-                usuario.cantidad_asistencias = F('cantidad_asistencias') + 1
-                usuario.save(update_fields=['cantidad_asistencias'])
-                usuario.refresh_from_db()
+    usuario = None
+    es_usuario_existente = False
 
-        rubro_display = "Participante"
-        if hasattr(usuario, 'get_rubro_real_display') and callable(usuario.get_rubro_real_display):
-            rubro_display = usuario.get_rubro_real_display()
-        elif usuario.rubro:
-            rubro_display = str(usuario.rubro)
+    if is_valid_rut and rut_limpio:
+        usuario = Usuario.objects.filter(rut=rut_limpio).first()
+        if usuario:
+            es_usuario_existente = True
+            # Si ya está acreditado en esta reunión específica
+            if reunion.asistentes.filter(id=usuario.id).exists():
+                return JsonResponse({
+                    'status': 'error',
+                    'message': f'El participante {usuario.nombre} {usuario.apellido} ({usuario.rut_formateado() if hasattr(usuario, "rut_formateado") else usuario.rut}) ya está acreditado en este evento.'
+                }, status=400)
 
-        sede_display = usuario.get_sede_real_display() if hasattr(usuario, 'get_sede_real_display') else str(usuario.sede or 'INACAP')
-        carrera_display = usuario.get_carrera_real_display() if hasattr(usuario, 'get_carrera_real_display') else str(usuario.carrera or '')
+            # Actualizar datos complementarios si se aportaron
+            if data.get('nombre') and not usuario.nombre:
+                usuario.nombre = data.get('nombre').strip()
+            if data.get('apellido') and not usuario.apellido:
+                usuario.apellido = data.get('apellido').strip()
+            if data.get('telefono'):
+                usuario.telefono = data.get('telefono').strip()
+            if data.get('institucion_empresa'):
+                usuario.institucion_empresa = data.get('institucion_empresa').strip()
+            if data.get('tipo_usuario') == 'inacap' and data.get('rubro'):
+                usuario.rubro = data.get('rubro')
+            elif data.get('tipo_usuario') == 'externo':
+                usuario.rubro = 'externo'
+            usuario.save()
 
-        asistente_info = {
-            'id': usuario.id,
-            'nombre': usuario.nombre,
-            'apellido': usuario.apellido,
-            'nombre_completo': f"{usuario.nombre} {usuario.apellido}",
-            'rut': usuario.rut_formateado() if hasattr(usuario, 'rut_formateado') else usuario.rut,
-            'rubro': rubro_display,
-            'sede': sede_display,
-            'carrera': carrera_display,
-            'foto_url': usuario.foto.url if usuario.foto else '/static/img/persn.jpg',
-            'asistencias': usuario.cantidad_asistencias
+    if not usuario:
+        form = UsuarioForm(data)
+        if form.is_valid():
+            usuario = form.save()
+        else:
+            primer_error = None
+            for campo, errores in form.errors.items():
+                if errores:
+                    primer_error = f"{campo.capitalize()}: {errores[0]}"
+                    break
+            return JsonResponse({
+                'status': 'error',
+                'errors': form.errors,
+                'message': primer_error or 'Por favor verifica los campos ingresados.'
+            }, status=400)
+
+    # Acreditar asistencia al evento
+    if marcar_asistencia:
+        if not reunion.asistentes.filter(id=usuario.id).exists():
+            reunion.asistentes.add(usuario)
+            usuario.cantidad_asistencias = F('cantidad_asistencias') + 1
+            usuario.save(update_fields=['cantidad_asistencias'])
+            usuario.refresh_from_db()
+
+    rubro_display = "Participante"
+    if hasattr(usuario, 'get_rubro_real_display') and callable(usuario.get_rubro_real_display):
+        rubro_display = usuario.get_rubro_real_display()
+    elif usuario.rubro:
+        rubro_display = str(usuario.rubro)
+
+    sede_display = usuario.get_sede_real_display() if hasattr(usuario, 'get_sede_real_display') else str(usuario.sede or 'INACAP')
+    carrera_display = usuario.get_carrera_real_display() if hasattr(usuario, 'get_carrera_real_display') else str(usuario.carrera or '')
+
+    asistente_info = {
+        'id': usuario.id,
+        'nombre': usuario.nombre,
+        'apellido': usuario.apellido,
+        'nombre_completo': f"{usuario.nombre} {usuario.apellido}",
+        'rut': usuario.rut_formateado() if hasattr(usuario, 'rut_formateado') else usuario.rut,
+        'rubro': rubro_display,
+        'sede': sede_display,
+        'carrera': carrera_display,
+        'foto_url': usuario.foto.url if usuario.foto else '/static/img/persn.jpg',
+        'asistencias': usuario.cantidad_asistencias
+    }
+
+    print_url = reverse('imprimir_etiqueta_reunion', args=[reunion.id, usuario.id]) if reunion.imprimir_etiqueta_al_asistir else reverse('imprimir_etiqueta', args=[usuario.id])
+
+    msj_exito = f'¡Participante {usuario.nombre} {usuario.apellido} acreditado con éxito!' if es_usuario_existente else f'¡Participante {usuario.nombre} {usuario.apellido} creado y acreditado con éxito!'
+
+    return JsonResponse({
+        'status': 'ok',
+        'message': msj_exito,
+        'asistente': asistente_info,
+        'print_url': print_url,
+        'aforo_info': {
+            'tiene_limite': reunion.tiene_aforo_limitado(),
+            'aforo_maximo': reunion.aforo_maximo,
+            'total_asistentes': reunion.asistentes.count(),
+            'porcentaje_aforo': reunion.porcentaje_aforo(),
+            'aforo_completo': reunion.aforo_completo(),
+            'cupos_disponibles': reunion.cupos_disponibles()
         }
-
-        print_url = reverse('imprimir_etiqueta_reunion', args=[reunion.id, usuario.id]) if reunion.imprimir_etiqueta_al_asistir else reverse('imprimir_etiqueta', args=[usuario.id])
-
-        return JsonResponse({
-            'status': 'ok',
-            'message': f'¡Participante {usuario.nombre} {usuario.apellido} creado y acreditado con éxito!',
-            'asistente': asistente_info,
-            'print_url': print_url,
-            'aforo_info': {
-                'tiene_limite': reunion.tiene_aforo_limitado(),
-                'aforo_maximo': reunion.aforo_maximo,
-                'total_asistentes': reunion.asistentes.count(),
-                'porcentaje_aforo': reunion.porcentaje_aforo(),
-                'aforo_completo': reunion.aforo_completo(),
-                'cupos_disponibles': reunion.cupos_disponibles()
-            }
-        })
-    else:
-        primer_error = None
-        for campo, errores in form.errors.items():
-            if errores:
-                primer_error = f"{campo.capitalize()}: {errores[0]}"
-                break
-        return JsonResponse({
-            'status': 'error',
-            'errors': form.errors,
-            'message': primer_error or 'Por favor verifica los campos ingresados.'
-        }, status=400)
+    })
 

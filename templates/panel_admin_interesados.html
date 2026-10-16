@@ -502,6 +502,24 @@ function enviarCorreoMasivoSubmit(e) {
         Swal.fire('Error de Conexión', 'No se pudo comunicar con el servidor: ' + err, 'error');
     });
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const inputQ = document.querySelector('input[name="q"]');
+    if (inputQ) {
+        inputQ.addEventListener('input', () => {
+            const val = inputQ.value.toLowerCase().trim();
+            const accordions = document.querySelectorAll('.accordion-item');
+            accordions.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (!val || text.includes(val)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    }
+});
 </script>
 </body>
 </html>

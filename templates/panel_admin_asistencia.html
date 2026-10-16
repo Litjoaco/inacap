@@ -262,7 +262,7 @@
                     <div class="mb-3">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-light"><i class="bi bi-search text-muted"></i></span>
-                            <input type="text" id="filtroAsistentesInput" class="form-control" placeholder="Filtrar en esta lista..." onkeyup="filtrarListaAsistentes()">
+                            <input type="text" id="filtroAsistentesInput" class="form-control" placeholder="Buscar por nombre, apellido o RUT..." oninput="filtrarListaAsistentes()" onkeyup="filtrarListaAsistentes()">
                         </div>
                     </div>
 
@@ -325,7 +325,7 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 
-                <form id="form-crear-usuario-rapido" autocomplete="off">
+                <form id="form-crear-usuario-rapido" action="javascript:void(0);" autocomplete="off">
                     {% csrf_token %}
                     <div class="modal-body p-4">
                         
@@ -523,6 +523,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 osc.stop(audioCtx.currentTime + 0.25);
             }
         } catch(e) {}
+    }
+
     function imprimirEtiquetaGarantizada(url) {
         if (!url) return;
         const w = window.open(url, '_blank', 'width=650,height=450');
@@ -866,20 +868,56 @@ document.addEventListener('DOMContentLoaded', () => {
     $('#usuario_id').select2({
         theme: 'bootstrap-5',
         placeholder: 'Escribe un nombre o RUT para buscar...',
+        minimumInputLength: 0,
+        matcher: function(params, data) {
+            if ($.trim(params.term) === '') {
+                return data;
+            }
+            if (typeof data.text === 'undefined') {
+                return null;
+            }
+            const term = params.term.toLowerCase().replace(/[\.\-]/g, '').trim();
+            const text = data.text.toLowerCase().replace(/[\.\-]/g, '');
+            if (text.indexOf(term) > -1) {
+                return data;
+            }
+            return null;
+        }
     });
 });
 
 function filtrarListaAsistentes() {
-    const query = document.getElementById('filtroAsistentesInput').value.toLowerCase().trim();
+    const input = document.getElementById('filtroAsistentesInput');
+    if (!input) return;
+    const query = input.value.toLowerCase().trim();
+    const queryClean = query.replace(/[\.\-]/g, '');
     const items = document.querySelectorAll('#lista-asistentes .asistente-item');
+    let visibles = 0;
+
     items.forEach(item => {
         const text = item.textContent.toLowerCase();
-        if (text.includes(query)) {
+        const textClean = text.replace(/[\.\-]/g, '');
+        if (!query || text.includes(query) || textClean.includes(queryClean)) {
             item.style.setProperty('display', 'flex', 'important');
+            visibles++;
         } else {
             item.style.setProperty('display', 'none', 'important');
         }
     });
+
+    let noMatch = document.getElementById('filtro-sin-coincidencias-asistentes');
+    const lista = document.getElementById('lista-asistentes');
+    if (query && visibles === 0 && items.length > 0) {
+        if (!noMatch && lista) {
+            noMatch = document.createElement('li');
+            noMatch.id = 'filtro-sin-coincidencias-asistentes';
+            noMatch.className = 'list-group-item text-center text-muted py-3 small';
+            noMatch.innerHTML = '<i class="bi bi-search me-1 text-danger"></i> No hay participantes que coincidan con la búsqueda.';
+            lista.appendChild(noMatch);
+        }
+    } else if (noMatch) {
+        noMatch.remove();
+    }
 }
 
 function formatRUTString(val) {
@@ -976,6 +1014,17 @@ function abrirModalConRut(rut, nombre = '', apellido = '') {
 document.addEventListener('DOMContentLoaded', () => {
     toggleModalPerfil();
 
+    // Listeners directos en inputs para cambio instantáneo
+    document.querySelectorAll('input[name="modal_tipo_usuario"], input[name="modal_subtipo_externo"]').forEach(radio => {
+        radio.addEventListener('change', toggleModalPerfil);
+        radio.addEventListener('click', toggleModalPerfil);
+    });
+
+    const filtroInput = document.getElementById('filtroAsistentesInput');
+    if (filtroInput) {
+        filtroInput.addEventListener('input', filtrarListaAsistentes);
+    }
+
     const inputRutModal = document.getElementById('modal_input_rut');
     if (inputRutModal) {
         inputRutModal.addEventListener('input', (e) => {
@@ -1059,7 +1108,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload)
             })
             .then(res => res.json().then(data => ({ ok: res.ok, status: res.status, data })))
-            .then(({ ok, data }) => {
+            .then(({ ok, status, data }) => {
                 btnSubmit.disabled = false;
                 btnSubmit.innerHTML = originalBtnHtml;
 
@@ -1083,42 +1132,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             osc.stop(audioCtx.currentTime + 0.15);
                         } catch(e) {}
 
-                        // Insertar en la lista y sumar contador
-                        const listaAsistentes = document.getElementById('lista-asistentes');
-                        const contadorAsistentes = document.getElementById('contador-asistentes');
-                        const noAsistentesMsg = document.getElementById('no-asistentes');
-                        if (noAsistentesMsg) noAsistentesMsg.remove();
-
-                        const existente = document.getElementById(`asistente-${data.asistente.id}`);
-                        if (!existente && listaAsistentes) {
-                            const li = document.createElement('li');
-                            li.className = 'list-group-item asistente-item d-flex justify-content-between align-items-center p-2.5';
-                            li.id = `asistente-${data.asistente.id}`;
-                            li.innerHTML = `
-                                <div class="d-flex align-items-center">
-                                    <img src="${data.asistente.foto_url}" alt="${data.asistente.nombre}" class="asistente-img">
-                                    <div>
-                                        <span class="fw-bold d-block text-dark small">${data.asistente.nombre} ${data.asistente.apellido}</span>
-                                        <small class="text-muted font-monospace" style="font-size: 0.76rem;">${data.asistente.rut}</small>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-center gap-1">
-                                    <a href="/reunion/{{ reunion.id }}/etiqueta/${data.asistente.id}/" target="_blank" class="btn btn-outline-secondary btn-sm" title="Imprimir Credencial">
-                                        <i class="bi bi-printer-fill"></i>
-                                    </a>
-                                    <form action="/panel-admin/reuniones/{{ reunion.id }}/quitar-asistencia/${data.asistente.id}/" method="POST" onsubmit="return confirm('¿Quitar asistencia?');" class="d-inline">
-                                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Quitar asistencia">
-                                            <i class="bi bi-trash-fill"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            `;
-                            listaAsistentes.prepend(li);
-                            if (contadorAsistentes) {
-                                contadorAsistentes.textContent = parseInt(contadorAsistentes.textContent || '0') + 1;
-                            }
-                        }
+                        actualizarUIAgregarAsistente(data.asistente);
                     }
 
                     if (data.aforo_info) {
@@ -1136,7 +1150,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         timer: 2800,
                         showConfirmButton: false
                     });
-                } else if (res.status === 409 && data.status === 'aforo_completo') {
+                } else if (status === 409 && data.status === 'aforo_completo') {
                     if (data.aforo_info) actualizarMetricasAforo(data.aforo_info);
                     Swal.fire({
                         icon: 'warning',
