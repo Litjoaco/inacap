@@ -206,10 +206,10 @@
             </div>
         </a>
         <div class="d-flex align-items-center gap-2">
-            <button class="btn btn-light btn-sm fw-semibold text-danger shadow-sm" onclick="activarPestaña('tab-crear')">
+            <button class="btn btn-light btn-sm fw-semibold text-danger shadow-sm" onclick="activarPestaña('tab-crear')" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Crear o asignar una nueva encuesta">
                 <i class="bi bi-plus-circle-fill me-1"></i> Nueva Encuesta
             </button>
-            <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light btn-sm">
+            <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Regresar al panel principal de administración">
                 <i class="bi bi-arrow-left me-1"></i> Volver al Panel
             </a>
         </div>
@@ -391,20 +391,20 @@
                                 {% endif %}
                             </td>
                             <td class="text-end pe-3">
-                                <div class="btn-group btn-group-sm">
+                                <div class="d-inline-flex gap-2 align-items-center justify-content-end">
                                     <!-- Ver Resultados o Abrir/Descargar Archivo -->
                                     {% if e.tipo_encuesta == 'externa' %}
                                         {% if e.archivo_encuesta %}
-                                            <a href="{{ e.archivo_encuesta.url }}" target="_blank" class="btn btn-outline-success" title="Descargar / Ver Archivo de Encuesta">
+                                            <a href="{{ e.archivo_encuesta.url }}" target="_blank" class="btn btn-outline-success btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar / Ver archivo de la encuesta">
                                                 <i class="bi bi-file-earmark-arrow-down-fill"></i>
                                             </a>
                                         {% elif e.url_externa %}
-                                            <a href="{{ e.url_externa }}" target="_blank" class="btn btn-outline-info" title="Abrir Enlace de la Entidad">
+                                            <a href="{{ e.url_externa }}" target="_blank" class="btn btn-outline-info btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Abrir enlace externo de la entidad">
                                                 <i class="bi bi-box-arrow-up-right"></i>
                                             </a>
                                         {% endif %}
                                     {% else %}
-                                        <a href="{% url 'panel-admin:ver_respuestas_encuesta' e.id %}" class="btn btn-outline-success" title="Ver Gráficas y Respuestas">
+                                        <a href="{% url 'panel-admin:ver_respuestas_encuesta' e.id %}" class="btn btn-outline-success btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver gráficas y respuestas recibidas">
                                             <i class="bi bi-bar-chart-fill"></i>
                                         </a>
                                     {% endif %}
@@ -412,35 +412,35 @@
                                     <!-- Enviar por Correo a Asistentes -->
                                     <form action="{% url 'panel-admin:enviar_encuesta_correo_asistentes' e.id %}" method="POST" class="d-inline" onsubmit="return confirm('¿Enviar esta encuesta por correo a los asistentes acreditados de {{ e.reunion.detalle }}?');">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-outline-primary" title="Enviar encuesta a los asistentes acreditados">
+                                        <button type="submit" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Enviar encuesta por correo a asistentes acreditados">
                                             <i class="bi bi-send-fill"></i>
                                         </button>
                                     </form>
 
                                     <!-- Copiar Enlace Directo -->
                                     {% if e.tipo_encuesta == 'externa' and e.archivo_encuesta %}
-                                        <button type="button" class="btn btn-outline-secondary" onclick="copiarLink('{{ request.scheme }}://{{ request.get_host }}{{ e.archivo_encuesta.url }}')" title="Copiar Enlace del Archivo">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" onclick="copiarLink('{{ request.scheme }}://{{ request.get_host }}{{ e.archivo_encuesta.url }}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Copiar enlace directo del archivo">
                                             <i class="bi bi-link-45deg"></i>
                                         </button>
                                     {% elif e.tipo_encuesta == 'externa' and e.url_externa %}
-                                        <button type="button" class="btn btn-outline-secondary" onclick="copiarLink('{{ e.url_externa }}')" title="Copiar Enlace Externo">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" onclick="copiarLink('{{ e.url_externa }}')" data-bs-toggle="tooltip" data-bs-placement="top" title="Copiar enlace externo">
                                             <i class="bi bi-link-45deg"></i>
                                         </button>
                                     {% else %}
-                                        <button type="button" class="btn btn-outline-secondary" onclick="copiarLink('{{ request.scheme }}://{{ request.get_host }}/encuesta/{{ e.reunion.id }}/')" title="Copiar Enlace Directo">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" onclick="copiarLink('{{ request.scheme }}://{{ request.get_host }}/encuesta/{{ e.reunion.id }}/')" data-bs-toggle="tooltip" data-bs-placement="top" title="Copiar enlace directo de la encuesta">
                                             <i class="bi bi-link-45deg"></i>
                                         </button>
                                     {% endif %}
 
                                     <!-- Editar -->
-                                    <a href="{% url 'panel-admin:editar_encuesta' e.id %}" class="btn btn-outline-dark" title="Editar Configuración">
+                                    <a href="{% url 'panel-admin:editar_encuesta' e.id %}" class="btn btn-outline-dark btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar configuración de la encuesta">
                                         <i class="bi bi-gear-fill"></i>
                                     </a>
 
                                     <!-- Eliminar -->
                                     <form action="{% url 'panel-admin:eliminar_encuesta' e.id %}" method="POST" class="d-inline" onsubmit="return confirm('¿Seguro que deseas eliminar esta encuesta?');">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-outline-danger" title="Eliminar">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar encuesta">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -894,6 +894,14 @@
             prompt('Copia el enlace:', url);
         });
     }
+
+    // Inicializar tooltips de Bootstrap
+    document.addEventListener('DOMContentLoaded', function () {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (el) {
+            return new bootstrap.Tooltip(el, { trigger: 'hover' });
+        });
+    });
 </script>
 </body>
 </html>

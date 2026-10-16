@@ -89,13 +89,13 @@
                                         <small class="text-muted d-block mb-1">Elementos: {{ p.orden_elementos_display|join:", " }}</small>
                                         {% if p.texto_extra %}<span class="badge bg-secondary">{{ p.texto_extra }}</span>{% endif %}
                                     </div>
-                                    <div class="btn-group">
-                                        <a href="{% url 'panel-admin:editar_plantilla_etiqueta' p.id %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                                    <div class="d-inline-flex gap-2 align-items-center">
+                                        <a href="{% url 'panel-admin:editar_plantilla_etiqueta' p.id %}" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar plantilla de etiqueta">
                                             <i class="bi bi-pencil-fill"></i>
                                         </a>
                                         <form method="post" action="{% url 'panel-admin:eliminar_plantilla_etiqueta' p.id %}" onsubmit="return confirm('¿Seguro que deseas eliminar esta plantilla?');" class="d-inline">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar plantilla">
                                                 <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </form>

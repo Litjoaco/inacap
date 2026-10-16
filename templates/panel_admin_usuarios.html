@@ -163,13 +163,13 @@
             </div>
         </a>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <a href="{% url 'panel-admin:descargar_plantilla_usuarios_excel' %}" class="btn btn-outline-light btn-sm fw-medium shadow-sm">
+            <a href="{% url 'panel-admin:descargar_plantilla_usuarios_excel' %}" class="btn btn-outline-light btn-sm fw-medium shadow-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Descargar plantilla Excel para carga masiva de usuarios">
                 <i class="bi bi-file-earmark-arrow-down me-1"></i> Plantilla Carga
             </a>
-            <a href="{% url 'panel-admin:carga_masiva_usuarios' %}" class="btn btn-warning btn-sm fw-bold text-dark shadow-sm">
+            <a href="{% url 'panel-admin:carga_masiva_usuarios' %}" class="btn btn-warning btn-sm fw-bold text-dark shadow-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Importar usuarios desde un archivo Excel">
                 <i class="bi bi-cloud-arrow-up-fill me-1"></i> Carga Masiva Excel
             </a>
-            <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light btn-sm">
+            <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light btn-sm" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Regresar al panel principal de administración">
                 <i class="bi bi-arrow-left me-1"></i> Volver al Panel
             </a>
         </div>
@@ -235,7 +235,7 @@
                         </select>
                     </div>
                     <div class="col-md-2 col-lg-1 d-grid">
-                        <button type="submit" class="btn btn-danger fw-semibold" title="Buscar">
+                        <button type="submit" class="btn btn-danger fw-semibold" data-bs-toggle="tooltip" data-bs-placement="top" title="Buscar participantes">
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
@@ -382,6 +382,7 @@
     </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -443,8 +444,11 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function(el) {
+        return new bootstrap.Tooltip(el, { trigger: 'hover' });
+    });
 });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
