@@ -187,7 +187,7 @@ def buscar_usuarios_ajax(request):
         'apellido': u.apellido,
         'email': u.email,
         'rut': u.rut,
-        'rubro': u.get_rubro_real_display if callable(getattr(u, 'get_rubro_real_display', None)) else (u.rubro or 'General'),
+        'rubro': u.get_rubro_real_display() if callable(getattr(u, 'get_rubro_real_display', None)) else (u.rubro or 'General'),
         'institucion_empresa': u.institucion_empresa or ('INACAP' if u.rubro != 'externo' else 'Particular'),
         'telefono': u.telefono or '',
         'cantidad_asistencias': u.cantidad_asistencias,
@@ -480,7 +480,7 @@ def marcar_asistencia_qr(request, reunion_id, usuario_id):
         return JsonResponse({
             'status': 'ok', 
             'message': f'Asistencia de {usuario.nombre} registrada.',
-            'asistente': { 'id': usuario.id, 'nombre': usuario.nombre, 'apellido': usuario.apellido, 'rubro': usuario.get_rubro_real_display or '', 'foto_url': usuario.foto.url if usuario.foto else '/static/img/persn.jpg' },
+            'asistente': { 'id': usuario.id, 'nombre': usuario.nombre, 'apellido': usuario.apellido, 'rubro': usuario.get_rubro_real_display() if callable(getattr(usuario, 'get_rubro_real_display', None)) else (usuario.rubro or ''), 'foto_url': usuario.foto.url if usuario.foto else '/static/img/persn.jpg' },
             'print_url': print_url,
             'aforo_info': {
                 'tiene_limite': reunion.tiene_aforo_limitado(),

@@ -387,7 +387,7 @@ def consultar_qr_rut(request):
                 'nombre': f"{usuario.nombre} {usuario.apellido}",
                 'rut': usuario.rut,
                 'email': _ofuscar_email(usuario.email),
-                'rol': usuario.get_rubro_real_display if callable(getattr(usuario, 'get_rubro_real_display', None)) else (usuario.rubro or 'General'),
+                'rol': usuario.get_rubro_real_display() if callable(getattr(usuario, 'get_rubro_real_display', None)) else (usuario.rubro or 'General'),
                 'empresa': usuario.institucion_empresa or ('INACAP' if usuario.rubro != 'externo' else 'Particular'),
                 'qr_url': qr_url
             })
