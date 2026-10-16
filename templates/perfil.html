@@ -3,7 +3,6 @@
 
 {% block contenido %}
 <style>
-    /* Estilos específicos para la página de perfil */
         body {
             background-color: #f8f9fa; /* Fondo ligeramente distinto para esta sección */
         }
@@ -28,13 +27,13 @@
             margin-bottom: 15px;
         }
         .btn-edit, .btn-primary {
-            background-color: #D90429;
-            border-color: #D90429;
+            background-color: #B70420;
+            border-color: #B70420;
             color: white;
         }
         .btn-edit:hover, .btn-primary:hover {
-            background-color: #A9001F;
-            border-color: #A9001F;
+            background-color: #8B0014;
+            border-color: #8B0014;
             color: white;
         }
 </style>
@@ -81,12 +80,15 @@
         {% endif %}
         <h3>{{ usuario.nombre }} {{ usuario.apellido }}</h3>
         <p class="text-muted mb-1"><i class="bi bi-person-badge-fill me-1"></i>{{ usuario.get_rubro_real_display|default:"Sin rol especificado" }}</p>
-        {% if usuario.carrera %}<p class="text-muted mb-1"><i class="bi bi-mortarboard-fill me-1"></i>{{ usuario.get_carrera_real_display }}</p>{% endif %}
-        {% if usuario.sede %}<p class="text-muted mb-1"><i class="bi bi-building-fill me-1"></i>Sede {{ usuario.get_sede_real_display }}</p>{% endif %}
+        {% if usuario.institucion_empresa %}
+        <p class="text-muted mb-1"><i class="bi bi-building me-1"></i>{{ usuario.institucion_empresa }}</p>
+        {% elif usuario.rubro != 'externo' %}
+        <p class="text-muted mb-1"><i class="bi bi-mortarboard-fill me-1"></i>INACAP</p>
+        {% endif %}
         <p class="text-muted mt-3"><i class="bi bi-envelope-fill me-1"></i>{{ usuario.email }} | <i class="bi bi-telephone-fill ms-2 me-1"></i>{{ usuario.telefono|default:"No especificado" }}</p>
         <p class="text-muted fw-bold"><i class="bi bi-calendar-check-fill me-1"></i>Reuniones Asistidas: {{ usuario.cantidad_asistencias }}</p>
         
-        <!-- Botón de Editar Perfil -->
+        
         <div class="mt-4">
             <a href="{% url 'editar_perfil' usuario.id %}" class="btn btn-edit"><i class="bi bi-pencil-square me-1"></i> Editar Perfil</a>
         </div>
@@ -97,12 +99,14 @@
         <div class="card-body">
             <h5 class="card-title mb-3">Acciones de la Cuenta</h5>
             <div class="list-group">
-                <a href="{% url 'mis_tickets' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                    <span><i class="bi bi-headset me-2 text-primary"></i>Mis Tickets</span>
+                {% if usuario.es_admin or usuario.es_ayudante %}
+                <a href="{% url 'panel-admin:gestion_soporte' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-headset me-2 text-primary"></i>Bandeja de Soporte</span>
                     <i class="bi bi-chevron-right"></i>
                 </a>
-                <a href="{% url 'configuracion' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                    <span><i class="bi bi-gear-fill me-2 text-secondary"></i>Configuración</span>
+                {% endif %}
+                <a href="{% url 'cambiar_password' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-shield-lock-fill me-2 text-secondary"></i>Seguridad y Contraseña</span>
                     <i class="bi bi-chevron-right"></i>
                 </a>
                 <a href="{% url 'logout' %}" class="list-group-item list-group-item-action text-danger d-flex justify-content-between align-items-center">

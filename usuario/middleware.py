@@ -5,6 +5,8 @@ class UserInfoMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        request.user_is_admin = False
+        request.user_id = None
         usuario_id = request.session.get('usuario_id')
         if usuario_id:
             try:
@@ -12,7 +14,6 @@ class UserInfoMiddleware:
                 request.user_is_admin = usuario.es_admin
                 request.user_id = usuario.id
             except Usuario.DoesNotExist:
-                request.user_is_admin = False
-                request.user_id = None
+                pass
         response = self.get_response(request)
         return response

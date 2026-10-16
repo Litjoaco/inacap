@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <!-- Tabla con las preguntas existentes -->
+    
     <div class="card shadow-sm">
         <div class="card-header">
             <h5 class="mb-0">Preguntas Existentes</h5>
@@ -41,7 +41,7 @@
                             <td class="text-end">
                                 <a href="#" class="btn btn-primary btn-sm"><i class="bi bi-pencil-fill"></i></a>
                                 
-                                <!-- Formulario para el botón de eliminar -->
+                                
                                 <form action="#" method="POST" class="d-inline delete-form">
                                     {% csrf_token %}
                                     <button type="button" class="btn btn-danger btn-sm delete-btn" data-nombre-item="{{ pregunta.pregunta_texto|truncatechars:30 }}">

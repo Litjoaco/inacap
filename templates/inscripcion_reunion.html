@@ -1,0 +1,490 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscripción a Evento - INACAP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(to right, #B70420, #8B0014);
+            padding: 15px 25px;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-logo {
+            height: 45px;
+            width: auto;
+        }
+
+        .card-custom {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            background: white;
+        }
+
+        .card-header-red {
+            background: linear-gradient(to right, #B70420, #8B0014);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .btn-inacap-red {
+            background: linear-gradient(to right, #B70420, #8B0014);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 12px 28px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-inacap-red:hover {
+            background: linear-gradient(to right, #900318, #8C0018);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(183, 4, 32, 0.35);
+        }
+
+        .qr-display-box {
+            background: #fff;
+            border: 2px dashed #B70420;
+            border-radius: 14px;
+            padding: 20px;
+            display: inline-block;
+        }
+
+        .qr-img {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+        }
+
+        .user-badge-box {
+            background-color: #FFF0F2;
+            border: 1px solid #FFCCD2;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        footer {
+            margin-top: auto;
+            background: linear-gradient(to right, #B70420, #8B0014);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+    
+        .origin-btn-hero {
+            background: #FFFFFF;
+            color: #475569;
+            border: 2px solid #E2E8F0;
+            font-weight: 600;
+            font-size: 0.92rem;
+            padding: 12px 14px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            user-select: none;
+            width: 100%;
+        }
+
+        .origin-btn-hero:hover {
+            border-color: #CBD5E1;
+            background-color: #F8FAFC;
+            transform: translateY(-1px);
+        }
+
+        .btn-check:checked + .origin-btn-hero {
+            background: linear-gradient(135deg, #B70420, #8B0014);
+            color: #FFFFFF !important;
+            border: 2px solid #B70420;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(183, 4, 32, 0.4);
+            transform: translateY(-2px);
+        }
+
+</style>
+</head>
+<body>
+    <header class="d-flex justify-content-between align-items-center">
+        <a href="{% url 'inicio' %}" class="d-flex align-items-center text-white text-decoration-none">
+            <img src="{% static 'img/Logo_60anos.png' %}" class="header-logo rounded me-3" alt="Logo INACAP">
+            <div>
+                <span class="fw-bold fs-5 d-block">INACAP</span>
+                <small class="opacity-80">Eventos y Encuentros</small>
+            </div>
+        </a>
+        <a href="{% url 'panel-admin:reunion_publica' reunion.id %}" class="btn btn-outline-light btn-sm fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Volver al Evento
+        </a>
+    </header>
+
+    <main class="container my-5" style="max-width: 680px;">
+        <div class="card card-custom">
+            <div class="card-header-red">
+                <span class="badge bg-white text-danger px-3 py-1 fw-bold mb-2">Inscripción a Evento</span>
+                <h4 class="mb-1 fw-bold">{{ reunion.detalle }}</h4>
+                <small class="opacity-90"><i class="bi bi-calendar-event me-1"></i> {{ reunion.fecha|date:"d/m/Y - H:i" }} hrs | {{ reunion.ubicacion }}</small>
+            </div>
+
+            <div class="card-body p-4 p-md-5">
+
+                
+                {% if paso == 'ingresar_rut' %}
+                    <div class="text-center mb-4">
+                        <i class="bi bi-person-badge text-danger display-4 d-block mb-2"></i>
+                        <h4 class="fw-bold text-dark">Identifícate para Inscribirte</h4>
+                        <p class="text-muted small">Ingresa tu RUT chileno. Si eres alumno o ya has participado, te reconoceremos al instante.</p>
+                    </div>
+
+                    {% if error %}
+                        <div class="alert alert-danger text-center">{{ error }}</div>
+                    {% endif %}
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="accion" value="verificar_rut">
+
+                        <div class="mb-4">
+                            <label for="rut" class="form-label fw-semibold">RUT (con o sin puntos y guión)</label>
+                            <input type="text" name="rut" id="rut" class="form-control form-control-lg text-center fw-bold fs-4 font-monospace" placeholder="12.345.678-9" value="{{ rut_ingresado|default:'' }}" required autofocus><div id="rutFeedbackError" class="text-danger small mt-1 text-center d-none"></div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-inacap-red btn-lg fs-5">
+                                Continuar <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                
+                {% elif paso == 'confirmar_1clic' %}
+                    <div class="text-center mb-4">
+                        <div class="rounded-circle bg-success text-white d-inline-flex p-3 mb-3">
+                            <i class="bi bi-person-check-fill fs-1"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark">¡Hola, {{ usuario.nombre }} {{ usuario.apellido }}!</h4>
+                        <p class="text-muted">Reconocemos tu RUT en nuestra comunidad INACAP.</p>
+                    </div>
+
+                    <div class="user-badge-box mb-4">
+                        <div class="row g-2 text-start">
+                            <div class="col-sm-6">
+                                <span class="text-muted small d-block">RUT:</span>
+                                <span class="fw-bold text-dark">{{ usuario.rut }}</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <span class="text-muted small d-block">Correo:</span>
+                                <span class="fw-bold text-dark">{{ usuario.email }}</span>
+                            </div>
+                            {% if usuario.institucion_empresa %}
+                            <div class="col-12 mt-2">
+                                <span class="text-muted small d-block">Institución / Empresa:</span>
+                                <span class="fw-bold text-danger">{{ usuario.institucion_empresa }}</span>
+                            </div>
+                            {% elif usuario.rubro != 'externo' %}
+                            <div class="col-12 mt-2">
+                                <span class="text-muted small d-block">Institución:</span>
+                                <span class="fw-bold text-danger">INACAP</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="accion" value="confirmar_1clic">
+                        <input type="hidden" name="usuario_id" value="{{ usuario.id }}">
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-inacap-red btn-lg fs-5">
+                                <i class="bi bi-check-circle-fill me-2"></i> Confirmar mi Inscripción (1 Clic)
+                            </button>
+                            <a href="{% url 'panel-admin:inscribirse_reunion' reunion.id %}" class="btn btn-outline-secondary btn-sm mt-2">
+                                No soy {{ usuario.nombre }}, ingresar otro RUT
+                            </a>
+                        </div>
+                    </form>
+
+                
+                {% elif paso == 'registro_rapido' %}
+                    <div class="text-center mb-4">
+                        <span class="badge bg-danger mb-2">Nuevo Participante</span>
+                        <h4 class="fw-bold text-dark">Completa tus Datos</h4>
+                        <p class="text-muted small">RUT ingresado: <strong class="text-dark">{{ rut }}</strong>. Solo necesitamos estos datos para tu credencial.</p>
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="accion" value="procesar_registro_rapido">
+                        <input type="hidden" name="rut" value="{{ rut }}">
+
+                        <!-- Selector Tipo Asistente -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold small text-muted text-uppercase">¿Cuál es tu perfil?</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="tipo_asistente" id="tipo_inacap" value="inacap" checked onchange="togglePerfil()">
+                                    <label class="origin-btn-hero" for="tipo_inacap">
+                                        <i class="bi bi-mortarboard-fill me-1"></i> Soy de INACAP
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="tipo_asistente" id="tipo_externo" value="externo" onchange="togglePerfil()">
+                                    <label class="origin-btn-hero" for="tipo_externo">
+                                        <i class="bi bi-building me-1"></i> Soy Externo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Datos Básicos -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Nombre</label>
+                                {{ form.nombre }}
+                                {% if form.nombre.errors %}<div class="text-danger small">{{ form.nombre.errors.as_text }}</div>{% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Apellido</label>
+                                {{ form.apellido }}
+                                {% if form.apellido.errors %}<div class="text-danger small">{{ form.apellido.errors.as_text }}</div>{% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Correo Electrónico (Para recibir tu QR)</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors.as_text }}</div>{% endif %}
+                        </div>
+
+                        
+                        <div id="seccion_inacap">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Rol en INACAP</label>
+                                {{ form.rubro }}
+                            </div>
+                        </div>
+
+                        
+                        <div id="seccion_externo" style="display: none;">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Teléfono / WhatsApp</label>
+                                {{ form.telefono }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small">Institución o Empresa</label>
+                                {{ form.institucion_empresa }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-inacap-red btn-lg fs-5">
+                                <i class="bi bi-ticket-perforated-fill me-2"></i> Inscribirme al Evento
+                            </button>
+                        </div>
+                    </form>
+
+                
+                {% elif paso == 'exito' %}
+                    <div class="text-center">
+                        <div class="rounded-circle bg-success text-white d-inline-flex p-3 mb-3">
+                            <i class="bi bi-check2-circle fs-1"></i>
+                        </div>
+                        <h3 class="fw-bold text-dark mb-1">¡Inscripción Exitosa!</h3>
+                        <p class="text-muted mb-4">Hola <strong>{{ usuario.nombre }}</strong>, ya estás en la lista de asistentes.</p>
+
+                        <!-- Display QR Code -->
+                        <div class="qr-display-box mb-4 shadow-sm">
+                            {% if usuario.qr_code %}
+                                <img src="{{ usuario.qr_code.url }}" alt="Código QR de {{ usuario.nombre }}" class="qr-img mb-2">
+                            {% else %}
+                                <div class="qr-img d-flex align-items-center justify-content-center bg-light">
+                                    <i class="bi bi-qr-code display-1 text-danger"></i>
+                                </div>
+                            {% endif %}
+                            <span class="d-block fw-bold text-dark">{{ usuario.nombre }} {{ usuario.apellido }}</span>
+                            <small class="text-muted">{{ usuario.rut }}</small>
+                        </div>
+
+                        <div class="alert alert-info text-start small mb-4">
+                            <i class="bi bi-info-circle-fill me-1"></i> <strong>Tu pase de entrada:</strong> Guarda una captura de pantalla de este código QR o descárgalo para mostrarlo en la entrada del evento. También enviamos una copia a <strong>{{ usuario.email }}</strong>.
+                        </div>
+
+                        <div class="d-flex justify-content-center gap-2">
+                            {% if usuario.qr_code %}
+                                <a href="{{ usuario.qr_code.url }}" download="QR_{{ usuario.rut }}.png" class="btn btn-outline-danger">
+                                    <i class="bi bi-download me-1"></i> Descargar QR
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'panel-admin:reunion_publica' reunion.id %}" class="btn btn-inacap-red">
+                                <i class="bi bi-arrow-left me-1"></i> Volver al Evento
+                            </a>
+                        </div>
+                    </div>
+
+                
+                {% elif paso == 'ya_inscrito' %}
+                    <div class="text-center">
+                        <i class="bi bi-info-circle-fill text-primary display-4 d-block mb-3"></i>
+                        <h4 class="fw-bold text-dark">¡Ya estás inscrito en este evento!</h4>
+                        <p class="text-muted">Hola <strong>{{ usuario.nombre }}</strong>, tu RUT ya se encuentra registrado para esta actividad.</p>
+
+                        {% if usuario.qr_code %}
+                        <div class="qr-display-box my-3 shadow-sm">
+                            <img src="{{ usuario.qr_code.url }}" alt="QR" class="qr-img mb-2">
+                            <span class="d-block fw-bold text-dark">{{ usuario.nombre }} {{ usuario.apellido }}</span>
+                            <small class="text-muted">{{ usuario.rut }}</small>
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-4">
+                            <a href="{% url 'panel-admin:reunion_publica' reunion.id %}" class="btn btn-inacap-red px-4">
+                                Volver al Evento
+                            </a>
+                        </div>
+                    </div>
+
+                {% elif paso == 'cerrado' %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-lock-fill text-secondary display-4 d-block mb-3"></i>
+                        <h4 class="fw-bold text-dark">Inscripciones Cerradas</h4>
+                        <p class="text-muted">{{ mensaje }}</p>
+                        <a href="{% url 'landing_reuniones' %}" class="btn btn-outline-secondary mt-3">Ver otros eventos</a>
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2026 INACAP | Plataforma de Eventos y Encuentros</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function togglePerfil() {
+            const isInacap = document.getElementById('tipo_inacap').checked;
+            document.getElementById('seccion_inacap').style.display = isInacap ? 'block' : 'none';
+            document.getElementById('seccion_externo').style.display = isInacap ? 'none' : 'block';
+        }
+    </script>
+
+<script>
+function formatearRUT(rut) {
+    let valor = rut.replace(/[^0-9kK]/g, '').toUpperCase();
+    if (valor.length === 0) return '';
+    if (valor.length === 1) return valor;
+    
+    let cuerpo = valor.slice(0, -1);
+    let dv = valor.slice(-1);
+    
+    let cuerpoFormateado = '';
+    while (cuerpo.length > 3) {
+        cuerpoFormateado = '.' + cuerpo.slice(-3) + cuerpoFormateado;
+        cuerpo = cuerpo.slice(0, -3);
+    }
+    cuerpoFormateado = cuerpo + cuerpoFormateado;
+    
+    return cuerpoFormateado + '-' + dv;
+}
+
+function validarRUTChileno(rutCompleto) {
+    let valor = rutCompleto.replace(/[^0-9kK]/g, '').toUpperCase();
+    if (valor.length < 8 || valor.length > 9) return false;
+    
+    let cuerpo = valor.slice(0, -1);
+    let dv = valor.slice(-1);
+    
+    let suma = 0;
+    let multiplo = 2;
+    
+    for (let i = cuerpo.length - 1; i >= 0; i--) {
+        suma += parseInt(cuerpo.charAt(i)) * multiplo;
+        multiplo = multiplo < 7 ? multiplo + 1 : 2;
+    }
+    
+    let dvEsperado = 11 - (suma % 11);
+    let dvCalculado = dvEsperado === 11 ? '0' : (dvEsperado === 10 ? 'K' : dvEsperado.toString());
+    
+    return dv === dvCalculado;
+}
+
+function aplicarMascaraRUT(inputElement, errorElement = null) {
+    if (!inputElement) return;
+
+    inputElement.addEventListener('input', function(e) {
+        let valorFormateado = formatearRUT(e.target.value);
+        e.target.value = valorFormateado;
+        
+        let valorLimpio = valorFormateado.replace(/[^0-9kK]/g, '');
+        if (valorLimpio.length >= 8) {
+            if (validarRUTChileno(valorFormateado)) {
+                inputElement.classList.remove('is-invalid');
+                inputElement.classList.add('is-valid');
+                if (errorElement) errorElement.classList.add('d-none');
+            } else {
+                inputElement.classList.remove('is-valid');
+                inputElement.classList.add('is-invalid');
+                if (errorElement) {
+                    errorElement.textContent = "El dígito verificador del RUT es incorrecto.";
+                    errorElement.classList.remove('d-none');
+                }
+            }
+        } else {
+            inputElement.classList.remove('is-valid', 'is-invalid');
+            if (errorElement) errorElement.classList.add('d-none');
+        }
+    });
+
+    inputElement.addEventListener('blur', function(e) {
+        let valor = e.target.value.trim();
+        if (valor.length > 0 && !validarRUTChileno(valor)) {
+            inputElement.classList.add('is-invalid');
+            if (errorElement) {
+                errorElement.textContent = "Por favor ingresa un RUT chileno válido (ej: 12.345.678-9).";
+                errorElement.classList.remove('d-none');
+            }
+        }
+    });
+}
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const rutInput = document.getElementById('rut');
+    const errorDiv = document.getElementById('rutFeedbackError');
+    if (rutInput) {
+        aplicarMascaraRUT(rutInput, errorDiv);
+        if (rutInput.value) {
+            rutInput.value = formatearRUT(rutInput.value);
+        }
+    }
+});
+</script>
+</body>
+</html>

@@ -4,311 +4,1084 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tótem Check-in: {{ reunion.detalle }}</title>
+    <title>Tótem de Auto-Acreditación - {{ reunion.detalle }}</title>
+    
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --inacap-red: #B70420;
+            --inacap-red-hover: #900318;
+            --inacap-dark: #111827;
+            --bg-light: #F8FAFC;
+        }
+
         html, body {
             height: 100%;
             margin: 0;
-            overflow: hidden; /* Evita el scroll */
-            font-family: 'Poppins', sans-serif; /* Mantenemos la fuente */
-            background-color: #f0f2f5; /* Un gris claro, más corporativo y limpio */
-            color: #495057; /* Un gris oscuro para el texto, más suave que el negro puro */
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #FFFFFF;
+            color: #1E293B;
+            overflow: hidden;
+            user-select: none;
         }
-        .totem-container {
-            height: 100%;
+
+        /* =========================================================
+           PANTALLA 1: ESPERA / BIENVENIDA HERO (ESTÉTICA INICIO)
+           ========================================================= */
+        #pantalla-bienvenida {
+            min-height: 100vh;
+            width: 100%;
+            position: relative;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(180deg, rgba(17, 24, 39, 0.72) 0%, rgba(17, 24, 39, 0.4) 40%, rgba(17, 24, 39, 0.88) 100%),
+                        {% if reunion.foto %}url('{{ reunion.foto.url }}'){% else %}url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1920&q=80'){% endif %} center/cover no-repeat;
+            color: #FFFFFF;
+            padding: 30px 40px;
+            animation: fadeIn 0.4s ease;
         }
-        .totem-header {
-            background: linear-gradient(to right, #D90429, #A9001F);
-            color: white;
-            padding: 20px;
+
+        .top-navbar-hero {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hero-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .hero-brand img {
+            height: 52px;
+            width: auto;
+        }
+
+        .hero-center-content {
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 920px;
+            margin: auto;
+            padding: 20px 0;
         }
-        .totem-body {
+
+        .hero-badge {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #FFFFFF;
+            padding: 8px 24px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-bottom: 22px;
+        }
+
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.15;
+            margin-bottom: 18px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.15rem, 2.2vw, 1.4rem);
+            font-weight: 300;
+            opacity: 0.95;
+            max-width: 750px;
+            margin: 0 auto 36px;
+            line-height: 1.6;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .btn-comenzar-kiosk {
+            background-color: var(--inacap-red);
+            color: #FFFFFF !important;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+            padding: 18px 48px;
+            border-radius: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 30px rgba(183, 4, 32, 0.6);
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            animation: pulseBtn 2s infinite;
+        }
+
+        @keyframes pulseBtn {
+            0% { transform: scale(1); box-shadow: 0 8px 25px rgba(183, 4, 32, 0.5); }
+            50% { transform: scale(1.03); box-shadow: 0 12px 35px rgba(183, 4, 32, 0.8); }
+            100% { transform: scale(1); box-shadow: 0 8px 25px rgba(183, 4, 32, 0.5); }
+        }
+
+        .btn-comenzar-kiosk:hover {
+            background-color: var(--inacap-red-hover);
+            transform: translateY(-3px) scale(1.04);
+        }
+
+        .hero-stats-bottom {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 980px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .stat-card-glass {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 14px;
+            padding: 16px 20px;
+            color: #1E293B;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+        }
+
+        .stat-icon-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: #FEF2F2;
+            color: var(--inacap-red);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.45rem;
+            flex-shrink: 0;
+        }
+
+        /* =========================================================
+           PANTALLA 2: ACREDITACIÓN / ESCANEO Y RUT (FONDO BLANCO)
+           ========================================================= */
+        #pantalla-acreditacion {
+            min-height: 100vh;
+            width: 100%;
+            background-color: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px 40px;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .header-blanco-totem {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 16px;
+            border-bottom: 1.5px solid #F1F5F9;
+        }
+
+        .scanner-illustration-card {
+            background: #F8FAFC;
+            border: 2px dashed #CBD5E1;
+            border-radius: 18px;
+            padding: 28px 24px;
+            text-align: center;
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            text-align: center;
-            padding: 20px;
-            flex-grow: 1; /* Ocupa el espacio restante */
-        }
-        #video-container {
             position: relative;
-            width: 85vw;
-            max-width: 380px; /* Un poco más pequeño */
-            border-radius: 20px; /* Bordes más redondeados */
             overflow: hidden;
-            background-color: #000;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-            border: 1px solid #dee2e6;
         }
-        .scanner-overlay {
+
+        .scanner-graphic-box {
+            width: 220px;
+            height: 150px;
+            position: relative;
+            background: #FFFFFF;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            margin-bottom: 20px;
+        }
+
+        .scanner-laser-beam {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            box-shadow: inset 0 0 0 5px rgba(255, 255, 255, 0.2); /* Borde interior sutil */
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #FF0033, #FFFFFF, #FF0033, transparent);
+            box-shadow: 0 0 14px #FF0033;
+            animation: scanLaser 2s infinite ease-in-out;
         }
-        .scanner-corner {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            border: 5px solid #D90429; /* Color rojo de la marca */
-        }
-        .scanner-corner.top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
-        .scanner-corner.top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
-        .scanner-corner.bottom-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
-        .scanner-corner.bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
 
-        .pulsing-dot {
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 15px;
-            height: 15px; 
-            background-color: #D90429;
-            border-radius: 50%;
-            animation: pulse 1.5s infinite ease-in-out;
+        @keyframes scanLaser {
+            0% { top: 10%; }
+            50% { top: 88%; }
+            100% { top: 10%; }
         }
-        @keyframes pulse {
-            0% { transform: translateX(-50%) scale(0.8); opacity: 0.7; }
-            50% { transform: translateX(-50%) scale(1.2); opacity: 1; }
-            100% { transform: translateX(-50%) scale(0.8); opacity: 0.7; }
+
+        .touch-pad-container {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 18px;
+            padding: 24px 28px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
-        #qr-video {
+
+        .touch-keyboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            max-width: 330px;
+            margin: 0 auto 16px;
             width: 100%;
-            height: auto;
-            display: block;
         }
-        .exit-button {
-            position: absolute;
-            top: 15px;
-            left: -9999px; /* Oculto por defecto fuera de la pantalla */
-            z-index: 100;
+
+        .touch-key-btn {
+            background: #FFFFFF;
+            color: #0F172A;
+            border: 1.5px solid #CBD5E1;
+            font-size: 1.45rem;
+            font-weight: 700;
+            padding: 13px 0;
+            border-radius: 10px;
+            transition: all 0.15s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
-        #physical-scanner-input {
-            border: 1px solid #ced4da;
-            background-color: #fff;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            height: 50px;
-            max-width: 380px;
-            width: 85vw;
+
+        .touch-key-btn:active, .touch-key-btn:hover {
+            background: var(--inacap-red);
+            color: #FFFFFF;
+            border-color: var(--inacap-red);
+            transform: scale(0.95);
         }
-        #physical-scanner-input:focus {
-            border-color: #D90429;
-            box-shadow: 0 0 0 0.25rem rgba(217, 4, 41, 0.25);
+
+        .touch-key-action {
+            background: #E2E8F0;
+            font-size: 1.15rem;
+            color: #475569;
         }
-        /* Estilos personalizados para SweetAlert2 */
-        .swal2-popup {
-            border-radius: 15px !important;
-            font-family: 'Poppins', sans-serif !important;
+
+        .btn-totem-submit {
+            background: linear-gradient(135deg, var(--inacap-red), #8B0014);
+            color: #FFFFFF !important;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            padding: 14px 24px;
+            border-radius: 10px;
+            border: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(183, 4, 32, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
         }
-        .swal2-title {
-            color: #333 !important;
+
+        .btn-totem-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(183, 4, 32, 0.55);
         }
-        .swal2-icon.swal2-success .swal2-success-line-tip,
-        .swal2-icon.swal2-success .swal2-success-line-long {
-            background-color: #28a745 !important; /* Mantenemos verde para éxito */
+
+        .btn-volver-hero {
+            background: #F1F5F9;
+            color: #475569;
+            font-weight: 600;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            transition: all 0.2s;
         }
-        .swal2-confirm {
-            background-color: #D90429 !important;
+
+        .btn-volver-hero:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.99); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-<div class="totem-container position-relative">
-    <div class="totem-header">
-        <a href="{% url 'panel-admin:totem_seleccionar_reunion' %}" id="exit-button" class="btn btn-sm btn-light exit-button" title="Volver a seleccionar reunión" style="top: 20px; left: -9999px;">
-            <i class="bi bi-arrow-left-circle-fill"></i>
-        </a>
-        <img src="{% static 'img/logo.png' %}" alt="Logo" style="height: 50px; border-radius: 10px;" class="mb-2">
-        <h2 class="mb-0 h4">Check-in: {{ reunion.detalle }}</h2>
-    </div>
-
-    <div class="totem-body">
-        <p class="text-muted mb-4 h5">Por favor, acerca tu código QR a la cámara</p>
-
-    <div id="video-container">
-        <video id="qr-video" playsinline></video>
-        <div class="scanner-overlay">
-            <!-- Esquinas del visor -->
-            <div class="scanner-corner top-left"></div>
-            <div class="scanner-corner top-right"></div>
-            <div class="scanner-corner bottom-left"></div>
-            <div class="scanner-corner bottom-right"></div>
-            <!-- Punto de actividad -->
-            <div class="pulsing-dot"></div>
+<section id="pantalla-bienvenida">
+    
+    <!-- Top Navbar Hero -->
+    <header class="top-navbar-hero">
+        <div class="hero-brand">
+            <img src="{% static 'img/Logo_60anos.png' %}" alt="Logo INACAP">
+            <div>
+                <h5 class="fw-bold mb-0 text-white" style="font-family: 'Poppins', sans-serif;">INACAP</h5>
+                <small class="text-white opacity-80">Portal Oficial de Eventos y Encuentros</small>
+            </div>
         </div>
+
+        <span class="badge bg-white text-danger fw-bold fs-6 px-3.5 py-2 rounded-pill shadow-sm">
+            <i class="bi bi-broadcast me-1"></i> TÓTEM EN LÍNEA
+        </span>
+    </header>
+
+    
+    <div class="hero-center-content">
+        <span class="hero-badge">
+            <i class="bi bi-mortarboard-fill text-danger me-1"></i> Acreditación de Asistencia
+        </span>
+
+        <h1 class="hero-title">{{ reunion.detalle }}</h1>
+
+        <p class="hero-subtitle">
+            {{ reunion.descripcion|default:"Participa en esta actividad oficial. Toca el botón para identificarte con tu RUT o escanear tu Cédula de Identidad y obtener tu credencial." }}
+        </p>
+
+        
+        <button type="button" class="btn-comenzar-kiosk" onclick="mostrarPantallaAcreditacion()">
+            <i class="bi bi-person-vcard fs-3"></i> OBTENER MI CREDENCIAL / REGISTRARME
+        </button>
     </div>
-        <canvas id="qr-canvas" class="d-none"></canvas>
 
-        <div id="scanner-status" class="mt-3 text-warning">Iniciando cámara...</div>
+    
+    <div class="hero-stats-bottom">
+        <div class="stat-card-glass">
+            <div class="stat-icon-circle">
+                <i class="bi bi-calendar3"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold mb-0 text-dark" style="font-size: 1.05rem;">{{ reunion.fecha|date:"d/m/Y" }}</h5>
+                <small class="text-muted fw-medium">{{ reunion.fecha|date:"H:i" }} hrs</small>
+            </div>
+        </div>
 
-        <form id="physical-scanner-form" class="mt-4">
-            <input type="text" id="physical-scanner-input" class="form-control text-center" placeholder="O usa un escáner de mano aquí..." autocomplete="off">
-        </form>
+        <div class="stat-card-glass">
+            <div class="stat-icon-circle">
+                <i class="bi bi-geo-alt-fill"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold mb-0 text-dark" style="font-size: 1.05rem;">{{ reunion.ubicacion|default:"Sede INACAP" }}</h5>
+                <small class="text-muted fw-medium">Lugar del Evento</small>
+            </div>
+        </div>
+
+        <div class="stat-card-glass">
+            <div class="stat-icon-circle">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold mb-0 text-dark" id="heroCountDisplay" style="font-size: 1.05rem;">{{ reunion.asistentes.count }}</h5>
+                <small class="text-muted fw-medium">Acreditados en Vivo</small>
+            </div>
+        </div>
+
+        {% if reunion.tiene_aforo_limitado %}
+        <div class="stat-card-glass">
+            <div class="stat-icon-circle">
+                <i class="bi bi-speedometer2"></i>
+            </div>
+            <div>
+                <h5 class="fw-bold mb-0 {% if reunion.aforo_completo %}text-danger{% else %}text-dark{% endif %}" id="heroAforoDisplay" style="font-size: 1.05rem;">
+                    {{ reunion.asistentes.count }} / {{ reunion.aforo_maximo }}
+                </h5>
+                <small class="{% if reunion.aforo_completo %}text-danger fw-bold{% else %}text-muted fw-medium{% endif %}" id="heroAforoEstado">
+                    {% if reunion.aforo_completo %}¡Aforo Completo!{% else %}{{ reunion.porcentaje_aforo }}% Capacidad{% endif %}
+                </small>
+            </div>
+        </div>
+        {% endif %}
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-<script src="{% static 'js/sweetalert2.min.js' %}"></script>
+</section>
+
+<section id="pantalla-acreditacion" class="d-none">
+    
+    
+    <header class="header-blanco-totem">
+        <div class="d-flex align-items-center gap-3">
+            <img src="{% static 'img/Logo_60anos.png' %}" alt="Logo INACAP" style="height: 46px;">
+            <div>
+                <h5 class="fw-bold mb-0 text-dark" style="font-family: 'Poppins', sans-serif;">{{ reunion.detalle }}</h5>
+                <small class="text-muted"><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ reunion.ubicacion|default:"Sede INACAP" }}</small>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <span class="badge bg-light text-muted border px-3 py-2 font-monospace" id="kioskTimerBadge">Regresando en 45s</span>
+            <button type="button" class="btn-volver-hero" onclick="mostrarPantallaBienvenida()">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Inicio
+            </button>
+        </div>
+    </header>
+
+    
+    <main class="container-fluid my-auto py-3">
+        
+        <div class="row g-4 justify-content-center align-items-stretch" style="max-width: 1080px; margin: 0 auto;">
+            
+            
+            <div class="col-lg-6">
+                <div class="scanner-illustration-card">
+                    <span class="badge bg-danger rounded-pill px-3 py-1 mb-3 fw-bold">OPCIÓN A: LECTOR ÓPTICO</span>
+                    
+                    <!-- Tarjeta con Láser de Escaneo -->
+                    <div class="scanner-graphic-box">
+                        <div class="scanner-laser-beam"></div>
+                        <i class="bi bi-person-vcard text-danger display-4 mb-1"></i>
+                        <span class="fw-bold text-dark small">CÉDULA / CÓDIGO QR</span>
+                    </div>
+
+                    <h4 class="fw-bold text-dark mb-2" style="font-family: 'Poppins', sans-serif;">Pasa tu Cédula o Código QR</h4>
+                    <p class="text-muted small mb-3" style="max-width: 320px;">
+                        Acerca el <strong>código de barras al reverso de tu carnet</strong> o tu <strong>credencial QR</strong> por el sensor óptico del tótem.
+                    </p>
+
+                    <div class="alert alert-success border-0 py-2 px-3 small text-success fw-semibold mb-0" style="background: #F0FDF4;">
+                        <i class="bi bi-check-circle-fill me-1"></i> Lector listo para recibir escaneo físico.
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="col-lg-6">
+                <div class="touch-pad-container">
+                    
+                    <div class="text-center mb-2">
+                        <span class="badge bg-secondary rounded-pill px-3 py-1 mb-2 fw-bold">OPCIÓN B: INGRESO MANUAL</span>
+                        <h4 class="fw-bold text-dark mb-1" style="font-family: 'Poppins', sans-serif;">Escribe tu RUT</h4>
+                        <p class="text-muted small mb-2">Presiona los números en pantalla:</p>
+
+                        <!-- Input de RUT en Grande -->
+                        <input type="text" id="kioskRutInput" class="form-control form-control-lg text-center font-monospace fw-bold mx-auto mb-2" placeholder="12.345.678-9" style="font-size: 1.6rem; letter-spacing: 2px; height: 54px; max-width: 320px; border: 2px solid #CBD5E1; color: #0F172A;" readonly>
+                    </div>
+
+                    
+                    <div class="touch-keyboard-grid">
+                        <button type="button" class="touch-key-btn" onclick="touchType('1')">1</button>
+                        <button type="button" class="touch-key-btn" onclick="touchType('2')">2</button>
+                        <button type="button" class="touch-key-btn" onclick="touchType('3')">3</button>
+
+                        <button type="button" class="touch-key-btn" onclick="touchType('4')">4</button>
+                        <button type="button" class="touch-key-btn" onclick="touchType('5')">5</button>
+                        <button type="button" class="touch-key-btn" onclick="touchType('6')">6</button>
+
+                        <button type="button" class="touch-key-btn" onclick="touchType('7')">7</button>
+                        <button type="button" class="touch-key-btn" onclick="touchType('8')">8</button>
+                        <button type="button" class="touch-key-btn" onclick="touchType('9')">9</button>
+
+                        <button type="button" class="touch-key-btn touch-key-action" onclick="touchType('K')">K</button>
+                        <button type="button" class="touch-key-btn" onclick="touchType('0')">0</button>
+                        <button type="button" class="touch-key-btn touch-key-action text-danger" onclick="touchBackspace()" title="Borrar">
+                            <i class="bi bi-backspace-fill"></i>
+                        </button>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2 mb-2">
+                        <button type="button" class="btn btn-sm btn-link text-muted text-decoration-none" onclick="touchClear()">
+                            <i class="bi bi-trash3 me-1"></i> Borrar Todo
+                        </button>
+                    </div>
+
+                    
+                    <button type="button" class="btn-totem-submit" onclick="enviarAcreditacionRutManual()">
+                        <i class="bi bi-check-circle-fill"></i> OBTENER CREDENCIAL Y ACREDITARME
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    
+    <footer class="d-flex justify-content-between align-items-center pt-2 border-top">
+        <div id="exit-totem-btn" onclick="solicitarSalidaTotem()" style="cursor: pointer; font-size: 0.78rem; color: #94A3B8;">
+            <i class="bi bi-shield-lock me-1"></i> Salir de Modo Kiosko
+        </div>
+        <small class="text-muted">&copy; 2026 INACAP &bull; Sistema de Autoatención</small>
+    </footer>
+
+</section>
+
+<form id="physical-scanner-form">
+    <input type="text" id="physical-scanner-input" style="opacity: 0; position: absolute; top: -100px;" autofocus autocomplete="off">
+</form>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    let processing = false;
+let processing = false;
+let inactivityTimer = null;
+let countdownInterval = null;
+let secondsRemaining = 45;
 
-    function handleScan(decodedText) {
-        if (decodedText && !processing) {
-            processing = true;
-            const userId = decodedText.split('/').filter(Boolean).pop();
+const rutInput = document.getElementById('kioskRutInput');
+const physicalScannerInput = document.getElementById('physical-scanner-input');
+const pBienvenida = document.getElementById('pantalla-bienvenida');
+const pAcreditacion = document.getElementById('pantalla-acreditacion');
+const heroCountDisplay = document.getElementById('heroCountDisplay');
+const timerBadge = document.getElementById('kioskTimerBadge');
 
-            if (userId && !isNaN(userId)) {
-                fetch(`/panel-admin/reuniones/{{ reunion.id }}/marcar-asistencia/${userId}/`, {
-                    method: 'POST',
-                    headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'ok') {
-                        let successText = 'Tu asistencia ha sido registrada.';
-                        if (data.print_url) {
-                            successText += '<br><strong>¡Tu etiqueta se está imprimiendo!</strong>';
-                            window.open(data.print_url, '_blank');
-                        }
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: `¡Hola, ${data.asistente.nombre}!`,
-                            html: successText,
-                            timer: 2500,
-                            iconColor: '#28a745',
-                            showConfirmButton: false,
-                            imageUrl: data.asistente.foto_url,
-                            imageWidth: 120,
-                            imageHeight: 120,
-                            imageAlt: 'Foto de perfil'
-                        });
-                    } else {
-                        Swal.fire({ icon: 'error', title: 'Error', text: data.message });
-                    }
-                })
-                .catch(error => Swal.fire({ icon: 'error', title: 'Error de Conexión', text: 'No se pudo comunicar con el servidor.' }))
-                .finally(() => {
-                    setTimeout(() => { processing = false; }, 3000); // 3 segundos de espera
-                });
-            } else {
-                Swal.fire({ icon: 'warning', title: 'QR Inválido', text: 'El código no parece ser de un usuario.' });
-                setTimeout(() => { processing = false; }, 3000);
-            }
+function playBeep(success = true) {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const audioCtx = new AudioContext();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        if (success) {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.12);
+        } else {
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.25);
         }
+    } catch(e) {}
+}
+
+function mostrarPantallaAcreditacion() {
+    pBienvenida.classList.add('d-none');
+    pAcreditacion.classList.remove('d-none');
+    touchClear();
+    resetInactivityTimer();
+    if (physicalScannerInput) physicalScannerInput.focus();
+}
+
+function mostrarPantallaBienvenida() {
+    pAcreditacion.classList.add('d-none');
+    pBienvenida.classList.remove('d-none');
+    touchClear();
+    clearInterval(countdownInterval);
+    clearTimeout(inactivityTimer);
+    if (physicalScannerInput) physicalScannerInput.focus();
+}
+
+function resetInactivityTimer() {
+    clearTimeout(inactivityTimer);
+    clearInterval(countdownInterval);
+    secondsRemaining = 45;
+    if (timerBadge) timerBadge.textContent = `Regresando en ${secondsRemaining}s`;
+
+    countdownInterval = setInterval(() => {
+        secondsRemaining--;
+        if (timerBadge) timerBadge.textContent = `Regresando en ${secondsRemaining}s`;
+        if (secondsRemaining <= 0) {
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+
+    inactivityTimer = setTimeout(() => {
+        mostrarPantallaBienvenida();
+    }, 45000);
+}
+
+document.addEventListener('click', () => {
+    if (!pAcreditacion.classList.contains('d-none')) {
+        resetInactivityTimer();
     }
+});
 
-    const video = document.getElementById('qr-video');
-    const canvas = document.getElementById('qr-canvas');
-    const ctx = canvas.getContext('2d');
-    const statusDiv = document.getElementById('scanner-status');
-    const physicalScannerInput = document.getElementById('physical-scanner-input');
+function touchType(char) {
+    resetInactivityTimer();
+    let clean = rutInput.value.replace(/[^0-9kK]/g, '');
+    if (clean.length >= 9) return;
+    clean += char;
+    rutInput.value = formatRUT(clean);
+}
 
-    physicalScannerInput.focus();
-    document.body.addEventListener('click', (e) => {
-        if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
-            physicalScannerInput.focus();
+function touchBackspace() {
+    resetInactivityTimer();
+    let clean = rutInput.value.replace(/[^0-9kK]/g, '');
+    if (clean.length > 0) {
+        clean = clean.slice(0, -1);
+        rutInput.value = formatRUT(clean);
+    }
+}
+
+function touchClear() {
+    rutInput.value = '';
+}
+
+function formatRUT(clean) {
+    if (!clean) return '';
+    clean = clean.toUpperCase();
+    if (clean.length === 1) return clean;
+    const cuerpo = clean.slice(0, -1);
+    const dv = clean.slice(-1);
+    let cuerpoFmt = '';
+    let temp = cuerpo;
+    while (temp.length > 3) {
+        cuerpoFmt = '.' + temp.slice(-3) + cuerpoFmt;
+        temp = temp.slice(0, -3);
+    }
+    cuerpoFmt = temp + cuerpoFmt;
+    return cuerpoFmt + '-' + dv;
+}
+
+function enviarAcreditacionRutManual() {
+    const valor = rutInput.value.trim();
+    if (!valor) {
+        Swal.fire({
+            title: 'Ingresa tu RUT',
+            text: 'Por favor presiona los números en pantalla para escribir tu RUT.',
+            icon: 'warning',
+            confirmButtonColor: '#B70420'
+        });
+        return;
+    }
+    procesarAcreditacion(valor);
+}
+
+function imprimirEtiquetaGarantizada(url) {
+    if (!url) return;
+    const w = window.open(url, '_blank', 'width=650,height=450');
+    if (!w || w.closed || typeof w.closed === 'undefined') {
+        let iframe = document.getElementById('ticketPrintIframe');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.id = 'ticketPrintIframe';
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '1px';
+            iframe.style.height = '1px';
+            iframe.style.opacity = '0.01';
+            iframe.style.border = 'none';
+            document.body.appendChild(iframe);
         }
+        iframe.src = url;
+    }
+}
+
+function procesarAcreditacion(scannedText) {
+    if (processing) return;
+    processing = true;
+
+    Swal.fire({
+        title: 'Leyendo Cédula...',
+        text: 'Buscando datos en el sistema',
+        allowOutsideClick: false,
+        didOpen: () => { Swal.showLoading(); }
     });
 
-    document.getElementById('physical-scanner-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        let decodedText = physicalScannerInput.value.trim();
+    fetch("{% url 'panel-admin:marcar_asistencia_escaner_universal' reunion.id %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ codigo_o_rut: scannedText })
+    })
+    .then(r => r.json().then(data => ({ status: r.status, body: data })))
+    .then(res => {
+        const data = res.body;
 
-        // --- LÓGICA PARA EL CÓDIGO DE SALIDA ---
-        if (decodedText.toUpperCase() === 'SALIR') {
-            physicalScannerInput.value = ''; // Limpiar el input
+        if (res.status === 200 && data.status === 'ok') {
+            playBeep(true);
+            touchClear();
+
+            if (heroCountDisplay) {
+                heroCountDisplay.textContent = parseInt(heroCountDisplay.textContent || '0') + 1;
+            }
+
+            if (data.aforo_info && data.aforo_info.tiene_limite) {
+                const heroAforoDisplay = document.getElementById('heroAforoDisplay');
+                const heroAforoEstado = document.getElementById('heroAforoEstado');
+                if (heroAforoDisplay) {
+                    heroAforoDisplay.textContent = `${data.aforo_info.total_asistentes} / ${data.aforo_info.aforo_maximo}`;
+                    if (data.aforo_info.aforo_completo) {
+                        heroAforoDisplay.classList.add('text-danger');
+                        heroAforoDisplay.classList.remove('text-dark');
+                    }
+                }
+                if (heroAforoEstado) {
+                    if (data.aforo_info.aforo_completo) {
+                        heroAforoEstado.textContent = '¡Aforo Completo!';
+                        heroAforoEstado.className = 'text-danger fw-bold';
+                    } else {
+                        heroAforoEstado.textContent = `${data.aforo_info.porcentaje_aforo}% Capacidad`;
+                    }
+                }
+            }
+
+            if (data.print_url) {
+                imprimirEtiquetaGarantizada(data.print_url);
+            }
+
             Swal.fire({
-                title: 'Introducir contraseña para salir',
-                input: 'password',
-                inputPlaceholder: 'Contraseña del usuario Tótem',
-                inputAttributes: { autocapitalize: 'off', autocorrect: 'off' },
+                title: data.auto_creado ? '¡REGISTRADO Y ACREDITADO!' : '¡BIENVENIDO(A)!',
+                html: `
+                    <div class="text-center p-2">
+                        <img src="${data.asistente.foto_url}" class="rounded-circle border border-4 border-danger mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                        <h3 class="fw-bold text-dark mb-1" style="font-family: 'Poppins', sans-serif;">${data.asistente.nombre_completo}</h3>
+                        <p class="text-muted mb-2 font-monospace">RUT: <strong>${data.asistente.rut}</strong></p>
+                        <span class="badge bg-danger fs-6 px-3 py-2 rounded-pill">${data.asistente.institucion_empresa || data.asistente.rubro || 'INACAP'}</span>
+                        <div class="mt-3 text-success fw-bold fs-5">
+                            <i class="bi bi-printer-fill me-1"></i> Credencial enviada a impresión
+                        </div>
+                    </div>
+                `,
+                icon: 'success',
+                timer: 4000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            }).then(() => {
+                processing = false;
+                mostrarPantallaBienvenida();
+            });
+
+        } else if (data.status === 'already_registered') {
+            playBeep(false);
+            touchClear();
+
+            if (data.print_url) {
+                imprimirEtiquetaGarantizada(data.print_url);
+            }
+
+            Swal.fire({
+                title: 'Ya Estabas Acreditado(a)',
+                html: `
+                    <div class="text-center p-2">
+                        <img src="${data.asistente.foto_url}" class="rounded-circle border mb-2" style="width: 75px; height: 75px; object-fit: cover;">
+                        <h4 class="fw-bold text-dark mb-1">${data.asistente.nombre_completo}</h4>
+                        <p class="text-muted mb-2">${data.message}</p>
+                        <div class="mt-2 text-success small fw-bold"><i class="bi bi-printer-fill me-1"></i> Imprimiendo credencial...</div>
+                    </div>
+                `,
+                icon: 'info',
+                timer: 3500,
+                timerProgressBar: true,
+                showConfirmButton: false
+            }).then(() => {
+                processing = false;
+                mostrarPantallaBienvenida();
+            });
+
+        } else if (res.status === 409 && data.status === 'aforo_completo') {
+            playBeep(false);
+            touchClear();
+
+            if (data.aforo_info && data.aforo_info.tiene_limite) {
+                const heroAforoDisplay = document.getElementById('heroAforoDisplay');
+                const heroAforoEstado = document.getElementById('heroAforoEstado');
+                if (heroAforoDisplay) {
+                    heroAforoDisplay.textContent = `${data.aforo_info.total_asistentes} / ${data.aforo_info.aforo_maximo}`;
+                    heroAforoDisplay.classList.add('text-danger');
+                }
+                if (heroAforoEstado) {
+                    heroAforoEstado.textContent = '¡Aforo Completo!';
+                    heroAforoEstado.className = 'text-danger fw-bold';
+                }
+            }
+
+            Swal.fire({
+                title: '¡Aforo Máximo Completo!',
+                html: `
+                    <div class="text-center p-3">
+                        <div class="text-danger mb-3"><i class="bi bi-exclamation-octagon-fill display-3"></i></div>
+                        <h4 class="fw-bold text-dark mb-2">Sala al 100% de Capacidad</h4>
+                        <p class="text-muted mb-3" style="font-size: 1rem;">
+                            Por normas de seguridad y aforo máximo del recinto (límite de <strong>${data.aforo_maximo} personas</strong>), se ha alcanzado la capacidad permitida.
+                        </p>
+                        <div class="alert alert-secondary py-2 small mb-0 text-start">
+                            <i class="bi bi-info-circle-fill me-1"></i> Por favor acércate al personal organizador en la entrada para consultar disponibilidad.
+                        </div>
+                    </div>
+                `,
+                icon: 'warning',
+                timer: 6000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            }).then(() => {
+                processing = false;
+                mostrarPantallaBienvenida();
+            });
+
+        } else if (res.status === 404 || data.status === 'not_found') {
+            playBeep(false);
+            const rutDetectado = data.rut_sugerido || '';
+
+            Swal.fire({
+                title: '¡Bienvenido(a)!',
+                html: `
+                    <div class="text-start p-2">
+                        <div class="text-center mb-3">
+                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1.5 fs-6 font-monospace">
+                                Cédula: <strong>${rutDetectado}</strong>
+                            </span>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold text-secondary mb-1">Nombre</label>
+                            <input type="text" id="totem_new_nombre" class="form-control form-control-lg text-center" placeholder="Nombre" value="${data.nombre_sugerido || ''}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary mb-1">Apellido</label>
+                            <input type="text" id="totem_new_apellido" class="form-control form-control-lg text-center" placeholder="Apellido" value="${data.apellido_sugerido || ''}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary mb-1">¿Perteneces a INACAP o eres Externo?</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="totem_tipo" id="totem_tipo_inacap" value="inacap" checked onchange="document.getElementById('totem_rol_div').style.display='block';">
+                                    <label class="btn btn-outline-danger w-100 fw-bold py-2" for="totem_tipo_inacap">
+                                        <i class="bi bi-mortarboard-fill"></i> INACAP
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="totem_tipo" id="totem_tipo_externo" value="externo" onchange="document.getElementById('totem_rol_div').style.display='none';">
+                                    <label class="btn btn-outline-secondary w-100 fw-bold py-2" for="totem_tipo_externo">
+                                        <i class="bi bi-building"></i> Externo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3" id="totem_rol_div">
+                            <label class="form-label small fw-bold text-secondary mb-1">Rol en INACAP</label>
+                            <select id="totem_rol_select" class="form-select form-select-lg">
+                                <option value="estudiante" selected>Alumno / Estudiante</option>
+                                <option value="docente">Profesor / Docente</option>
+                                <option value="administrativo">Administrativo / Colaborador</option>
+                                <option value="exalumno">Exalumno / Titulado</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold text-secondary mb-1">Correo Electrónico</label>
+                            <input type="email" id="totem_new_email" class="form-control form-control-lg text-center" placeholder="ejemplo@correo.cl">
+                        </div>
+                    </div>
+                `,
                 showCancelButton: true,
                 cancelButtonText: 'Cancelar',
-                confirmButtonText: 'Verificar',
-                showLoaderOnConfirm: true,
-                preConfirm: (password) => {
-                    return fetch("{% url 'panel-admin:totem_verify_exit' %}", {
+                confirmButtonText: '<i class="bi bi-printer-fill me-1"></i> Acreditar e Imprimir',
+                confirmButtonColor: '#B70420',
+                preConfirm: () => {
+                    const nom = document.getElementById('totem_new_nombre').value.trim();
+                    const ape = document.getElementById('totem_new_apellido').value.trim();
+                    const email = document.getElementById('totem_new_email').value.trim();
+                    const isInacap = document.getElementById('totem_tipo_inacap').checked;
+                    const rol = isInacap ? document.getElementById('totem_rol_select').value : 'externo';
+
+                    if (!nom || !ape) {
+                        Swal.showValidationMessage('Por favor escribe tu nombre y apellido');
+                        return false;
+                    }
+                    if (!email) {
+                        Swal.showValidationMessage('Por favor ingresa tu correo electrónico');
+                        return false;
+                    }
+
+                    return fetch("{% url 'panel-admin:crear_usuario_rapido_asistencia' reunion.id %}", {
                         method: 'POST',
-                        headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ password: password })
-                    })
-                    .then(response => {
-                        if (!response.ok) { throw new Error(response.statusText); }
-                        return response.json();
-                    })
-                    .catch(error => { Swal.showValidationMessage(`La petición falló: ${error}`); });
-                },
-                allowOutsideClick: () => !Swal.isLoading()
-            }).then((result) => {
-                if (result.isConfirmed && result.value.status === 'ok') {
-                    document.getElementById('exit-button').style.left = '15px'; // Mostrar el botón
-                    Swal.fire('Éxito', 'Contraseña correcta. Ahora puedes volver atrás.', 'success');
-                } else if (result.isConfirmed) {
-                    Swal.fire('Error', 'Contraseña incorrecta.', 'error');
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                        body: JSON.stringify({
+                            rut: rutDetectado,
+                            nombre: nom,
+                            apellido: ape,
+                            email: email,
+                            tipo_usuario: isInacap ? 'inacap' : 'externo',
+                            subtipo_externo: 'natural',
+                            rubro: rol,
+                            institucion_empresa: isInacap ? 'INACAP' : '',
+                            marcar_asistencia: true,
+                            acepta_terminos: true
+                        })
+                    }).then(r => r.json());
+                }
+            }).then(result => {
+                if (result.isConfirmed && result.value && result.value.status === 'ok') {
+                    playBeep(true);
+                    touchClear();
+                    if (heroCountDisplay) {
+                        heroCountDisplay.textContent = parseInt(heroCountDisplay.textContent || '0') + 1;
+                    }
+                    if (result.value.aforo_info && result.value.aforo_info.tiene_limite) {
+                        const heroAforoDisplay = document.getElementById('heroAforoDisplay');
+                        const heroAforoEstado = document.getElementById('heroAforoEstado');
+                        if (heroAforoDisplay) heroAforoDisplay.textContent = `${result.value.aforo_info.total_asistentes} / ${result.value.aforo_info.aforo_maximo}`;
+                        if (heroAforoEstado) {
+                            if (result.value.aforo_info.aforo_completo) {
+                                heroAforoEstado.textContent = '¡Aforo Completo!';
+                                heroAforoEstado.className = 'text-danger fw-bold';
+                            } else {
+                                heroAforoEstado.textContent = `${result.value.aforo_info.porcentaje_aforo}% Capacidad`;
+                            }
+                        }
+                    }
+                    if (result.value.print_url) {
+                        imprimirEtiquetaGarantizada(result.value.print_url);
+                    }
+                    Swal.fire({
+                        title: '¡BIENVENIDO(A)!',
+                        html: `
+                            <div class="text-center p-2">
+                                <h3 class="fw-bold text-dark mb-1">${result.value.asistente.nombre_completo}</h3>
+                                <p class="text-muted mb-2 font-monospace">RUT: <strong>${result.value.asistente.rut}</strong></p>
+                                <div class="mt-3 text-success fw-bold fs-5">
+                                    <i class="bi bi-printer-fill me-1"></i> Registrado e Imprimiendo Credencial...
+                                </div>
+                            </div>
+                        `,
+                        icon: 'success',
+                        timer: 3500,
+                        timerProgressBar: true,
+                        showConfirmButton: false
+                    }).then(() => {
+                        processing = false;
+                        mostrarPantallaBienvenida();
+                    });
+                } else if (result.isConfirmed && result.value && result.value.status === 'aforo_completo') {
+                    playBeep(false);
+                    touchClear();
+                    Swal.fire({
+                        title: '¡Aforo Completo!',
+                        html: `
+                            <div class="text-center p-3">
+                                <div class="text-danger mb-3"><i class="bi bi-exclamation-octagon-fill display-3"></i></div>
+                                <h4 class="fw-bold text-dark mb-2">Capacidad Máxima Alcanzada</h4>
+                                <p class="text-muted mb-0">La sala ha completado su aforo máximo permitido (${result.value.aforo_maximo} personas). Por favor acércate al personal organizador.</p>
+                            </div>
+                        `,
+                        icon: 'warning',
+                        timer: 5000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        processing = false;
+                        mostrarPantallaBienvenida();
+                    });
+                } else {
+                    processing = false;
+                    mostrarPantallaBienvenida();
                 }
             });
-            return; // Detener el procesamiento normal
-        }
 
-        if (decodedText) {
-            let correctedText = decodedText.replace(/Ñ--/g, '://').replace(/Ñ/g, ':').replace(/\./g, '-').replace(/-(\d+)-?$/, '/$1/');
-            handleScan(correctedText);
-            physicalScannerInput.value = '';
-            physicalScannerInput.focus();
+        } else {
+            playBeep(false);
+            Swal.fire({
+                title: 'Error',
+                text: data.message || 'No se pudo procesar.',
+                icon: 'error',
+                timer: 3000,
+                showConfirmButton: false
+            }).then(() => {
+                processing = false;
+            });
+        }
+    })
+    .catch(err => {
+        playBeep(false);
+        Swal.fire('Error de Conexión', 'No se pudo comunicar con el servidor.', 'error').then(() => {
+            processing = false;
+        });
+    });
+}
+
+document.getElementById('physical-scanner-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const val = physicalScannerInput.value.trim();
+    if (val) {
+        procesarAcreditacion(val);
+        physicalScannerInput.value = '';
+        physicalScannerInput.focus();
+    }
+});
+
+document.body.addEventListener('click', (e) => {
+    if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'INPUT') {
+        if (physicalScannerInput) physicalScannerInput.focus();
+    }
+});
+
+function solicitarSalidaTotem() {
+    Swal.fire({
+        title: 'Administración del Tótem',
+        text: 'Ingresa la contraseña de administrador para salir:',
+        input: 'password',
+        inputPlaceholder: 'Contraseña de administrador',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Verificar',
+        confirmButtonColor: '#B70420',
+        preConfirm: (password) => {
+            return fetch("{% url 'panel-admin:totem_verify_exit' %}", {
+                method: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: password })
+            })
+            .then(r => r.json())
+            .catch(err => { Swal.showValidationMessage('Error: ' + err); });
+        }
+    }).then((result) => {
+        if (result.isConfirmed && result.value && result.value.status === 'ok') {
+            window.location.href = "{% url 'panel-admin:totem_seleccionar_reunion' %}";
+        } else if (result.isConfirmed) {
+            Swal.fire('Contraseña Incorrecta', 'No tienes permiso para salir del modo tótem.', 'error');
         }
     });
+}
 
-    let stream = null;
-    async function startCamera() {
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-            video.srcObject = stream;
-            video.setAttribute("playsinline", true);
-            video.play();
-            statusDiv.textContent = "Cámara activa. ¡Listo para escanear!";
-            statusDiv.classList.remove('text-warning');
-            statusDiv.classList.add('text-success');
-            requestAnimationFrame(tick);
-        } catch (err) {
-            statusDiv.textContent = "Error al iniciar la cámara. Revisa los permisos.";
-            statusDiv.classList.add('text-danger');
-        }
-    }
+if (physicalScannerInput) physicalScannerInput.focus();
 
-    function tick() {
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            canvas.height = video.videoHeight;
-            canvas.width = video.videoWidth;
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
-            if (code) {
-                handleScan(code.data);
-            }
-        }
-        requestAnimationFrame(tick);
-    }
-
-    startCamera();
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
 });
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'F12' || e.keyCode === 123) {
+        e.preventDefault();
+        return false;
+    }
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) {
+        e.preventDefault();
+        return false;
+    }
+    if (e.ctrlKey && (e.key === 'u' || e.key === 'U')) {
+        e.preventDefault();
+        return false;
+    }
+    if ((e.ctrlKey && (e.key === 'r' || e.key === 'R')) || e.key === 'F5' || e.keyCode === 116) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+document.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+    return false;
+});
+
 </script>
 </body>
 </html>

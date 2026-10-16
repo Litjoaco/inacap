@@ -3,84 +3,297 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de Interesados</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Interesados - INACAP</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            background-color: #f8f9fa;
+        :root {
+            --inacap-red: #B70420;
+            --inacap-dark: #8B0014;
+            --inacap-border: #E2E8F0;
         }
-        header {
-            background: linear-gradient(to right, #D90429, #A9001F);
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f4f7f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        header.header-admin {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            padding: 12px 24px;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
             color: white;
         }
-        .accordion-button:not(.collapsed) {
-            background-color: #e7f1ff;
-            color: #052c65;
-            box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
+
+        .header-brand img {
+            height: 42px;
+            width: auto;
+            margin-right: 12px;
         }
+
+        .accordion-item {
+            border: 1px solid var(--inacap-border);
+            border-radius: 12px !important;
+            overflow: hidden;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .accordion-button {
+            padding: 16px 20px;
+            font-weight: 600;
+        }
+
+        .accordion-button:not(.collapsed) {
+            background-color: #FEF2F2;
+            color: var(--inacap-red);
+            box-shadow: inset 0 -1px 0 #FEE2E2;
+        }
+
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: rgba(183, 4, 32, 0.25);
+        }
+
         .avatar-placeholder {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            background-color: #0d6efd;
+            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            margin-right: 15px;
+            font-size: 1rem;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+
+        .avatar-img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #E2E8F0;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+
+        .btn-copy-emails {
+            background-color: #FFFFFF;
+            border: 1.5px solid #64748B;
+            color: #475569;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-copy-emails:hover {
+            background-color: #F1F5F9;
+            color: #0F172A;
+        }
+
+        .btn-send-mass-email {
+            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
+            color: #FFFFFF;
+            border: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-send-mass-email:hover {
+            background: linear-gradient(135deg, #9C031A, #750011);
+            color: #FFFFFF;
+            box-shadow: 0 4px 12px rgba(183, 4, 32, 0.25);
+        }
+
+        footer.bottom-footer {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            color: white;
+            padding: 18px 0;
+            text-align: center;
+            font-size: 0.84rem;
+            margin-top: auto;
         }
     </style>
 </head>
 <body>
-<header class="p-3 shadow-sm d-flex justify-content-between align-items-center">
-    <div class="d-flex align-items-center">
-        <img src="{% static 'img/logo.png' %}" class="img-fluid rounded me-2" alt="Logo" style="height:50px;">
-        <span class="fw-bold fs-5">Gestión de Interesados</span>
+
+<header class="header-admin d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <a href="{% url 'panel-admin:panel_admin' %}" class="header-brand">
+        <img src="{% static 'img/inacap-logo.png' %}" alt="Logo INACAP">
+        <div>
+            <span class="fw-bold fs-5 d-block">Gestión de Interesados</span>
+            <small class="opacity-80">Pre-inscripciones y Convocatoria de Eventos</small>
+        </div>
+    </a>
+    <div>
+        <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light btn-sm fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Volver al Panel
+        </a>
     </div>
-    <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light">Volver al Panel</a>
 </header>
 
-<main class="container my-5">
-    <h1 class="text-center mb-4">Interesados en Próximos Eventos</h1>
+<main class="container my-5 flex-grow-1">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <h2 class="fw-bold text-dark mb-1"><i class="bi bi-person-lines-fill text-danger me-2"></i>Gestión de Interesados y Pre-inscripciones</h2>
+            <p class="text-muted mb-0">Revisa participantes pre-inscritos en eventos próximos y pasados para convocatorias y seguimiento.</p>
+        </div>
+        <div>
+            <span class="badge bg-white text-danger border p-2 fw-semibold shadow-sm">
+                <i class="bi bi-heart-fill text-danger me-1"></i> Total Pre-inscritos: <strong>{{ total_interesados|default:"0" }}</strong>
+            </span>
+        </div>
+    </div>
 
-    {% if reuniones.exists %}
+    <!-- BARRA DE FILTROS Y BÚSQUEDA POR ESTADO / FECHA / ID -->
+    <div class="card border-0 shadow-sm rounded-4 mb-4 p-3 bg-white">
+        <form method="GET" class="row g-2 align-items-center">
+            <!-- Selector de estado: Todas / Próximas / Pasadas -->
+            <div class="col-lg-5 col-12">
+                <div class="btn-group btn-group-sm w-100 shadow-sm" role="group">
+                    <a href="?estado=todas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}{% if filtro_fecha %}&fecha={{ filtro_fecha }}{% endif %}" class="btn {% if filtro_estado == 'todas' %}btn-danger text-white fw-bold{% else %}btn-outline-secondary bg-white{% endif %}">
+                        <i class="bi bi-calendar3 me-1"></i> Todas ({{ total_reuniones }})
+                    </a>
+                    <a href="?estado=proximas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}{% if filtro_fecha %}&fecha={{ filtro_fecha }}{% endif %}" class="btn {% if filtro_estado == 'proximas' %}btn-danger text-white fw-bold{% else %}btn-outline-secondary bg-white{% endif %}">
+                        <i class="bi bi-hourglass-split me-1"></i> Próximas ({{ total_proximas }})
+                    </a>
+                    <a href="?estado=pasadas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}{% if filtro_fecha %}&fecha={{ filtro_fecha }}{% endif %}" class="btn {% if filtro_estado == 'pasadas' %}btn-danger text-white fw-bold{% else %}btn-outline-secondary bg-white{% endif %}">
+                        <i class="bi bi-calendar-check me-1"></i> Ya Pasaron ({{ total_pasadas }})
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filtro por Mes -->
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light text-muted small"><i class="bi bi-calendar-month me-1"></i>Mes:</span>
+                    <input type="month" name="mes" value="{{ filtro_mes|default:'' }}" class="form-control" onchange="this.form.submit()" title="Filtrar por mes y año">
+                </div>
+            </div>
+
+            <!-- Filtro por Fecha Exacta -->
+            <div class="col-lg-4 col-sm-6 col-12">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light text-muted small"><i class="bi bi-calendar-date me-1"></i>Día:</span>
+                    <input type="date" name="fecha" value="{{ filtro_fecha|default:'' }}" class="form-control" onchange="this.form.submit()" title="Filtrar por fecha exacta">
+                </div>
+            </div>
+
+            <!-- Buscador por ID, Texto o Participante -->
+            <div class="col-12 mt-2">
+                <input type="hidden" name="estado" value="{{ filtro_estado|default:'todas' }}">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="q" value="{{ filtro_q|default:'' }}" class="form-control border-start-0" placeholder="Buscar por ID (ej: #1 o 1), evento, participante, RUT, correo...">
+                    {% if filtro_q or filtro_mes or filtro_fecha %}
+                    <a href="?estado={{ filtro_estado|default:'todas' }}" class="btn btn-outline-secondary" title="Limpiar todos los filtros">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                    {% endif %}
+                    <button type="submit" class="btn btn-danger fw-semibold px-3">Buscar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% if reuniones %}
     <div class="accordion" id="accordionInteresados">
         {% for reunion in reuniones %}
         <div class="accordion-item">
             <h2 class="accordion-header" id="heading{{ reunion.id }}">
                 <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ reunion.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ reunion.id }}">
-                    <div class="flex-grow-1">
-                        <strong>{{ reunion.detalle }}</strong>&nbsp;-&nbsp;<span class="text-muted">{{ reunion.fecha|date:"d/m/Y" }}</span>
+                    <div class="flex-grow-1 d-flex align-items-center flex-wrap gap-2">
+                        <span class="badge bg-dark text-white fw-bold">ID #{{ reunion.id }}</span>
+                        {% if reunion.fecha >= now %}
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">
+                                <i class="bi bi-hourglass-split me-1"></i>Próxima
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary border">
+                                <i class="bi bi-calendar-check me-1"></i>Ya Pasó
+                            </span>
+                        {% endif %}
+                        <strong class="text-dark me-2" style="font-size: 1rem;">{{ reunion.detalle }}</strong>
+                        <span class="text-muted small">
+                            <i class="bi bi-calendar3 me-1 text-danger"></i> {{ reunion.fecha|date:"d/m/Y - H:i" }} hrs
+                            <span class="mx-1">•</span>
+                            <i class="bi bi-geo-alt me-1 text-danger"></i> {{ reunion.ubicacion|default:"Sede INACAP" }}
+                        </span>
                     </div>
-                    <span class="badge bg-primary rounded-pill me-3">{{ reunion.interesados.count }} interesado(s)</span>
+                    <span class="badge rounded-pill text-white me-3" style="background-color: var(--inacap-red);">
+                        {{ reunion.interesados.count }} pre-inscrito(s)
+                    </span>
                 </button>
             </h2>
+            
             <div id="collapse{{ reunion.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ reunion.id }}" data-bs-parent="#accordionInteresados">
-                <div class="accordion-body">
+                <div class="accordion-body bg-white p-4">
                     {% if reunion.interesados.exists %}
-                        <div class="d-flex justify-content-end mb-3">
-                            <button class="btn btn-secondary btn-sm copy-emails-btn" data-reunion-id="{{ reunion.id }}">
-                                <i class="bi bi-clipboard-check me-1"></i> Copiar Correos
-                            </button>
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 border-bottom pb-3">
+                            <div class="text-muted small">
+                                <i class="bi bi-people me-1"></i> Nómina de personas que marcaron interés en este evento.
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-copy-emails copy-emails-btn shadow-sm" data-reunion-id="{{ reunion.id }}" data-detalle="{{ reunion.detalle }}">
+                                    <i class="bi bi-clipboard-check me-1"></i> Copiar Correos
+                                </button>
+                                <button class="btn btn-sm btn-send-mass-email shadow-sm" onclick="abrirModalCorreoMasivo({{ reunion.id }}, '{{ reunion.detalle|escapejs }}', {{ reunion.interesados.count }})">
+                                    <i class="bi bi-envelope-paper-fill me-1"></i> Enviar Correo Masivo
+                                </button>
+                            </div>
                         </div>
+                        
                         <ul class="list-group list-group-flush">
                             {% for interesado in reunion.interesados.all %}
-                            <li class="list-group-item d-flex align-items-center">
-                                <div class="avatar-placeholder bg-secondary">
-                                    {{ interesado.nombre|first|upper }}
+                            <li class="list-group-item d-flex align-items-center justify-content-between p-3 flex-wrap gap-2">
+                                <div class="d-flex align-items-center">
+                                    {% if interesado.foto %}
+                                        <img src="{{ interesado.foto.url }}" alt="{{ interesado.nombre }}" class="avatar-img">
+                                    {% else %}
+                                        <div class="avatar-placeholder">
+                                            {{ interesado.nombre|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <span class="fw-bold d-block text-dark">{{ interesado.nombre }} {{ interesado.apellido }}</span>
+                                        <span class="text-muted small email-address-{{ reunion.id }}">{{ interesado.email }}</span>
+                                    </div>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <span class="fw-bold">{{ interesado.nombre }} {{ interesado.apellido }}</span>
-                                    <small class="d-block text-muted email-address-{{ reunion.id }}">{{ interesado.email }}</small>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="font-monospace small text-muted">{{ interesado.rut_formateado|default:interesado.rut }}</span>
+                                    {% if interesado.institucion_empresa %}
+                                        <span class="badge bg-light text-secondary border">{{ interesado.institucion_empresa }}</span>
+                                    {% elif interesado.rubro != 'externo' %}
+                                        <span class="badge bg-light text-danger border">INACAP</span>
+                                    {% endif %}
                                 </div>
-                                <span class="badge bg-light text-dark border">{{ interesado.rubro }}</span>
                             </li>
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <p class="text-center text-muted">Aún no hay nadie interesado en este evento.</p>
+                        <div class="text-center py-4 text-muted">
+                            <i class="bi bi-info-circle display-6 d-block mb-2 text-secondary opacity-50"></i>
+                            Aún no hay participantes pre-inscritos para este evento.
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -88,61 +301,207 @@
         {% endfor %}
     </div>
     {% else %}
-        <div class="alert alert-info text-center">No hay eventos próximos para mostrar.</div>
+        <div class="alert alert-light border text-center p-5 rounded-4 shadow-sm bg-white">
+            <i class="bi bi-search display-4 d-block mb-3 text-secondary opacity-50"></i>
+            <h5 class="fw-bold text-dark mb-1">No se encontraron eventos con los filtros seleccionados</h5>
+            <p class="text-muted small mb-3">Intenta cambiar el término de búsqueda o selecciona otra categoría (Próximas, Ya Pasaron, Todas).</p>
+            <a href="{% url 'panel-admin:gestion_interesados' %}" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-arrow-clockwise me-1"></i>Ver Todos los Eventos
+            </a>
+        </div>
     {% endif %}
+
 </main>
 
+<div class="modal fade" id="modalCorreoMasivo" tabindex="-1" aria-labelledby="modalCorreoMasivoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-3 overflow-hidden">
+            <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));">
+                <h5 class="modal-title fw-bold" id="modalCorreoMasivoLabel">
+                    <i class="bi bi-envelope-paper-fill me-2"></i>Enviar Comunicado Masivo
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <form id="formCorreoMasivo" onsubmit="enviarCorreoMasivoSubmit(event)">
+                {% csrf_token %}
+                <input type="hidden" id="modalReunionId" name="reunion_id" value="">
+                
+                <div class="modal-body p-4">
+                    
+                    <div class="alert alert-light border d-flex align-items-center mb-3">
+                        <i class="bi bi-info-circle-fill text-danger fs-4 me-3"></i>
+                        <div>
+                            <span class="d-block small text-muted">Destinatarios del Evento:</span>
+                            <strong class="text-dark" id="modalEventoTitulo">-</strong> &bull; 
+                            <span class="badge bg-danger rounded-pill" id="modalDestinatariosCount">0 personas</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="asuntoCorreo" class="form-label fw-bold text-dark small text-uppercase">Asunto del Correo</label>
+                        <input type="text" class="form-control" id="asuntoCorreo" name="asunto" required placeholder="Ej: [INACAP] Recordatorio: Tu próximo evento institucional">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mensajeCorreo" class="form-label fw-bold text-dark small text-uppercase">Mensaje / Cuerpo del Correo</label>
+                        <textarea class="form-control" id="mensajeCorreo" name="mensaje" rows="6" required placeholder="Escribe aquí el mensaje informativo o recordatorio que recibirán los alumnos pre-inscritos..."></textarea>
+                        <div class="form-text">El correo incluirá automáticamente la cabecera institucional INACAP, fecha, hora y enlace a la ficha del evento.</div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer bg-light border-top p-3 d-flex justify-content-between align-items-center">
+                    <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-send-mass-email px-4" id="btnEnviarCorreoSubmit">
+                        <i class="bi bi-send-fill me-1"></i> Enviar Correo a Todos
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer class="bottom-footer">
+    <div class="container">
+        &copy; 2026 INACAP. Todos los derechos reservados | Convocatoria y Pre-inscripciones.
+    </div>
+</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+let modalCorreoBS = null;
+
 document.addEventListener('DOMContentLoaded', function() {
+    modalCorreoBS = new bootstrap.Modal(document.getElementById('modalCorreoMasivo'));
     const copyButtons = document.querySelectorAll('.copy-emails-btn');
 
     copyButtons.forEach(button => {
         button.addEventListener('click', function() {
             const reunionId = this.dataset.reunionId;
             const emailElements = document.querySelectorAll(`.email-address-${reunionId}`);
-            const emails = Array.from(emailElements).map(el => el.textContent.trim()).join(', ');
+            const emails = Array.from(emailElements).map(el => el.textContent.trim()).filter(e => e.length > 0).join('; ');
 
             if (emails) {
-                // Fallback para copiar en portapapeles, más compatible.
-                const textarea = document.createElement('textarea');
-                textarea.value = emails;
-                textarea.style.position = 'absolute';
-                textarea.style.left = '-9999px'; // Moverlo fuera de la pantalla
-                document.body.appendChild(textarea);
-                textarea.select();
-                try {
-                    document.execCommand('copy');
-                    showCopyFeedback(this, true);
-                } catch (err) {
-                    console.error('Error al copiar los correos:', err);
-                    showCopyFeedback(this, false);
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(emails).then(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Correos Copiados!',
+                            text: `Se copiaron ${emailElements.length} correos al portapapeles listos para enviar convocatorias.`,
+                            confirmButtonColor: '#B70420',
+                            timer: 2500,
+                            showConfirmButton: false
+                        });
+                    }).catch(err => {
+                        fallbackCopy(emails);
+                    });
+                } else {
+                    fallbackCopy(emails);
                 }
-                document.body.removeChild(textarea);
             } else {
-                alert('No hay correos para copiar.');
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Sin correos',
+                    text: 'No hay correos registrados en este evento.',
+                    confirmButtonColor: '#B70420'
+                });
             }
         });
     });
 
-    function showCopyFeedback(button, success) {
-        const originalText = button.innerHTML;
-        if (success) {
-            button.innerHTML = '<i class="bi bi-check-lg me-1"></i> ¡Copiado!';
-            button.classList.add('btn-success');
-            button.classList.remove('btn-secondary');
-        } else {
-            button.innerHTML = '<i class="bi bi-x-lg me-1"></i> Error';
-            button.classList.add('btn-danger');
-            button.classList.remove('btn-secondary');
+    function fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'absolute';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            Swal.fire({
+                icon: 'success',
+                title: '¡Correos Copiados!',
+                confirmButtonColor: '#B70420',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } catch (err) {
+            console.error('Error al copiar:', err);
         }
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.classList.remove('btn-success', 'btn-danger');
-            button.classList.add('btn-secondary');
-        }, 2000);
+        document.body.removeChild(textarea);
     }
 });
+
+function abrirModalCorreoMasivo(reunionId, detalle, count) {
+    document.getElementById('modalReunionId').value = reunionId;
+    document.getElementById('modalEventoTitulo').textContent = detalle;
+    document.getElementById('modalDestinatariosCount').textContent = `${count} personas pre-inscritas`;
+    document.getElementById('asuntoCorreo').value = `[INACAP] Recordatorio: ${detalle}`;
+    document.getElementById('mensajeCorreo').value = `Estimado(a) participante,
+
+Te recordamos que te encuentras pre-inscrito(a) en la actividad "${detalle}".
+
+Te esperamos puntualmente. Recuerda llevar tu Código QR o Cédula de Identidad para realizar tu acreditación al ingresar al recinto.
+
+¡Saludos cordiales!
+Equipo de Organización INACAP`;
+    modalCorreoBS.show();
+}
+
+function enviarCorreoMasivoSubmit(e) {
+    e.preventDefault();
+    const reunionId = document.getElementById('modalReunionId').value;
+    const asunto = document.getElementById('asuntoCorreo').value.trim();
+    const mensaje = document.getElementById('mensajeCorreo').value.trim();
+    const btnSubmit = document.getElementById('btnEnviarCorreoSubmit');
+
+    if (!asunto || !mensaje) {
+        Swal.fire('Campos requeridos', 'Por favor completa el asunto y el mensaje.', 'warning');
+        return;
+    }
+
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Enviando correos...';
+
+    const formData = new FormData();
+    formData.append('asunto', asunto);
+    formData.append('mensaje', mensaje);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    fetch(`/panel-admin/interesados/${reunionId}/enviar-correo/`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="bi bi-send-fill me-1"></i> Enviar Correo a Todos';
+
+        if (data.status === 'ok') {
+            modalCorreoBS.hide();
+            Swal.fire({
+                icon: 'success',
+                title: '¡Correos Enviados!',
+                text: data.message,
+                confirmButtonColor: '#B70420'
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de Envío',
+                text: data.message || 'No se pudo enviar el correo masivo.',
+                confirmButtonColor: '#B70420'
+            });
+        }
+    })
+    .catch(err => {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = '<i class="bi bi-send-fill me-1"></i> Enviar Correo a Todos';
+        Swal.fire('Error de Conexión', 'No se pudo comunicar con el servidor: ' + err, 'error');
+    });
+}
 </script>
 </body>
 </html>

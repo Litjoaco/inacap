@@ -1,0 +1,489 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurar Encuesta: {{ encuesta.titulo }} - INACAP</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --inacap-red: #B70420;
+            --inacap-dark: #8B0014;
+        }
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            color: #1e293b;
+        }
+
+        .header-admin {
+            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
+            color: white;
+            padding: 16px 0;
+            box-shadow: 0 4px 15px rgba(183, 4, 32, 0.2);
+        }
+
+        .survey-type-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            height: 100%;
+        }
+        .survey-type-card:hover {
+            border-color: #cbd5e1;
+        }
+        .btn-check:checked + .survey-type-card {
+            border-color: var(--inacap-red);
+            background-color: #fff5f5;
+            box-shadow: 0 4px 12px rgba(183, 4, 32, 0.1);
+        }
+
+        .delivery-mode-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            height: 100%;
+        }
+        .delivery-mode-card:hover {
+            border-color: #cbd5e1;
+        }
+        .btn-check:checked + .delivery-mode-card {
+            border-color: var(--inacap-red);
+            background-color: #fff5f5;
+        }
+
+        .template-badge-btn {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .template-badge-btn:hover {
+            background: #fee2e2;
+            border-color: #fca5a5;
+            color: var(--inacap-red);
+        }
+
+        .live-preview-box {
+            background: #ffffff;
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 20px;
+            position: sticky;
+            top: 20px;
+        }
+
+        .star-rating-preview {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            font-size: 1.8rem;
+            color: #cbd5e1;
+        }
+        .star-rating-preview i.active {
+            color: #f59e0b;
+        }
+
+        footer {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 16px 0;
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+<header class="header-admin">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center">
+            <img src="{% static 'img/inacap-logo.png' %}" alt="Logo INACAP" style="height: 38px;" class="me-3">
+            <div>
+                <h5 class="mb-0 fw-bold">Configuración de Encuesta</h5>
+                <small class="opacity-80">Reunión: {{ encuesta.reunion.detalle }}</small>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'panel-admin:ver_respuestas_encuesta' encuesta.id %}" class="btn btn-light btn-sm text-danger fw-semibold">
+                <i class="bi bi-bar-chart-fill me-1"></i> Ver Resultados
+            </a>
+            <a href="{% url 'panel-admin:gestion_encuestas' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Volver a Encuestas
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="container my-4 flex-grow-1">
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-body p-4">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row g-4">
+                    <!-- COLUMNA IZQUIERDA: FORMULARIO -->
+                    <div class="col-lg-7">
+
+                        <!-- EVENTO ASOCIADO -->
+                        <div class="p-3 bg-light rounded-3 border mb-4">
+                            <span class="text-muted text-uppercase small fw-bold d-block mb-1">Evento Vinculado</span>
+                            <h5 class="fw-bold text-dark mb-0">{{ encuesta.reunion.detalle }}</h5>
+                            <small class="text-muted"><i class="bi bi-calendar-event me-1 text-danger"></i>{{ encuesta.reunion.fecha|date:"d/m/Y H:i" }} hrs &bull; {{ encuesta.reunion.ubicacion }}</small>
+                            <div class="d-none">{{ form.reunion }}</div>
+                        </div>
+
+                        <!-- PASO 1: TIPO DE ENCUESTA -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark text-uppercase small d-block mb-2">
+                                1. Tipo de Encuesta *
+                            </label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <input type="radio" class="btn-check" name="tipo_encuesta" id="tipo_interna" value="interna" {% if encuesta.tipo_encuesta == 'interna' %}checked{% endif %} onchange="toggleTipoEncuesta('interna')">
+                                    <label class="survey-type-card d-block" for="tipo_interna">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <div class="bg-danger text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                <i class="bi bi-star-fill"></i>
+                                            </div>
+                                            <strong class="text-dark">Encuesta INACAP</strong>
+                                        </div>
+                                        <small class="text-muted d-block">Estrellas de 1 a 5 y opiniones abiertas administradas en la plataforma.</small>
+                                    </label>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="radio" class="btn-check" name="tipo_encuesta" id="tipo_externa" value="externa" {% if encuesta.tipo_encuesta == 'externa' %}checked{% endif %} onchange="toggleTipoEncuesta('externa')">
+                                    <label class="survey-type-card d-block" for="tipo_externa">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                                <i class="bi bi-cloud-arrow-up-fill"></i>
+                                            </div>
+                                            <strong class="text-dark">Subir Encuesta de Entidad</strong>
+                                        </div>
+                                        <small class="text-muted d-block">Subir el archivo de encuesta entregado por la entidad externa o su enlace.</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN DINÁMICA: SUBIR ARCHIVO O ENLACE EXTERNO -->
+                        <div id="seccionExterna" class="p-3 bg-primary-subtle border border-primary-subtle rounded-3 mb-4" style="{% if encuesta.tipo_encuesta != 'externa' %}display: none;{% endif %}">
+                            <h6 class="fw-bold text-primary mb-3">
+                                <i class="bi bi-file-earmark-arrow-up-fill me-1"></i> Archivo o Enlace de la Entidad Externa
+                            </h6>
+
+                            {% if encuesta.archivo_encuesta %}
+                            <div class="p-2 bg-white rounded border mb-3 d-flex align-items-center justify-content-between">
+                                <div class="text-truncate me-2">
+                                    <span class="small text-muted d-block">Archivo actual subido:</span>
+                                    <strong class="text-dark"><i class="bi bi-file-earmark-check-fill text-success me-1"></i>{{ encuesta.archivo_encuesta.name }}</strong>
+                                </div>
+                                <a href="{{ encuesta.archivo_encuesta.url }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                    <i class="bi bi-download me-1"></i>Descargar
+                                </a>
+                            </div>
+                            {% endif %}
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    <i class="bi bi-paperclip me-1"></i> {% if encuesta.archivo_encuesta %}Reemplazar archivo de encuesta (opcional):{% else %}Subir archivo de encuesta (PDF, Word, Excel, Imagen):{% endif %}
+                                </label>
+                                {{ form.archivo_encuesta }}
+                            </div>
+
+                            <div class="text-center my-2 text-muted fw-bold small">
+                                <span>— O TAMBIÉN PUEDES INDICAR SU ENLACE WEB —</span>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label fw-bold text-dark small mb-1">
+                                    <i class="bi bi-link-45deg me-1"></i> Enlace Web Externo (opcional)
+                                </label>
+                                {{ form.url_externa }}
+                            </div>
+                        </div>
+
+                        <!-- SECCIÓN INTERNA INACAP -->
+                        <div id="seccionInterna" style="{% if encuesta.tipo_encuesta == 'externa' %}display: none;{% endif %}">
+                            <!-- PLANTILLAS RÁPIDAS -->
+                            <div class="p-3 bg-light rounded-3 border mb-3">
+                                <label class="form-label fw-bold text-dark small d-block mb-2">
+                                    <i class="bi bi-lightning-charge-fill text-warning me-1"></i> Cargar Preguntas Rápidas:
+                                </label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="template-badge-btn" onclick="cargarPlantilla('general')">
+                                        🎓 Plantilla General INACAP
+                                    </button>
+                                    <button type="button" class="template-badge-btn" onclick="cargarPlantilla('taller')">
+                                        🛠️ Taller Práctico / Capacitación
+                                    </button>
+                                    <button type="button" class="template-badge-btn" onclick="cargarPlantilla('empresa')">
+                                        💼 Encuentro Empresarial
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Título de la Encuesta *</label>
+                                {{ form.titulo }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Pregunta de Calificación (Estrellas 1 a 5)</label>
+                                {{ form.pregunta_estrellas }}
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Pregunta de Opinión / Comentarios</label>
+                                {{ form.pregunta_opinion }}
+                            </div>
+
+                            <div class="row g-2 mb-4">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch p-2 bg-light rounded border">
+                                        {{ form.permitir_anonimo }}
+                                        <label class="form-check-label fw-semibold small text-dark ms-2" for="{{ form.permitir_anonimo.id_for_label }}">
+                                            Permitir respuesta anónima
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch p-2 bg-light rounded border">
+                                        {{ form.activa }}
+                                        <label class="form-check-label fw-semibold small text-dark ms-2" for="{{ form.activa.id_for_label }}">
+                                            Encuesta activa
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MODALIDAD DE ENTREGA -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark text-uppercase small d-block mb-2">
+                                2. Modalidad de Entrega / Aplicación *
+                            </label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <input type="radio" class="btn-check" name="modalidad_entrega" id="mod_finalizar" value="al_finalizar" {% if encuesta.modalidad_entrega == 'al_finalizar' %}checked{% endif %} onchange="actualizarBadgeModalidad('al_finalizar')">
+                                    <label class="delivery-mode-card d-block" for="mod_finalizar">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <i class="bi bi-display-fill text-danger fs-5"></i>
+                                            <strong class="text-dark">Al Terminar Reunión</strong>
+                                        </div>
+                                        <small class="text-muted d-block">Visible o descargable inmediatamente al terminar el evento.</small>
+                                    </label>
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="radio" class="btn-check" name="modalidad_entrega" id="mod_correo" value="correo" {% if encuesta.modalidad_entrega == 'correo' %}checked{% endif %} onchange="actualizarBadgeModalidad('correo')">
+                                    <label class="delivery-mode-card d-block" for="mod_correo">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <i class="bi bi-envelope-at-fill text-primary fs-5"></i>
+                                            <strong class="text-dark">Enviar al Correo</strong>
+                                        </div>
+                                        <small class="text-muted d-block">Envío del documento o enlace por correo a los asistentes acreditados.</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BOTONES -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg fw-bold flex-grow-1 shadow-sm">
+                                <i class="bi bi-check2-circle me-1"></i> Guardar Cambios
+                            </button>
+                            <a href="{% url 'panel-admin:gestion_encuestas' %}" class="btn btn-outline-secondary btn-lg">
+                                Cancelar
+                            </a>
+                        </div>
+
+                    </div>
+
+                    <!-- COLUMNA DERECHA: PREVISUALIZACIÓN -->
+                    <div class="col-lg-5">
+                        <div class="live-preview-box">
+                            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                <span class="badge bg-secondary-subtle text-dark border">
+                                    <i class="bi bi-eye-fill text-danger me-1"></i> Previsualización
+                                </span>
+                                <span id="badgeModalidadPreview" class="badge {% if encuesta.modalidad_entrega == 'correo' %}bg-primary-subtle text-primary{% else %}bg-warning-subtle text-warning-emphasis{% endif %} border">
+                                    <i class="bi {% if encuesta.modalidad_entrega == 'correo' %}bi-envelope-at{% else %}bi-display{% endif %} me-1"></i>
+                                    {% if encuesta.modalidad_entrega == 'correo' %}Por Correo{% else %}Al terminar reunión{% endif %}
+                                </span>
+                            </div>
+
+                            <div class="text-center mb-3">
+                                <img src="{% static 'img/inacap-logo.png' %}" alt="INACAP" style="height: 30px;" class="mb-2">
+                                <h6 class="fw-bold text-dark mb-1" id="previewTitulo">{{ encuesta.titulo }}</h6>
+                                <p class="text-muted small mb-0">{{ encuesta.reunion.detalle }}</p>
+                            </div>
+
+                            <!-- PREVIEW INTERNA -->
+                            <div id="previewInternaBox" style="{% if encuesta.tipo_encuesta == 'externa' %}display: none;{% endif %}">
+                                <div class="p-3 bg-light rounded-3 mb-3 border text-center">
+                                    <label class="fw-bold small text-dark d-block mb-2" id="previewPreguntaEstrellas">{{ encuesta.pregunta_estrellas }}</label>
+                                    <div class="star-rating-preview mb-1">
+                                        <i class="bi bi-star-fill active"></i>
+                                        <i class="bi bi-star-fill active"></i>
+                                        <i class="bi bi-star-fill active"></i>
+                                        <i class="bi bi-star-fill active"></i>
+                                        <i class="bi bi-star-fill active"></i>
+                                    </div>
+                                    <small class="text-muted fw-semibold">5/5 - ¡Excelente experiencia!</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="fw-bold small text-dark d-block mb-1" id="previewPreguntaOpinion">{{ encuesta.pregunta_opinion }}</label>
+                                    <textarea class="form-control form-control-sm" rows="2" placeholder="Escribe aquí tu opinión o sugerencia..." disabled></textarea>
+                                </div>
+                            </div>
+
+                            <!-- PREVIEW EXTERNA (ARCHIVO O ENLACE) -->
+                            <div id="previewExternaBox" style="{% if encuesta.tipo_encuesta != 'externa' %}display: none;{% endif %}" class="p-4 bg-light rounded-3 border text-center">
+                                <div class="text-primary fs-1 mb-2"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+                                <h6 class="fw-bold text-dark mb-1">Encuesta de la Entidad Externa</h6>
+                                <p class="text-muted small mb-3">Los participantes podrán ver y descargar el documento subido o acceder al formulario online.</p>
+                                <div class="p-2 bg-white rounded border d-inline-block text-truncate w-100" id="previewArchivoInfo">
+                                    <i class="bi bi-paperclip me-1 text-primary"></i>
+                                    <span id="previewNombreArchivo">
+                                        {% if encuesta.archivo_encuesta %}{{ encuesta.archivo_encuesta.name }}{% else %}Ningún archivo nuevo seleccionado{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="container text-center">
+        &copy; 2026 INACAP - Sistema de Gestión de Eventos y Encuestas
+    </div>
+</footer>
+
+<script>
+    function toggleTipoEncuesta(tipo) {
+        const secInterna = document.getElementById('seccionInterna');
+        const secExterna = document.getElementById('seccionExterna');
+        const prevInterna = document.getElementById('previewInternaBox');
+        const prevExterna = document.getElementById('previewExternaBox');
+
+        if (tipo === 'externa') {
+            secInterna.style.display = 'none';
+            secExterna.style.display = 'block';
+            prevInterna.style.display = 'none';
+            prevExterna.style.display = 'block';
+        } else {
+            secInterna.style.display = 'block';
+            secExterna.style.display = 'none';
+            prevInterna.style.display = 'block';
+            prevExterna.style.display = 'none';
+        }
+    }
+
+    const plantillas = {
+        'general': {
+            'titulo': 'Encuesta de Satisfacción General',
+            'estrellas': '¿Cómo calificarías tu experiencia general en este evento?',
+            'opinion': '¿Qué fue lo más destacado o qué sugerencias tienes para mejorar?'
+        },
+        'taller': {
+            'titulo': 'Evaluación de Taller y Contenidos',
+            'estrellas': '¿Cómo evalúas los contenidos prácticos y el expositor?',
+            'opinion': '¿Qué aplicaciones prácticas le darás a lo aprendido hoy?'
+        },
+        'empresa': {
+            'titulo': 'Encuesta de Encuentro Empresarial',
+            'estrellas': '¿Cómo calificarías el valor del evento para tu institución y networking?',
+            'opinion': '¿Qué iniciativas de vinculación te gustaría desarrollar con INACAP?'
+        }
+    };
+
+    function cargarPlantilla(clave) {
+        const p = plantillas[clave];
+        if (p) {
+            const inputTitulo = document.getElementById('id_titulo');
+            const inputEstrellas = document.getElementById('id_pregunta_estrellas');
+            const inputOpinion = document.getElementById('id_pregunta_opinion');
+
+            if (inputTitulo) inputTitulo.value = p.titulo;
+            if (inputEstrellas) inputEstrellas.value = p.estrellas;
+            if (inputOpinion) inputOpinion.value = p.opinion;
+
+            document.getElementById('previewTitulo').textContent = p.titulo;
+            document.getElementById('previewPreguntaEstrellas').textContent = p.estrellas;
+            document.getElementById('previewPreguntaOpinion').textContent = p.opinion;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputTitulo = document.getElementById('id_titulo');
+        const inputEstrellas = document.getElementById('id_pregunta_estrellas');
+        const inputOpinion = document.getElementById('id_pregunta_opinion');
+        const fileInput = document.getElementById('id_archivo_encuesta');
+
+        if (inputTitulo) {
+            inputTitulo.addEventListener('input', e => {
+                document.getElementById('previewTitulo').textContent = e.target.value || 'Encuesta de Satisfacción';
+            });
+        }
+        if (inputEstrellas) {
+            inputEstrellas.addEventListener('input', e => {
+                document.getElementById('previewPreguntaEstrellas').textContent = e.target.value || '¿Cómo calificarías tu experiencia?';
+            });
+        }
+        if (inputOpinion) {
+            inputOpinion.addEventListener('input', e => {
+                document.getElementById('previewPreguntaOpinion').textContent = e.target.value || 'Sugerencias u opiniones:';
+            });
+        }
+        if (fileInput) {
+            fileInput.addEventListener('change', e => {
+                if (fileInput.files.length > 0) {
+                    document.getElementById('previewNombreArchivo').textContent = fileInput.files[0].name;
+                }
+            });
+        }
+    });
+
+    function actualizarBadgeModalidad(modalidad) {
+        const badge = document.getElementById('badgeModalidadPreview');
+        if (modalidad === 'correo') {
+            badge.className = 'badge bg-primary-subtle text-primary border';
+            badge.innerHTML = '<i class="bi bi-envelope-at me-1"></i> Por Correo';
+        } else {
+            badge.className = 'badge bg-warning-subtle text-warning-emphasis border';
+            badge.innerHTML = '<i class="bi bi-display me-1"></i> Al terminar reunión';
+        }
+    }
+</script>
+</body>
+</html>

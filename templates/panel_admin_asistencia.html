@@ -4,335 +4,746 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar Asistencia - {{ reunion.detalle }}</title>
+    <title>Control de Asistencia - {{ reunion.detalle }}</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- CSS para Select2 y su tema de Bootstrap 5 -->
-    <link rel="stylesheet" href="{% static 'css/sweetalert2.min.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- Google Font Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --inacap-red: #B70420;
+            --inacap-dark: #8B0014;
+            --inacap-border: #E2E8F0;
+        }
+
         body {
-            background-color: #f8f9fa;
-            /* --- INICIO: Solución para Sticky Footer --- */
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f4f7f6;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            /* --- FIN: Solución para Sticky Footer --- */
+            margin: 0;
         }
-        header, .card-header {
-            background: linear-gradient(to right, #D90429, #A9001F);
+
+        header.header-admin {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            padding: 12px 24px;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
             color: white;
         }
-        main {
-            flex: 1; /* Ocupa el espacio disponible, empujando el footer hacia abajo */
+
+        .header-brand img {
+            height: 42px;
+            width: auto;
+            margin-right: 12px;
         }
-        .asistente-item { display: flex; align-items: center; }
-        .asistente-img { width: 40px; height: 40px; object-fit: cover; border-radius: 50%; margin-right: 15px; }
-        .select2-container--bootstrap-5 .select2-selection { min-height: calc(3.5rem + 2px); }
-        .btn-eco {
-            background-color: #D90429;
-            border: none;
-            color: #fff;
-        }
-        .btn-eco:hover {
-            background-color: #A9001F;
-            color: #fff;
-        }
-        /* --- INICIO: Estilos para mejorar la apariencia del escáner --- */
-        #video-container {
-            position: relative;
-            width: 100%;
-            max-width: 350px; /* Ajustado para que no sea tan grande */
-            margin: auto;
-            border-radius: 10px;
+
+        .card {
+            border-radius: 12px;
+            border: 1px solid var(--inacap-border);
             overflow: hidden;
-            border: 2px dashed #D90429;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
         }
-        #qr-placeholder {
-            border: 2px dashed #ced4da;
-            border-radius: 10px;
+
+        .card-header-red {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            color: white;
+            padding: 14px 20px;
+            font-weight: 600;
+        }
+
+        #qr-video {
             width: 100%;
-            max-width: 350px;
-            margin: auto;
+            max-height: 280px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid var(--inacap-red);
         }
-        #scanner-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            box-shadow: inset 0 0 0 5px rgba(0, 150, 167, 0.5);
+
+        .asistente-img {
+            width: 44px;
+            height: 44px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 12px;
+            border: 2px solid #E2E8F0;
         }
-        /* --- FIN: Estilos para mejorar la apariencia del escáner --- */
+
+        #reader-container {
+            width: 100%;
+            min-height: 220px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        footer.bottom-footer {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            color: white;
+            padding: 18px 0;
+            text-align: center;
+            font-size: 0.84rem;
+            margin-top: auto;
+        }
     </style>
 </head>
 <body>
 
-<header class="p-3 shadow-sm d-flex justify-content-between align-items-center">
+<header class="header-admin d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <a href="{% url 'panel-admin:control_asistencia' %}" class="header-brand">
+        <img src="{% static 'img/inacap-logo.png' %}" alt="Logo INACAP">
+        <div>
+            <span class="fw-bold fs-5 d-block">Control de Asistencia</span>
+            <small class="opacity-80">{{ reunion.detalle }} &bull; {{ reunion.fecha|date:"d/m/Y - H:i" }} hrs</small>
+        </div>
+    </a>
     <div>
-        <h4 class="mb-0">Registrar Asistencia</h4>
-        <small class="text-white-50">{{ reunion.detalle }}</small>
+        <a href="{% url 'panel-admin:control_asistencia' %}" class="btn btn-outline-light btn-sm fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Volver a Eventos
+        </a>
     </div>
-    <a href="{% url 'panel-admin:gestion_reuniones' %}" class="btn btn-outline-light">Volver a Eventos</a>
 </header>
 
-<main class="container my-5">
-    <!-- Mensajes de Django -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-
+<main class="container-fluid px-lg-5 my-4 flex-grow-1">
+    
     <div class="row g-4">
-        <!-- Columna del Escáner -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-qr-code-scan me-2"></i>Escanear QR de Asistente</h5>
+        
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header-red d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-camera-fill me-2"></i>Escanear Carnet o QR</h5>
+                    <span class="badge bg-white text-danger fw-bold"><i class="bi bi-person-vcard me-1"></i>Cédula / QR</span>
                 </div>
-                <div class="card-body text-center">
-                    <div id="scanner-container">
-                        <!-- Placeholder QR -->
-                        <div id="qr-placeholder" class="text-muted p-4">
-                            <i class="bi bi-qr-code" style="font-size: 8rem; color: #0096A7;"></i>
-                            <p class="mt-2 mb-0">La cámara aparecerá aquí</p>
-                        </div>
-                        <div id="video-container" class="d-none">
-                            <video id="qr-video" playsinline style="width: 100%; height: auto;"></video>
-                            <div id="scanner-overlay"></div>
-                        </div>
+                <div class="card-body p-3 text-center">
+                    
+                    <!-- Lector con Cámara -->
+                    <div id="video-container" class="mb-3 d-none">
+                        <video id="qr-video" playsinline></video>
                         <canvas id="qr-canvas" class="d-none"></canvas>
-                        <div id="scanner-status" class="mt-2 text-muted">Inactivo. Presiona un botón para comenzar.</div>
-                        <div class="mt-3 d-grid gap-2 d-sm-flex justify-content-sm-center">
-                            <button id="start-scan-btn" class="btn btn-primary"><i class="bi bi-camera-video-fill me-2"></i> Iniciar Cámara</button>
-                            <label for="scan-file-input" class="btn btn-secondary"><i class="bi bi-image me-2"></i> Escanear Archivo</label>
-                            <input type="file" id="scan-file-input" accept="image/*" class="d-none">
+                    </div>
+
+                    <div id="qr-placeholder" class="py-4 bg-light rounded-3 border d-flex flex-column align-items-center justify-content-center">
+                        <i class="bi bi-person-vcard display-3 text-secondary mb-2"></i>
+                        <p class="text-muted small mb-0">Apunta el <strong>código de barras de la Cédula</strong> o el <strong>Código QR</strong> a la cámara o usa la pistola lectora.</p>
+                    </div>
+
+                    <div id="scanner-status" class="alert alert-light border small text-muted my-3">
+                        <i class="bi bi-info-circle me-1 text-danger"></i> Listo para escanear Cédula de Identidad o QR.
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button id="start-scan-btn" class="btn text-white fw-semibold shadow-sm" style="background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));">
+                            <i class="bi bi-camera me-1"></i> Activar Cámara
+                        </button>
+                    </div>
+
+                    
+                    <form id="physical-scanner-form" class="mt-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="bi bi-upc-scan text-muted"></i></span>
+                            <input type="text" id="physical-scanner-input" class="form-control form-control-sm font-monospace" placeholder="Lector USB o Ingreso RUT..." autocomplete="off">
+                            <button type="submit" class="btn btn-sm btn-dark"><i class="bi bi-arrow-return-left"></i></button>
                         </div>
+                        <div class="form-text text-muted" style="font-size: 0.75rem;">Acepta escaneo de pistola USB o tipeo directo de RUT.</div>
+                    </form>
 
-                        <hr class="my-4">
+                </div>
+            </div>
+        </div>
 
-                        <div>
-                            <p class="text-muted mb-2">¿Usas un escáner de mano (USB)?</p>
-                            <form id="physical-scanner-form">
-                                <input type="text" id="physical-scanner-input" class="form-control text-center" placeholder="Haz clic aquí y escanea el código QR...">
-                            </form>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header-red d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-person-plus-fill me-2"></i>Registro Manual</h5>
+                    <span class="badge bg-white text-danger fw-bold"><i class="bi bi-keyboard me-1"></i>Buscador</span>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-3">Busca un usuario por su nombre, apellido o RUT para acreditarlo directamente:</p>
+                    
+                    <form id="manual-register-form">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="usuario_id" class="form-label fw-semibold text-dark small text-uppercase">Seleccionar Participante:</label>
+                            <select class="form-select" id="usuario_id" name="usuario_id" style="width: 100%;">
+                                <option value=""></option>
+                                {% for u in usuarios_disponibles %}
+                                    <option value="{{ u.id }}">
+                                        {{ u.nombre }} {{ u.apellido }} ({{ u.rut_formateado|default:u.rut }}) - {{ u.get_rubro_real_display|default:"Participante" }}{% if u.institucion_empresa and u.institucion_empresa != 'INACAP' %} ({{ u.institucion_empresa }}){% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
                         </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-danger fw-semibold py-2 shadow-sm" style="background-color: var(--inacap-red);">
+                                <i class="bi bi-check-circle me-1"></i> Marcar Asistencia
+                            </button>
+                        </div>
+                    </form>
 
+                    <!-- ACCESO RÁPIDO: ALTA Y ACREDITACIÓN DE USUARIO NUEVO -->
+                    <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fw-bold small text-dark"><i class="bi bi-person-plus-fill text-danger me-1"></i>¿Participante no registrado?</span>
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1" style="font-size: 0.72rem;">Alta Rápida</span>
+                        </div>
+                        <p class="text-muted mb-3" style="font-size: 0.8rem; line-height: 1.35;">
+                            Crea al participante al instante (INACAP o Externo) y márcalo como acreditado en este evento.
+                        </p>
+                        <button type="button" class="btn btn-outline-danger w-100 fw-bold py-2 shadow-sm d-flex align-items-center justify-content-center gap-2" data-bs-toggle="modal" data-bs-target="#modalRegistroRapidoAsistencia">
+                            <i class="bi bi-plus-circle-fill"></i> Crear y Acreditar Nuevo Usuario
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Columna de Registro Manual -->
-        <div class="col-lg-4 col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-person-plus-fill me-2"></i>Registro Manual</h5>
+        
+        <div class="col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header-red d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-people-fill me-2"></i>Acreditados en Vivo</h5>
+                    <span id="contador-asistentes" class="badge bg-white text-danger fw-bold fs-6">{{ asistentes.count }}</span>
                 </div>
-                <div class="card-body">
-                    <!-- Formulario para Añadir Manualmente -->
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label for="usuario_id" class="form-label">Buscar y seleccionar usuario:</label>
-                            <select name="usuario_id" id="usuario_id" class="form-select" required data-placeholder="Escribe un nombre o RUT para buscar...">
-                                <option></option> <!-- Opción vacía para el placeholder de Select2 -->
-                                {% for usuario in usuarios_no_asistentes %}<option value="{{ usuario.id }}">{{ usuario.nombre }} {{ usuario.apellido }} ({{ usuario.rut }})</option>{% endfor %}
-                            </select>
+                <div class="card-body p-3">
+                    
+                    <!-- CONTROL Y ALERTA EN VIVO DE AFORO -->
+                    {% if reunion.tiene_aforo_limitado %}
+                    <div class="p-3 mb-3 bg-light rounded-3 border" id="contenedor-aforo-card">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="small fw-bold text-dark"><i class="bi bi-speedometer2 text-danger me-1"></i>Aforo de la Sala</span>
+                            <span id="badge-aforo-estado" class="badge {% if reunion.aforo_completo %}bg-danger{% elif reunion.porcentaje_aforo >= 85 %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                {% if reunion.aforo_completo %}AFORO COMPLETO (100%){% else %}{{ reunion.porcentaje_aforo }}% OCUPADO{% endif %}
+                            </span>
                         </div>
-                        <div class="d-grid">
-                            <button type="submit" name="manual_add" class="btn btn-eco"><i class="bi bi-check-circle me-1"></i>Añadir Asistente</button>
+                        <div class="progress mb-2" style="height: 10px; border-radius: 6px;">
+                            <div id="barra-aforo" class="progress-bar {% if reunion.aforo_completo %}bg-danger progress-bar-striped progress-bar-animated{% elif reunion.porcentaje_aforo >= 85 %}bg-warning{% else %}bg-success{% endif %}" 
+                                 role="progressbar" style="width: {{ reunion.porcentaje_aforo }}%;" aria-valuenow="{{ reunion.porcentaje_aforo }}" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
-                    </form>
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Ingresados: <strong id="aforo-actual-display" class="text-dark">{{ reunion.asistentes.count }}</strong> / <span id="aforo-max-display">{{ reunion.aforo_maximo }}</span></span>
+                            <span>Disponibles: <strong id="aforo-cupos-display" class="{% if reunion.cupos_disponibles == 0 %}text-danger fw-bold{% else %}text-success fw-bold{% endif %}">{{ reunion.cupos_disponibles }} cupos</strong></span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-2 mb-3 bg-light rounded-3 border text-center small text-muted" id="contenedor-aforo-card">
+                        <i class="bi bi-info-circle me-1"></i> Aforo del evento: <strong class="text-dark">Sin límite de capacidad</strong>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" id="filtroAsistentesInput" class="form-control" placeholder="Filtrar en esta lista..." onkeyup="filtrarListaAsistentes()">
+                        </div>
+                    </div>
+
+                    <div style="max-height: 420px; overflow-y: auto;">
+                        <ul class="list-group list-group-flush" id="lista-asistentes">
+                            {% for asistente in asistentes %}
+                            <li class="list-group-item asistente-item d-flex justify-content-between align-items-center p-2.5" id="asistente-{{ asistente.id }}">
+                                <div class="d-flex align-items-center">
+                                    {% if asistente.foto %}
+                                        <img src="{{ asistente.foto.url }}" alt="{{ asistente.nombre }}" class="asistente-img">
+                                    {% else %}
+                                        <img src="{% static 'img/persn.jpg' %}" alt="Sin foto" class="asistente-img">
+                                    {% endif %}
+                                    <div>
+                                        <span class="fw-bold d-block text-dark small">{{ asistente.nombre }} {{ asistente.apellido }}</span>
+                                        <small class="text-muted font-monospace" style="font-size: 0.76rem;">{{ asistente.rut_formateado|default:asistente.rut }}</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <a href="{% url 'imprimir_etiqueta_reunion' reunion.id asistente.id %}" target="_blank" class="btn btn-outline-secondary btn-sm" title="Imprimir Credencial">
+                                        <i class="bi bi-printer-fill"></i>
+                                    </a>
+                                    <form action="{% url 'panel-admin:quitar_asistencia' reunion.id asistente.id %}" method="POST" onsubmit="return confirm('¿Quitar a este asistente?');" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Quitar asistencia">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                            {% empty %}
+                            <li id="no-asistentes" class="list-group-item text-muted text-center py-4">
+                                <i class="bi bi-person-x display-6 d-block mb-1 text-secondary opacity-50"></i>
+                                Aún no hay asistentes acreditados en este evento.
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
                 </div>
             </div>
         </div>
 
-        <!-- Columna de Asistentes -->
-        <div class="col-lg-4 col-md-12">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>Asistentes Registrados (<span id="contador-asistentes">{{ asistentes|length }}</span>)</h5>
+    </div>
+
+    <!-- MODAL REGISTRO RÁPIDO ASISTENCIA -->
+    <div class="modal fade" id="modalRegistroRapidoAsistencia" tabindex="-1" aria-labelledby="modalRegistroRapidoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                <div class="modal-header text-white" style="background: linear-gradient(to right, #B70420, #8B0014);">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-white text-danger rounded-circle p-2 d-flex align-items-center justify-content-center shadow-sm" style="width: 38px; height: 38px;">
+                            <i class="bi bi-person-plus-fill fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold mb-0" id="modalRegistroRapidoLabel">Alta Rápida de Participante</h5>
+                            <small class="text-white-50" style="font-size: 0.78rem;">Crea y acredita al usuario en este evento</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush" id="lista-asistentes">
-                        {% for asistente in asistentes %}
-                        <li class="list-group-item asistente-item d-flex justify-content-between align-items-center" id="asistente-{{ asistente.id }}">
-                            <div class="d-flex align-items-center">
-                                {% if asistente.foto %}
-                                    <img src="{{ asistente.foto.url }}" alt="{{ asistente.nombre }}" class="asistente-img">
-                                {% else %}
-                                    <img src="{% static 'img/persn.jpg' %}" alt="Sin foto" class="asistente-img">
-                                {% endif %}
-                                <div>
-                                    <span class="fw-bold">{{ asistente.nombre }} {{ asistente.apellido }}</span>
-                                    <small class="d-block text-muted">{{ asistente.rubro }}</small>
+                
+                <form id="form-crear-usuario-rapido" autocomplete="off">
+                    {% csrf_token %}
+                    <div class="modal-body p-4">
+                        
+                        <!-- AVISO DE CARNET DETECTADO -->
+                        <div id="modal_carnet_badge" class="alert alert-primary py-2 px-3 mb-3 d-flex align-items-center gap-2 small border-0 shadow-sm" style="display: none; background: rgba(13, 110, 253, 0.08); border-left: 4px solid #0d6efd !important; border-radius: 8px;">
+                            <i class="bi bi-person-vcard fs-4 text-primary"></i>
+                            <div>
+                                <strong class="d-block text-primary">Cédula leída con éxito</strong>
+                                <span class="text-dark">RUT y Nombres se rellenaron automáticamente. Por favor indica si es de <strong>INACAP</strong> o <strong>Externo</strong> y completa los campos restantes.</span>
+                            </div>
+                        </div>
+
+                        <!-- DATOS DEL CARNET (RUT, NOMBRE Y APELLIDO) -->
+                        <div class="p-3 mb-3 bg-light rounded-3 border">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="fw-bold small text-uppercase text-secondary">
+                                    <i class="bi bi-person-badge me-1"></i> Identificación del Participante
+                                </span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" id="badge_carnet_status" style="display: none;">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Detectado desde Carnet
+                                </span>
+                            </div>
+
+                            <!-- RUT -->
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold small text-uppercase text-secondary mb-1" id="modal_label_rut">RUT Chileno <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-lg fw-bold font-monospace text-center bg-white" name="rut" id="modal_input_rut" placeholder="12.345.678-9" required>
+                                <div class="form-text small" style="font-size: 0.75rem;">Formato automático con puntos y guion.</div>
+                            </div>
+
+                            <!-- NOMBRE Y APELLIDO -->
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small text-uppercase text-secondary mb-1" id="modal_label_nombre">Nombre <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control bg-white" name="nombre" id="modal_input_nombre" placeholder="Ej: Juan Carlos" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small text-uppercase text-secondary mb-1" id="modal_label_apellido">Apellido <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control bg-white" name="apellido" id="modal_input_apellido" placeholder="Ej: Pérez González" required>
                                 </div>
                             </div>
-                            <div class="d-flex align-items-center">
-                                <a href="{% url 'imprimir_etiqueta' asistente.id %}" target="_blank" class="btn btn-outline-secondary btn-sm me-2" title="Imprimir etiqueta">
-                                    <i class="bi bi-printer-fill"></i>
-                                </a>
-                                <form action="{% url 'panel-admin:quitar_asistencia' reunion.id asistente.id %}" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres quitar a este asistente?');" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Quitar asistencia">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </form>
+                        </div>
+
+                        <!-- SELECTOR ORIGEN (¿ES EXTERNO O INACAP?) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-uppercase text-secondary mb-1">
+                                ¿Pertenece a INACAP o es Externo? <span class="text-danger">*</span>
+                            </label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="modal_tipo_usuario" id="modal_tipo_inacap" value="inacap" checked onchange="toggleModalPerfil()">
+                                    <label class="btn btn-outline-danger w-100 fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2 shadow-sm" for="modal_tipo_inacap" style="border-radius: 8px;">
+                                        <i class="bi bi-mortarboard-fill fs-5"></i> Soy de INACAP
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="modal_tipo_usuario" id="modal_tipo_externo" value="externo" onchange="toggleModalPerfil()">
+                                    <label class="btn btn-outline-secondary w-100 fw-bold py-2.5 d-flex align-items-center justify-content-center gap-2 shadow-sm" for="modal_tipo_externo" style="border-radius: 8px;">
+                                        <i class="bi bi-building fs-5"></i> Soy Externo
+                                    </label>
+                                </div>
                             </div>
-                        </li>
-                        {% empty %}
-                        <li id="no-asistentes" class="list-group-item text-muted text-center">Aún no hay asistentes registrados.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
+                        </div>
+
+                        <!-- ROL EN INACAP (SI ES INACAP) -->
+                        <div class="mb-3" id="modal_campo_rol_inacap">
+                            <label class="form-label fw-semibold small text-uppercase text-secondary mb-1">Rol en INACAP <span class="text-danger">*</span></label>
+                            <select class="form-select form-select-lg" name="rubro" id="modal_input_rubro">
+                                <option value="">Selecciona rol en INACAP...</option>
+                                <option value="estudiante">Alumno / Estudiante</option>
+                                <option value="docente">Profesor / Docente</option>
+                                <option value="administrativo">Administrativo / Colaborador</option>
+                                <option value="exalumno">Exalumno / Titulado</option>
+                                <option value="directivo">Directivo</option>
+                                <option value="otro">Otro Rol</option>
+                            </select>
+                        </div>
+
+                        <!-- SUBTIPO EXTERNO: NATURAL VS EMPRESA -->
+                        <div id="modal_bloque_subtipo_externo" class="p-2 mb-3 bg-light rounded-3 border" style="display: none;">
+                            <label class="form-label fw-semibold small text-uppercase text-secondary mb-1">Tipo de Externo</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="modal_subtipo_externo" id="modal_subtipo_natural" value="natural" checked onchange="toggleModalPerfil()">
+                                    <label class="btn btn-sm btn-outline-dark w-100 fw-semibold py-1.5" for="modal_subtipo_natural">
+                                        <i class="bi bi-person-fill me-1"></i> Persona Natural
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="modal_subtipo_externo" id="modal_subtipo_empresa" value="empresa" onchange="toggleModalPerfil()">
+                                    <label class="btn btn-sm btn-outline-dark w-100 fw-semibold py-1.5" for="modal_subtipo_empresa">
+                                        <i class="bi bi-briefcase-fill me-1"></i> Empresa / Organización
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CAMPO EMPRESA (SÓLO SI ES EMPRESA) -->
+                        <div class="mb-3" id="modal_campo_empresa" style="display: none;">
+                            <label class="form-label fw-semibold small text-uppercase text-secondary mb-1">Nombre de la Empresa u Organización <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="institucion_empresa" id="modal_input_empresa" placeholder="Ej: Minera Los Pelambres / Banco Santander">
+                        </div>
+
+                        <!-- TELÉFONO (SÓLO SI ES EXTERNO) -->
+                        <div class="mb-3" id="modal_campo_telefono" style="display: none;">
+                            <label class="form-label fw-semibold small text-uppercase text-secondary mb-1">Teléfono / WhatsApp</label>
+                            <input type="text" class="form-control" name="telefono" id="modal_input_telefono" placeholder="+56 9 1234 5678">
+                        </div>
+
+                        <!-- CORREO ELECTRÓNICO -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small text-uppercase text-secondary mb-1" id="modal_label_email">Correo Electrónico <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control form-control-lg" name="email" id="modal_input_email" placeholder="ejemplo@correo.cl" required>
+                        </div>
+
+                        <!-- ACCIONES POST-CREACIÓN -->
+                        <div class="bg-light p-3 rounded-3 border mt-3">
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="modal_marcar_asistencia" checked>
+                                <label class="form-check-label fw-semibold text-dark small" for="modal_marcar_asistencia">
+                                    Marcar asistencia inmediatamente en este evento
+                                </label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="modal_imprimir_credencial" {% if reunion.imprimir_etiqueta_al_asistir %}checked{% endif %}>
+                                <label class="form-check-label text-muted small" for="modal_imprimir_credencial">
+                                    Abrir ventana para imprimir credencial / etiqueta
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer bg-light px-4 py-3">
+                        <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="btn-submit-modal-rapido" class="btn btn-danger px-4 fw-semibold shadow-sm" style="background-color: var(--inacap-red);">
+                            <i class="bi bi-check-circle-fill me-1"></i> Crear y Acreditar
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
+
 </main>
 
-<!-- jQuery (necesario para Select2) -->
+<footer class="bottom-footer">
+    <div class="container">
+        &copy; 2026 INACAP. Todos los derechos reservados | Control de Asistencia y Acreditación.
+    </div>
+</footer>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<!-- Librería para escanear QR -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-<script src="{% static 'js/sweetalert2.min.js' %}"></script>
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const listaAsistentes = document.getElementById('lista-asistentes'); // Ya definido
+document.addEventListener('DOMContentLoaded', () => {
+    const video = document.getElementById('qr-video');
+    const canvas = document.getElementById('qr-canvas');
+    const ctx = canvas.getContext('2d');
+    const startBtn = document.getElementById('start-scan-btn');
+    const statusDiv = document.getElementById('scanner-status');
+    const qrPlaceholder = document.getElementById('qr-placeholder');
+    const videoContainer = document.getElementById('video-container');
+    const physicalScannerInput = document.getElementById('physical-scanner-input');
+    const physicalScannerForm = document.getElementById('physical-scanner-form');
+    const listaAsistentes = document.getElementById('lista-asistentes');
     const contadorAsistentes = document.getElementById('contador-asistentes');
     const noAsistentesMsg = document.getElementById('no-asistentes');
-    let lastResult = null;
-    let processing = false; // Flag para evitar escaneos múltiples
 
-    // Función central para manejar un resultado de escaneo
-    function handleScan(decodedText) {
-        if (decodedText && decodedText !== lastResult && !processing) {
-            processing = true;
-            lastResult = decodedText; // Marcar este código como procesado
+    let isScanningActive = true;
 
-            const userId = decodedText.split('/').filter(Boolean).pop();
-            if (userId && !isNaN(userId)) { 
-                // Verificar si el usuario ya está en la lista para no hacer la petición de nuevo
-                if (document.getElementById(`asistente-${userId}`)) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Ya Registrado',
-                        text: 'Este usuario ya figura como asistente.',
-                        timer: 2000,
-                        showConfirmButton: false
-                    });
-                    setTimeout(() => { // Liberar el bloqueo después de un tiempo
-                        processing = false;
-                        lastResult = null;
-                    }, 2000);
-                    return;
-                }
-
-                fetch(`{% url 'panel-admin:marcar_asistencia_qr' reunion.id 999 %}`.replace('999', userId), {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}',
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'ok') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Asistencia Registrada!',
-                            text: data.message,
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-
-                        // Solo intenta imprimir si la URL existe
-                        if (data.print_url) {
-                            // Abrir la URL de la etiqueta en una nueva pestaña.
-                            // El usuario puede entonces usar la función de impresión del navegador (Ctrl+P).
-                            window.open(data.print_url, '_blank');
-                        }
-                        // Actualizar UI sin recargar
-                        actualizarUIAgregarAsistente(data.asistente);
-                    } else {
-                        Swal.fire('Error', data.message, 'error');
-                    }
-                })
-                .catch(error => {
-                    Swal.fire('Error de Conexión', 'No se pudo comunicar con el servidor.', 'error');
-                })
-                .finally(() => {
-                    // Después de 2 segundos, permitimos un nuevo escaneo para evitar dobles lecturas accidentales.
-                    setTimeout(() => {
-                        lastResult = null;
-                        processing = false;
-                    }, 2000);
-                });
+    function playBeep(success = true) {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const audioCtx = new AudioContext();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            if (success) {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.12);
             } else {
-                Swal.fire('QR Inválido', 'El código QR escaneado no parece ser un perfil de usuario válido.', 'error');
-                processing = false;
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.25);
+            }
+        } catch(e) {}
+    function imprimirEtiquetaGarantizada(url) {
+        if (!url) return;
+        const w = window.open(url, '_blank', 'width=650,height=450');
+        if (!w || w.closed || typeof w.closed === 'undefined') {
+            let iframe = document.getElementById('ticketPrintIframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'ticketPrintIframe';
+                iframe.style.position = 'fixed';
+                iframe.style.right = '0';
+                iframe.style.bottom = '0';
+                iframe.style.width = '1px';
+                iframe.style.height = '1px';
+                iframe.style.opacity = '0.01';
+                iframe.style.border = 'none';
+                document.body.appendChild(iframe);
+            }
+            iframe.src = url;
+        }
+    }
+
+    function actualizarMetricasAforo(aforoInfo) {
+        if (!aforoInfo || !aforoInfo.tiene_limite) return;
+
+        const barraAforo = document.getElementById('barra-aforo');
+        const badgeEstado = document.getElementById('badge-aforo-estado');
+        const aforoActualDisplay = document.getElementById('aforo-actual-display');
+        const aforoMaxDisplay = document.getElementById('aforo-max-display');
+        const aforoCuposDisplay = document.getElementById('aforo-cupos-display');
+
+        if (aforoActualDisplay) aforoActualDisplay.textContent = aforoInfo.total_asistentes;
+        if (aforoMaxDisplay) aforoMaxDisplay.textContent = aforoInfo.aforo_maximo;
+        
+        if (aforoCuposDisplay) {
+            aforoCuposDisplay.textContent = `${aforoInfo.cupos_disponibles} cupos`;
+            if (aforoInfo.cupos_disponibles === 0) {
+                aforoCuposDisplay.className = 'text-danger fw-bold';
+            } else {
+                aforoCuposDisplay.className = 'text-success fw-bold';
+            }
+        }
+
+        const pct = Math.min(aforoInfo.porcentaje_aforo, 100);
+        if (barraAforo) {
+            barraAforo.style.width = `${pct}%`;
+            barraAforo.setAttribute('aria-valuenow', pct);
+
+            barraAforo.className = 'progress-bar';
+            if (aforoInfo.aforo_completo || pct >= 100) {
+                barraAforo.classList.add('bg-danger', 'progress-bar-striped', 'progress-bar-animated');
+            } else if (pct >= 85) {
+                barraAforo.classList.add('bg-warning');
+            } else {
+                barraAforo.classList.add('bg-success');
+            }
+        }
+
+        if (badgeEstado) {
+            if (aforoInfo.aforo_completo || pct >= 100) {
+                badgeEstado.className = 'badge bg-danger';
+                badgeEstado.textContent = 'AFORO COMPLETO (100%)';
+            } else if (pct >= 85) {
+                badgeEstado.className = 'badge bg-warning text-dark';
+                badgeEstado.textContent = `${pct}% OCUPADO`;
+            } else {
+                badgeEstado.className = 'badge bg-success';
+                badgeEstado.textContent = `${pct}% OCUPADO`;
             }
         }
     }
 
-    // Wrapper para la cámara, llama a la función central
-    function onScanSuccess(decodedText, decodedResult) {
-        handleScan(decodedText); // La lógica de 'lastResult' y 'processing' se maneja dentro de handleScan
+    function procesarAcreditacion(scannedText, userIdParam = null, forceOvercapacity = false) {
+        if (!isScanningActive) return;
+        isScanningActive = false;
+
+        statusDiv.innerHTML = '<span class="spinner-border spinner-border-sm text-danger me-2"></span>Leyendo carnet / código...';
+
+        const payload = {
+            force_overcapacity: forceOvercapacity
+        };
+        if (userIdParam) {
+            payload.usuario_id = userIdParam;
+        } else {
+            payload.codigo_o_rut = scannedText;
+        }
+
+        fetch("{% url 'panel-admin:marcar_asistencia_escaner_universal' reunion.id %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(r => r.json().then(data => ({ status: r.status, body: data })))
+        .then(res => {
+            const data = res.body;
+
+            if (data.aforo_info) {
+                actualizarMetricasAforo(data.aforo_info);
+            }
+
+            if (res.status === 200 && data.status === 'ok') {
+                playBeep(true);
+                actualizarUIAgregarAsistente(data.asistente);
+
+                if (data.print_url) {
+                    imprimirEtiquetaGarantizada(data.print_url);
+                }
+
+                Swal.fire({
+                    title: data.auto_creado ? '¡Registrado y Acreditado!' : '¡Asistencia Acreditada!',
+                    html: `
+                        <div class="text-center">
+                            <img src="${data.asistente.foto_url}" class="rounded-circle border border-2 border-danger mb-2" style="width: 70px; height: 70px; object-fit: cover;">
+                            <h5 class="fw-bold text-dark mb-1">${data.asistente.nombre_completo}</h5>
+                            <p class="text-muted small mb-1">RUT: <strong>${data.asistente.rut}</strong></p>
+                            <span class="badge bg-danger rounded-pill px-3 py-1">${data.asistente.institucion_empresa || data.asistente.rubro || 'INACAP'}</span>
+                            <div class="mt-2 text-success small fw-bold"><i class="bi bi-printer-fill me-1"></i> Imprimiendo credencial...</div>
+                        </div>
+                    `,
+                    icon: 'success',
+                    timer: 2400,
+                    showConfirmButton: false
+                }).then(() => {
+                    isScanningActive = true;
+                    statusDiv.innerHTML = '<i class="bi bi-check-circle text-success me-1"></i> Acreditado. Listo para el siguiente carnet.';
+                });
+
+            } else if (data.status === 'already_registered') {
+                playBeep(false);
+                if (data.print_url) {
+                    imprimirEtiquetaGarantizada(data.print_url);
+                }
+                Swal.fire({
+                    title: 'Ya Acreditado(a)',
+                    html: `
+                        <div class="text-center">
+                            <img src="${data.asistente.foto_url}" class="rounded-circle border mb-2" style="width: 60px; height: 60px; object-fit: cover;">
+                            <h5 class="fw-bold text-dark mb-1">${data.asistente.nombre_completo}</h5>
+                            <p class="text-muted small">${data.message}</p>
+                            <div class="mt-2 text-success small fw-bold"><i class="bi bi-printer-fill me-1"></i> Imprimiendo credencial...</div>
+                        </div>
+                    `,
+                    icon: 'info',
+                    timer: 2400,
+                    showConfirmButton: false
+                }).then(() => {
+                    isScanningActive = true;
+                    statusDiv.innerHTML = '<i class="bi bi-info-circle text-primary me-1"></i> Listo para el siguiente carnet.';
+                });
+
+            } else if (res.status === 409 && data.status === 'aforo_completo') {
+                playBeep(false);
+                Swal.fire({
+                    title: '¡Aforo Máximo Completo!',
+                    html: `
+                        <div class="text-center p-2">
+                            <div class="text-danger mb-2"><i class="bi bi-exclamation-triangle-fill display-4"></i></div>
+                            <h5 class="fw-bold text-dark">${data.message}</h5>
+                            <p class="text-muted small mb-3">Participante: <strong>${data.asistente ? data.asistente.nombre_completo : 'Identificado'}</strong></p>
+                            <div class="alert alert-warning py-2 small mb-0 text-start">
+                                <strong>Advertencia de Seguridad:</strong> La sala se encuentra al 100% de su capacidad. ¿Deseas autorizar <strong>sobrecupo</strong> para acreditar a esta persona?
+                            </div>
+                        </div>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="bi bi-check2-circle me-1"></i> Autorizar Sobrecupo',
+                    cancelButtonText: '<i class="bi bi-x-circle me-1"></i> No Ingresar',
+                    confirmButtonColor: '#B70420',
+                    cancelButtonColor: '#6c757d'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        isScanningActive = true;
+                        procesarAcreditacion(scannedText, userIdParam, true);
+                    } else {
+                        isScanningActive = true;
+                        statusDiv.innerHTML = '<i class="bi bi-exclamation-octagon text-danger me-1"></i> Acreditación detenida por aforo completo.';
+                    }
+                });
+
+            } else if (res.status === 404 || data.status === 'not_found') {
+                playBeep(false);
+                isScanningActive = true;
+                statusDiv.innerHTML = '<i class="bi bi-person-plus text-danger me-1"></i> Carnet no registrado. Abriendo alta rápida...';
+                abrirModalConRut(data.rut_sugerido || '', data.nombre_sugerido || '', data.apellido_sugerido || '');
+
+            } else {
+                playBeep(false);
+                Swal.fire({
+                    title: 'Error',
+                    text: data.message || 'No se pudo registrar la asistencia.',
+                    icon: 'error',
+                    confirmButtonColor: '#B70420'
+                }).then(() => {
+                    isScanningActive = true;
+                });
+            }
+        })
+        .catch(err => {
+            playBeep(false);
+            Swal.fire('Error de Red', 'No se pudo comunicar con el servidor.', 'error').then(() => {
+                isScanningActive = true;
+            });
+        });
     }
 
-    // --- INICIO: Nuevo código del escáner con jsQR ---
-    const videoContainer = document.getElementById('video-container');
-    const video = document.getElementById('qr-video');
-    const canvas = document.getElementById('qr-canvas');
-    const ctx = canvas.getContext('2d');
-    const statusDiv = document.getElementById('scanner-status');
-    const startBtn = document.getElementById('start-scan-btn');
-    const fileInput = document.getElementById('scan-file-input');
-    const qrPlaceholder = document.getElementById('qr-placeholder');
-    const physicalScannerForm = document.getElementById('physical-scanner-form');
-    const physicalScannerInput = document.getElementById('physical-scanner-input');
-
-    // Manejo del escáner de mano (tipo teclado)
     physicalScannerForm.addEventListener('submit', function(e) {
-        e.preventDefault(); // Evita que la página se recargue
-        let decodedText = physicalScannerInput.value.trim();
-        if (decodedText) {
-            // Corrección para problemas de layout de teclado (US -> ES)
-            // Reconstruye la URL mal interpretada por el escáner de mano.
-            // Ejemplo: httpÑ--192.168.1.105Ñ8000-perfil.publico-1-  -> http://192.168.1.105:8000/perfil-publico/1/
-            let correctedText = decodedText
-                .replace(/Ñ--/g, '://')      // 1. Corrige el '://'
-                .replace(/Ñ/g, ':')          // 2. Corrige el ':' del puerto
-                .replace(/\./g, '-')         // 3. Convierte los puntos (ej: perfil.publico) en guiones
-                .replace(/-(\d+)-?$/, '/$1/'); // 4. Corrige la barra final del ID (ej: -1- -> /1/)
-            
-            handleScan(correctedText); // Llamamos a la función de escaneo central con el texto corregido
-            // Limpia y re-enfoca para el siguiente escaneo
+        e.preventDefault();
+        const scannedValue = physicalScannerInput.value.trim();
+        if (scannedValue) {
+            procesarAcreditacion(scannedValue);
             physicalScannerInput.value = '';
             physicalScannerInput.focus();
         }
     });
 
-    // --- INICIO: Mejoras para el escáner de mano ---
+    document.getElementById('manual-register-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const uId = document.getElementById('usuario_id').value;
+        if (uId) {
+            procesarAcreditacion(null, uId);
+        } else {
+            Swal.fire('Selecciona un usuario', 'Por favor busca un participante en el menú desplegable.', 'warning');
+        }
+    });
 
-    // 1. Enfocar el input del escáner de mano al cargar la página.
     physicalScannerInput.focus();
-
-    // 2. Si el usuario hace clic en cualquier lugar que no sea un campo de entrada o botón,
-    //    devolvemos el foco al input del escáner para que siempre esté listo.
     document.body.addEventListener('click', function(e) {
-        const interactiveElements = ['INPUT', 'BUTTON', 'SELECT', 'A', 'FORM'];
-        // Si el clic no fue en un elemento interactivo o dentro del contenedor de select2, re-enfocamos.
+        const interactiveElements = ['INPUT', 'BUTTON', 'SELECT', 'A', 'FORM', 'TEXTAREA'];
         if (!interactiveElements.includes(e.target.tagName) && !e.target.closest('.select2-container')) {
             physicalScannerInput.focus();
         }
     });
-
-    // --- FIN: Mejoras para el escáner de mano ---
-
 
     let stream = null;
     let animationFrameId = null;
@@ -347,8 +758,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 inversionAttempts: "dontInvert",
             });
 
-            if (code) {
-                onScanSuccess(code.data);
+            if (code && code.data) {
+                procesarAcreditacion(code.data);
             }
         }
         animationFrameId = requestAnimationFrame(tick);
@@ -358,34 +769,23 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
             video.srcObject = stream;
-            video.setAttribute("playsinline", true); // Required for iOS
+            video.setAttribute("playsinline", true);
             video.play();
             qrPlaceholder.classList.add('d-none');
             videoContainer.classList.remove('d-none');
-            statusDiv.textContent = "Buscando código QR...";
+            statusDiv.textContent = "Buscando Cédula de Identidad o Código QR...";
             startBtn.textContent = "Detener Cámara";
             startBtn.classList.remove('btn-primary');
             startBtn.classList.add('btn-danger');
             animationFrameId = requestAnimationFrame(tick);
         } catch (err) {
-            console.error("Error al acceder a la cámara:", err);
-            if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
-                statusDiv.textContent = "Permiso de cámara denegado.";
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Permiso de Cámara Denegado',
-                    html: `
-                        <p class="text-start mb-2">Tu navegador ha bloqueado el acceso a la cámara.</p>
-                        <p class="text-start mb-0">Para solucionarlo:</p>
-                        <ol class="text-start">
-                            <li>Busca el <strong>ícono de la cámara <i class="bi bi-camera-video-off-fill"></i></strong> en la barra de direcciones (arriba).</li>
-                            <li>Haz clic en él y selecciona <strong>"Permitir siempre..."</strong>.</li>
-                            <li><strong>Recarga la página</strong> e inténtalo de nuevo.</li>
-                        </ol>`,
-                });
-            } else {
-                statusDiv.textContent = "No se pudo acceder a la cámara.";
-            }
+            statusDiv.textContent = "Permiso de cámara denegado.";
+            Swal.fire({
+                icon: 'error',
+                title: 'Permiso de Cámara Denegado',
+                text: 'Por favor autoriza el acceso a la cámara en tu navegador.',
+                confirmButtonColor: '#B70420'
+            });
         }
     }
 
@@ -400,64 +800,36 @@ document.addEventListener("DOMContentLoaded", function () {
         }
         videoContainer.classList.add('d-none');
         qrPlaceholder.classList.remove('d-none');
-        statusDiv.textContent = "Inactivo. Presiona un botón para comenzar.";
-        startBtn.textContent = "Iniciar Cámara";
+        statusDiv.textContent = "Inactivo. Presiona 'Activar Cámara' o usa el lector USB.";
+        startBtn.textContent = "Activar Cámara";
         startBtn.classList.remove('btn-danger');
         startBtn.classList.add('btn-primary');
     }
 
     startBtn.addEventListener('click', () => {
-        if (stream) {
-            stopScan();
-        } else {
-            startScan();
-        }
+        if (stream) stopScan();
+        else startScan();
     });
-
-    fileInput.addEventListener('change', e => {
-        const file = e.target.files[0];
-        if (!file) {
-            return;
-        }
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const img = new Image();
-            img.onload = function() {
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0, img.width, img.height);
-                const imageData = ctx.getImageData(0, 0, img.width, img.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
-                if (code) {
-                    onScanSuccess(code.data);
-                } else {
-                    Swal.fire('No encontrado', 'No se pudo encontrar un código QR en la imagen.', 'error');
-                }
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
-        // Resetear el input para poder seleccionar el mismo archivo de nuevo
-        e.target.value = '';
-    });
-    // --- FIN: Nuevo código del escáner con jsQR ---
 
     function actualizarUIAgregarAsistente(asistente) {
         if (noAsistentesMsg) noAsistentesMsg.remove();
+
+        const existente = document.getElementById(`asistente-${asistente.id}`);
+        if (existente) return;
 
         const nuevoAsistenteHTML = `
             <div class="d-flex align-items-center">
                 <img src="${asistente.foto_url}" alt="${asistente.nombre}" class="asistente-img">
                 <div>
-                    <span class="fw-bold">${asistente.nombre} ${asistente.apellido}</span>
-                    <small class="d-block text-muted">${asistente.rubro}</small>
+                    <span class="fw-bold d-block text-dark small">${asistente.nombre} ${asistente.apellido}</span>
+                    <small class="text-muted font-monospace" style="font-size: 0.76rem;">${asistente.rut}</small>
                 </div>
             </div>
-            <div class="d-flex align-items-center">
-                <a href="/imprimir-etiqueta/${asistente.id}/" target="_blank" class="btn btn-outline-secondary btn-sm me-2" title="Imprimir etiqueta">
+            <div class="d-flex align-items-center gap-1">
+                <a href="/reunion/{{ reunion.id }}/etiqueta/${asistente.id}/" target="_blank" class="btn btn-outline-secondary btn-sm" title="Imprimir Credencial">
                     <i class="bi bi-printer-fill"></i>
                 </a>
-                <form action="/panel-admin/reuniones/{{ reunion.id }}/quitar-asistencia/${asistente.id}/" method="POST" onsubmit="return confirm('¿Estás seguro de que quieres quitar a este asistente?');" class="d-inline">
+                <form action="/panel-admin/reuniones/{{ reunion.id }}/quitar-asistencia/${asistente.id}/" method="POST" onsubmit="return confirm('¿Quitar asistencia?');" class="d-inline">
                     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
                     <button type="submit" class="btn btn-outline-danger btn-sm" title="Quitar asistencia">
                         <i class="bi bi-trash-fill"></i>
@@ -466,37 +838,354 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
         `;
         const li = document.createElement('li');
-        li.className = 'list-group-item asistente-item d-flex justify-content-between align-items-center';
+        li.className = 'list-group-item asistente-item d-flex justify-content-between align-items-center p-2.5';
         li.id = `asistente-${asistente.id}`;
         li.innerHTML = nuevoAsistenteHTML;
         listaAsistentes.prepend(li);
 
-        contadorAsistentes.textContent = parseInt(contadorAsistentes.textContent) + 1;
+        contadorAsistentes.textContent = parseInt(contadorAsistentes.textContent || '0') + 1;
 
         $(`#usuario_id option[value='${asistente.id}']`).remove();
         $('#usuario_id').val(null).trigger('change');
     }
 
-    // Inicializar Select2 en el campo de selección de usuario
     $('#usuario_id').select2({
         theme: 'bootstrap-5',
-        placeholder: $(this).data('placeholder'),
+        placeholder: 'Escribe un nombre o RUT para buscar...',
     });
+});
 
-    // Lógica para imprimir etiqueta después de un registro manual
-    const urlParams = new URLSearchParams(window.location.search);
-    const userIdToPrint = urlParams.get('print_user');
-    if (userIdToPrint) {
-        const printUrl = `/imprimir-etiqueta/${userIdToPrint}/`;
-        window.open(printUrl, '_blank');
-        // Opcional: Limpiar la URL para que no se vuelva a imprimir al recargar manualmente
-        window.history.replaceState({}, document.title, window.location.pathname);
+function filtrarListaAsistentes() {
+    const query = document.getElementById('filtroAsistentesInput').value.toLowerCase().trim();
+    const items = document.querySelectorAll('#lista-asistentes .asistente-item');
+    items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (text.includes(query)) {
+            item.style.setProperty('display', 'flex', 'important');
+        } else {
+            item.style.setProperty('display', 'none', 'important');
+        }
+    });
+}
+
+function formatRUTString(val) {
+    if (!val) return '';
+    let valor = String(val).replace(/[^0-9kK]/g, '').toUpperCase();
+    if (valor.length <= 1) return valor;
+    let cuerpo = valor.slice(0, -1);
+    let dv = valor.slice(-1);
+    let cuerpoFormateado = '';
+    while (cuerpo.length > 3) {
+        cuerpoFormateado = '.' + cuerpo.slice(-3) + cuerpoFormateado;
+        cuerpo = cuerpo.slice(0, -3);
+    }
+    return cuerpo + cuerpoFormateado + '-' + dv;
+}
+
+function toggleModalPerfil() {
+    const isInacap = document.getElementById('modal_tipo_inacap') ? document.getElementById('modal_tipo_inacap').checked : true;
+    const isEmpresa = document.getElementById('modal_subtipo_empresa') ? document.getElementById('modal_subtipo_empresa').checked : false;
+
+    const bloqueSubtipo = document.getElementById('modal_bloque_subtipo_externo');
+    const campoEmpresa = document.getElementById('modal_campo_empresa');
+    const campoRolInacap = document.getElementById('modal_campo_rol_inacap');
+    const campoTelefono = document.getElementById('modal_campo_telefono');
+    const labelRut = document.getElementById('modal_label_rut');
+    const labelNombre = document.getElementById('modal_label_nombre');
+    const labelApellido = document.getElementById('modal_label_apellido');
+    const labelEmail = document.getElementById('modal_label_email');
+
+    if (isInacap) {
+        if (bloqueSubtipo) bloqueSubtipo.style.display = 'none';
+        if (campoEmpresa) campoEmpresa.style.display = 'none';
+        if (campoRolInacap) campoRolInacap.style.display = 'block';
+        if (campoTelefono) campoTelefono.style.display = 'none';
+
+        if (labelRut) labelRut.innerHTML = 'RUT Chileno <span class="text-danger">*</span>';
+        if (labelNombre) labelNombre.innerHTML = 'Nombre <span class="text-danger">*</span>';
+        if (labelApellido) labelApellido.innerHTML = 'Apellido <span class="text-danger">*</span>';
+        if (labelEmail) labelEmail.innerHTML = 'Correo Electrónico <span class="text-danger">*</span>';
+    } else {
+        if (bloqueSubtipo) bloqueSubtipo.style.display = 'block';
+        if (campoRolInacap) campoRolInacap.style.display = 'none';
+        if (campoTelefono) campoTelefono.style.display = 'block';
+
+        if (isEmpresa) {
+            if (campoEmpresa) campoEmpresa.style.display = 'block';
+            if (labelRut) labelRut.innerHTML = 'RUT de Empresa o Representante <span class="text-danger">*</span>';
+            if (labelNombre) labelNombre.innerHTML = 'Nombre Representante / Contacto <span class="text-danger">*</span>';
+            if (labelApellido) labelApellido.innerHTML = 'Apellido Representante / Contacto <span class="text-danger">*</span>';
+            if (labelEmail) labelEmail.innerHTML = 'Correo de Contacto <span class="text-danger">*</span>';
+        } else {
+            if (campoEmpresa) campoEmpresa.style.display = 'none';
+            if (labelRut) labelRut.innerHTML = 'RUT Chileno <span class="text-danger">*</span>';
+            if (labelNombre) labelNombre.innerHTML = 'Nombre <span class="text-danger">*</span>';
+            if (labelApellido) labelApellido.innerHTML = 'Apellido <span class="text-danger">*</span>';
+            if (labelEmail) labelEmail.innerHTML = 'Correo Electrónico <span class="text-danger">*</span>';
+        }
+    }
+}
+
+function abrirModalConRut(rut, nombre = '', apellido = '') {
+    try { Swal.close(); } catch(e) {}
+    const modalEl = document.getElementById('modalRegistroRapidoAsistencia');
+    if (!modalEl) return;
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    const inputRut = document.getElementById('modal_input_rut');
+    const inputNombre = document.getElementById('modal_input_nombre');
+    const inputApellido = document.getElementById('modal_input_apellido');
+    const inputEmail = document.getElementById('modal_input_email');
+    const carnetBadge = document.getElementById('modal_carnet_badge');
+    const badgeCarnetStatus = document.getElementById('badge_carnet_status');
+
+    if (inputRut && rut) inputRut.value = formatRUTString(rut);
+    if (inputNombre && nombre) inputNombre.value = nombre;
+    if (inputApellido && apellido) inputApellido.value = apellido;
+    if (inputEmail) inputEmail.value = '';
+
+    const vieneDeCarnet = !!(nombre || apellido);
+    if (carnetBadge) carnetBadge.style.display = vieneDeCarnet ? 'flex' : 'none';
+    if (badgeCarnetStatus) badgeCarnetStatus.style.display = vieneDeCarnet ? 'inline-block' : 'none';
+
+    modal.show();
+    setTimeout(() => {
+        if (!nombre && inputNombre) {
+            inputNombre.focus();
+        } else if (!apellido && inputApellido) {
+            inputApellido.focus();
+        } else if (inputEmail) {
+            inputEmail.focus();
+        }
+    }, 450);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    toggleModalPerfil();
+
+    const inputRutModal = document.getElementById('modal_input_rut');
+    if (inputRutModal) {
+        inputRutModal.addEventListener('input', (e) => {
+            e.target.value = formatRUTString(e.target.value);
+        });
     }
 
+    const formCrearRapido = document.getElementById('form-crear-usuario-rapido');
+    if (formCrearRapido) {
+        formCrearRapido.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btnSubmit = document.getElementById('btn-submit-modal-rapido');
+            const originalBtnHtml = btnSubmit.innerHTML;
+
+            const isInacap = document.getElementById('modal_tipo_inacap').checked;
+            const subtipoExterno = document.getElementById('modal_subtipo_empresa').checked ? 'empresa' : 'natural';
+            const marcarAsistencia = document.getElementById('modal_marcar_asistencia').checked;
+            const imprimirCredencial = document.getElementById('modal_imprimir_credencial').checked;
+
+            const rutVal = document.getElementById('modal_input_rut').value.trim();
+            const nomVal = document.getElementById('modal_input_nombre').value.trim();
+            const apeVal = document.getElementById('modal_input_apellido').value.trim();
+            const emailVal = document.getElementById('modal_input_email').value.trim();
+            const rubroVal = isInacap ? document.getElementById('modal_input_rubro').value : 'externo';
+            const empresaVal = (!isInacap && subtipoExterno === 'empresa') ? document.getElementById('modal_input_empresa').value.trim() : (isInacap ? 'INACAP' : '');
+
+            if (!rutVal) {
+                Swal.fire('RUT requerido', 'Por favor ingresa el RUT del participante.', 'warning');
+                document.getElementById('modal_input_rut').focus();
+                return;
+            }
+            if (!nomVal) {
+                Swal.fire('Nombre requerido', 'Por favor ingresa el nombre.', 'warning');
+                document.getElementById('modal_input_nombre').focus();
+                return;
+            }
+            if (!apeVal) {
+                Swal.fire('Apellido requerido', 'Por favor ingresa el apellido.', 'warning');
+                document.getElementById('modal_input_apellido').focus();
+                return;
+            }
+            if (isInacap && !rubroVal) {
+                Swal.fire('Rol requerido', 'Por favor selecciona el rol en INACAP (Alumno, Docente, etc.).', 'warning');
+                document.getElementById('modal_input_rubro').focus();
+                return;
+            }
+            if (!isInacap && subtipoExterno === 'empresa' && !empresaVal) {
+                Swal.fire('Empresa requerida', 'Por favor ingresa el nombre de la empresa u organización.', 'warning');
+                document.getElementById('modal_input_empresa').focus();
+                return;
+            }
+            if (!emailVal) {
+                Swal.fire('Correo requerido', 'Por favor ingresa un correo electrónico de contacto.', 'warning');
+                document.getElementById('modal_input_email').focus();
+                return;
+            }
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Registrando...';
+
+            const payload = {
+                tipo_usuario: isInacap ? 'inacap' : 'externo',
+                subtipo_externo: subtipoExterno,
+                rut: rutVal,
+                nombre: nomVal,
+                apellido: apeVal,
+                email: emailVal,
+                rubro: rubroVal,
+                institucion_empresa: empresaVal,
+                telefono: document.getElementById('modal_input_telefono').value.trim(),
+                marcar_asistencia: marcarAsistencia,
+                acepta_terminos: true
+            };
+
+            fetch("{% url 'panel-admin:crear_usuario_rapido_asistencia' reunion.id %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json().then(data => ({ ok: res.ok, status: res.status, data })))
+            .then(({ ok, data }) => {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = originalBtnHtml;
+
+                if (ok && data.status === 'ok') {
+                    const modalEl = document.getElementById('modalRegistroRapidoAsistencia');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) modalInstance.hide();
+                    formCrearRapido.reset();
+                    toggleModalPerfil();
+
+                    if (marcarAsistencia && data.asistente) {
+                        try {
+                            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                            const osc = audioCtx.createOscillator();
+                            const gain = audioCtx.createGain();
+                            osc.connect(gain);
+                            gain.connect(audioCtx.destination);
+                            osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                            osc.start();
+                            osc.stop(audioCtx.currentTime + 0.15);
+                        } catch(e) {}
+
+                        // Insertar en la lista y sumar contador
+                        const listaAsistentes = document.getElementById('lista-asistentes');
+                        const contadorAsistentes = document.getElementById('contador-asistentes');
+                        const noAsistentesMsg = document.getElementById('no-asistentes');
+                        if (noAsistentesMsg) noAsistentesMsg.remove();
+
+                        const existente = document.getElementById(`asistente-${data.asistente.id}`);
+                        if (!existente && listaAsistentes) {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item asistente-item d-flex justify-content-between align-items-center p-2.5';
+                            li.id = `asistente-${data.asistente.id}`;
+                            li.innerHTML = `
+                                <div class="d-flex align-items-center">
+                                    <img src="${data.asistente.foto_url}" alt="${data.asistente.nombre}" class="asistente-img">
+                                    <div>
+                                        <span class="fw-bold d-block text-dark small">${data.asistente.nombre} ${data.asistente.apellido}</span>
+                                        <small class="text-muted font-monospace" style="font-size: 0.76rem;">${data.asistente.rut}</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <a href="/reunion/{{ reunion.id }}/etiqueta/${data.asistente.id}/" target="_blank" class="btn btn-outline-secondary btn-sm" title="Imprimir Credencial">
+                                        <i class="bi bi-printer-fill"></i>
+                                    </a>
+                                    <form action="/panel-admin/reuniones/{{ reunion.id }}/quitar-asistencia/${data.asistente.id}/" method="POST" onsubmit="return confirm('¿Quitar asistencia?');" class="d-inline">
+                                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Quitar asistencia">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            `;
+                            listaAsistentes.prepend(li);
+                            if (contadorAsistentes) {
+                                contadorAsistentes.textContent = parseInt(contadorAsistentes.textContent || '0') + 1;
+                            }
+                        }
+                    }
+
+                    if (data.aforo_info) {
+                        actualizarMetricasAforo(data.aforo_info);
+                    }
+
+                    if (imprimirCredencial && data.print_url) {
+                        imprimirEtiquetaGarantizada(data.print_url);
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Acreditación Exitosa!',
+                        html: `<p class="mb-1">${data.message}</p><span class="badge bg-danger px-3 py-1">${data.asistente.nombre_completo}</span>`,
+                        timer: 2800,
+                        showConfirmButton: false
+                    });
+                } else if (res.status === 409 && data.status === 'aforo_completo') {
+                    if (data.aforo_info) actualizarMetricasAforo(data.aforo_info);
+                    Swal.fire({
+                        icon: 'warning',
+                        title: '¡Aforo Máximo Alcanzado!',
+                        html: `
+                            <p class="mb-2">${data.message}</p>
+                            <p class="small text-muted mb-0">¿Deseas guardar al usuario y forzar su acreditación con <strong>sobrecupo</strong>?</p>
+                        `,
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, Acreditar con Sobrecupo',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#B70420'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            payload.force_overcapacity = true;
+                            btnSubmit.disabled = true;
+                            fetch("{% url 'panel-admin:crear_usuario_rapido_asistencia' reunion.id %}", {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRFToken': '{{ csrf_token }}'
+                                },
+                                body: JSON.stringify(payload)
+                            }).then(r => r.json()).then(dataOver => {
+                                btnSubmit.disabled = false;
+                                if (dataOver.status === 'ok') {
+                                    const modalEl = document.getElementById('modalRegistroRapidoAsistencia');
+                                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                                    if (modalInstance) modalInstance.hide();
+                                    formCrearRapido.reset();
+                                    actualizarUIAgregarAsistente(dataOver.asistente);
+                                    if (dataOver.aforo_info) actualizarMetricasAforo(dataOver.aforo_info);
+                                    if (imprimirCredencial && dataOver.print_url) imprimirEtiquetaGarantizada(dataOver.print_url);
+                                    Swal.fire('¡Acreditado!', 'Participante acreditado con sobrecupo.', 'success');
+                                } else {
+                                    Swal.fire('Error', dataOver.message, 'error');
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No se pudo registrar',
+                        text: data.message || 'Verifica los datos ingresados.',
+                        confirmButtonColor: '#B70420'
+                    });
+                }
+            })
+            .catch(err => {
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = originalBtnHtml;
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error de Conexión',
+                    text: 'Ocurrió un error al procesar el registro.',
+                    confirmButtonColor: '#B70420'
+                });
+            });
+        });
+    }
 });
 </script>
-<!-- Script de Bootstrap para los alerts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

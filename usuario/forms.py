@@ -40,40 +40,68 @@ class LoginForm(forms.Form):
     email = forms.EmailField(label="Correo Electrónico", widget=forms.EmailInput(attrs={'class': 'form-control', 'autocomplete': 'email'}))
     password = forms.CharField(label="Contraseña", widget=forms.PasswordInput(attrs={'class': 'form-control', 'autocomplete': 'current-password'}))
 
-
 class UsuarioForm(forms.ModelForm):
     TIPO_USUARIO_CHOICES = [
-        ('inacap', 'Soy de Inacap'),
+        ('inacap', 'Soy de INACAP'),
         ('externo', 'Soy Externo')
     ]
+    SUBTIPO_EXTERNO_CHOICES = [
+        ('natural', 'Persona Natural'),
+        ('empresa', 'Empresa u Organización')
+    ]
+    
     tipo_usuario = forms.ChoiceField(
         choices=TIPO_USUARIO_CHOICES,
-        widget=forms.RadioSelect,
-        label="Origen",
+        widget=forms.RadioSelect(attrs={'class': 'btn-check'}),
+        label="¿Cuál es tu Origen?",
+        initial='inacap',
         required=True
+    )
+    subtipo_externo = forms.ChoiceField(
+        choices=SUBTIPO_EXTERNO_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'btn-check'}),
+        label="Tipo de Invitado Externo",
+        initial='natural',
+        required=False
     )
 
     class Meta:
         model = Usuario
-        # Simplificamos los campos para que coincidan con la plantilla de registro.
-        # Los campos como sede, carrera, etc., se llenarán al editar el perfil.
-        fields = [
-            'nombre', 'apellido', 'rut', 'email',
-            'tipo_usuario', 'rubro', 'institucion_empresa',
-        ]
+        fields = ['tipo_usuario', 'subtipo_externo', 'rut', 'nombre', 'apellido', 'email',
+            'rubro', 'telefono', 'institucion_empresa', 'acepta_terminos']
         widgets = {
-            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
-            'apellido': forms.TextInput(attrs={'class': 'form-control'}),
-            'rut': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            # El widget de tipo_usuario se define en el campo mismo.
+            'rut': forms.TextInput(attrs={'class': 'form-control form-control-lg fw-bold text-center form-control-rut', 'placeholder': '12.345.678-9'}),
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Juan'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Pérez'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'ejemplo@correo.cl'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+56 9 1234 5678'}),
             'rubro': forms.Select(attrs={'class': 'form-select'}),
-            'institucion_empresa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de tu institución o empresa'}),
+            'institucion_empresa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la empresa u organización'}),
         }
         labels = {
-            'rubro': 'Tu Rol en Inacap',
-            'institucion_empresa': 'Institución o Empresa'
+            'rut': 'RUT',
+            'nombre': 'Nombre',
+            'apellido': 'Apellido',
+            'email': 'Correo Electrónico',
+            'telefono': 'Teléfono / WhatsApp',
+            'rubro': 'Rol en INACAP',
+            'institucion_empresa': 'Empresa u Organización'
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['rubro'].required = False
+        self.fields['telefono'].required = False
+        self.fields['institucion_empresa'].required = False
+        self.fields['rubro'].choices = [
+            ('', 'Selecciona tu rol en INACAP...'),
+            ('estudiante', 'Alumno / Estudiante'),
+            ('docente', 'Profesor / Docente'),
+            ('administrativo', 'Administrativo / Colaborador'),
+            ('exalumno', 'Exalumno / Titulado'),
+            ('directivo', 'Directivo'),
+            ('otro', 'Otro Rol'),
+        ]
 
     def clean_rut(self):
         rut = self.cleaned_data.get('rut')
@@ -81,15 +109,13 @@ class UsuarioForm(forms.ModelForm):
         if not is_valid:
             raise forms.ValidationError(message_or_rut)
 
-        # Verificar si el RUT ya existe en la base de datos
         if Usuario.objects.filter(rut=message_or_rut).exists():
-            raise forms.ValidationError("Ya existe un usuario con este RUT.")
+            raise forms.ValidationError("Ya existe un usuario registrado con este RUT.")
 
         return message_or_rut
 
     def clean_email(self):
-        # Usamos .lower() para una comparación insensible a mayúsculas/minúsculas
-        email = self.cleaned_data.get('email').lower()
+        email = self.cleaned_data.get('email', '').strip().lower()
         if Usuario.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("Ya existe un usuario con este correo electrónico.")
         return email
@@ -97,24 +123,43 @@ class UsuarioForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()
         tipo_usuario = cleaned_data.get('tipo_usuario')
-        rubro = cleaned_data.get('rubro')
-        institucion_empresa = cleaned_data.get('institucion_empresa')
+        subtipo_externo = cleaned_data.get('subtipo_externo')
 
-        if tipo_usuario == 'inacap' and not rubro:
-            self.add_error('rubro', 'Debes seleccionar tu rol en Inacap.')
-        elif tipo_usuario == 'externo' and not institucion_empresa:
-            self.add_error('institucion_empresa', 'Debes especificar el nombre de tu institución o empresa.')
+        if tipo_usuario == 'inacap':
+            rubro = cleaned_data.get('rubro')
+            if not rubro:
+                self.add_error('rubro', 'Por favor selecciona tu rol en INACAP.')
+        elif tipo_usuario == 'externo':
+            if subtipo_externo == 'empresa':
+                empresa = cleaned_data.get('institucion_empresa')
+                if not empresa or not empresa.strip():
+                    self.add_error('institucion_empresa', 'Por favor ingresa el nombre de la Empresa u Organización.')
 
         return cleaned_data
 
     def save(self, commit=True):
         usuario = super().save(commit=False)
-
-        # Establecer la contraseña como el RUT sin dígito verificador
         rut_limpio = self.cleaned_data.get('rut', '')
-        if rut_limpio:
+        tipo = self.cleaned_data.get('tipo_usuario')
+        subtipo = self.cleaned_data.get('subtipo_externo')
+
+        # Asignar contraseña segura por defecto (RUT sin DV)
+        if not usuario.password and rut_limpio:
             password_por_defecto = rut_limpio[:-1]
             usuario.password = make_password(password_por_defecto)
+
+        if tipo == 'externo':
+            usuario.sede = None
+            usuario.carrera = None
+            usuario.rubro = 'externo'
+            if subtipo == 'natural':
+                if not usuario.institucion_empresa:
+                    usuario.institucion_empresa = 'Particular'
+        else:
+            usuario.sede = None
+            usuario.carrera = None
+            if not usuario.institucion_empresa:
+                usuario.institucion_empresa = 'INACAP'
 
         if commit:
             usuario.save()
@@ -125,8 +170,7 @@ class EditarUsuarioForm(forms.ModelForm):
         model = Usuario
         fields = [
             'nombre', 'apellido', 'rut', 'email', 'telefono',
-            'sede', 'sede_otro', 'carrera', 'carrera_otro',
-            'rubro', 'rubro_otro',
+            'rubro', 'rubro_otro', 'institucion_empresa',
             'foto'
         ]
         widgets = {
@@ -134,10 +178,7 @@ class EditarUsuarioForm(forms.ModelForm):
             'apellido': forms.TextInput(attrs={'class': 'form-control'}),
             'rubro': forms.Select(attrs={'class': 'form-select'}),
             'rubro_otro': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribe tu rol aquí'}),
-            'sede': forms.Select(attrs={'class': 'form-select'}),
-            'sede_otro': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribe tu sede aquí'}),
-            'carrera': forms.Select(attrs={'class': 'form-select'}),
-            'carrera_otro': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribe tu carrera aquí'}),
+            'institucion_empresa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la empresa u organización'}),
             'rut': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
@@ -162,25 +203,15 @@ class EditarUsuarioForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        sede = cleaned_data.get("sede")
-        sede_otro = cleaned_data.get("sede_otro")
-        if sede == 'otro' and not sede_otro:
-            self.add_error('sede_otro', 'Debes especificar tu sede si seleccionas "Otra Sede".')
-        carrera = cleaned_data.get("carrera")
-        carrera_otro = cleaned_data.get("carrera_otro")
-        if carrera == 'otro' and not carrera_otro:
-            self.add_error('carrera_otro', 'Debes especificar tu carrera si seleccionas "Otra Carrera / Especialidad".')
         return cleaned_data
 
 class AyudanteUsuarioForm(EditarUsuarioForm):
     """Formulario para que los ayudantes editen usuarios, sin campos sensibles."""
     class Meta(EditarUsuarioForm.Meta):
-        # Hereda los campos de EditarUsuarioForm y añade 'cantidad_asistencias'.
         # Se redefine el widget para que sea un campo de número estándar.
         fields = EditarUsuarioForm.Meta.fields + ['cantidad_asistencias']
         widgets = EditarUsuarioForm.Meta.widgets.copy()
         widgets['cantidad_asistencias'] = forms.NumberInput(attrs={'class': 'form-control'})
-
 
 class AdminUsuarioForm(forms.ModelForm):
     # Hacemos el campo de contraseña no requerido y añadimos un placeholder
@@ -188,20 +219,15 @@ class AdminUsuarioForm(forms.ModelForm):
 
     class Meta:
         model = Usuario
-        # Para el admin, incluimos todos los campos del usuario normal MÁS los roles y 'cantidad_asistencias'
         fields = ['nombre', 'apellido', 'rut', 'email', 'telefono',
-                  'sede', 'sede_otro', 'carrera', 'carrera_otro',
-                  'rubro', 'rubro_otro',
+                  'rubro', 'rubro_otro', 'institucion_empresa',
                   'password', 'foto', 'es_admin', 'es_ayudante', 'es_totem', 'cantidad_asistencias']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'apellido': forms.TextInput(attrs={'class': 'form-control'}),
             'rubro': forms.Select(attrs={'class': 'form-select'}),
             'rubro_otro': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribe tu rol aquí'}),
-            'sede': forms.Select(attrs={'class': 'form-select'}),
-            'sede_otro': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribe tu sede aquí'}),
-            'carrera': forms.Select(attrs={'class': 'form-control'}),
-            'carrera_otro': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Escribe tu carrera aquí'}),
+            'institucion_empresa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la empresa u organización'}),
             'rut': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
@@ -234,14 +260,7 @@ class AdminUsuarioForm(forms.ModelForm):
         rubro_otro = cleaned_data.get("rubro_otro")
         if rubro == 'otro' and not rubro_otro:
             self.add_error('rubro_otro', 'Debes especificar el rol si seleccionas "Otro".')
-        sede = cleaned_data.get("sede")
-        sede_otro = cleaned_data.get("sede_otro")
-        if sede == 'otro' and not sede_otro:
-            self.add_error('sede_otro', 'Debes especificar la sede si seleccionas "Otra Sede".')
-        carrera = cleaned_data.get("carrera")
-        carrera_otro = cleaned_data.get("carrera_otro")
-        if carrera == 'otro' and not carrera_otro:
-            self.add_error('carrera_otro', 'Debes especificar la carrera si seleccionas "Otra Carrera / Especialidad".')
+        return cleaned_data
 
     def save(self, commit=True):
         from django.contrib.auth.hashers import make_password
@@ -252,7 +271,6 @@ class AdminUsuarioForm(forms.ModelForm):
         if commit:
             usuario.save()
         return usuario
-
 
 class CambiarPasswordForm(forms.Form):
     password_actual = forms.CharField(label="Contraseña Actual", widget=forms.PasswordInput(attrs={'class': 'form-control'}))
@@ -283,11 +301,124 @@ class CambiarPasswordForm(forms.Form):
 class RespuestaEncuestaForm(forms.ModelForm):
     class Meta:
         model = RespuestaEncuesta
-        fields = ['puntuacion', 'comentarios']
+        fields = ['puntuacion', 'comentarios', 'es_anonimo']
         widgets = {
             'puntuacion': forms.RadioSelect(attrs={'class': 'btn-check'}),
-            'comentarios': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Tus comentarios son valiosos...'}),
+            'comentarios': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Escribe aquí tu opinión, comentarios o sugerencias...'}),
+            'es_anonimo': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
         labels = {
-            'comentarios': 'Comentarios (opcional)'
+            'puntuacion': 'Calificación de Experiencia',
+            'comentarios': 'Opinión y Sugerencias',
+            'es_anonimo': 'Responder de forma anónima'
         }
+
+password_help_text = (
+    "<ul>"
+    "<li>Tu contraseña no puede ser muy similar a tu otra información personal.</li>"
+    "<li>Tu contraseña debe contener al menos 8 caracteres.</li>"
+    "<li>Tu contraseña no puede ser una contraseña de uso común.</li>"
+    "<li>Tu contraseña no puede ser completamente numérica.</li>"
+    "</ul>"
+)
+
+class PasswordResetRequestForm(forms.Form):
+    email = forms.EmailField(
+        label="Correo Electrónico", 
+        max_length=254, 
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'ejemplo@inacap.cl', 'autocomplete': 'email'})
+    )
+
+class SetNewPasswordForm(forms.Form):
+    new_password1 = forms.CharField(
+        label="Nueva Contraseña",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'autocomplete': 'new-password'}),
+        strip=False,
+        help_text=password_help_text
+    )
+    new_password2 = forms.CharField(
+        label="Confirmar Nueva Contraseña",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'autocomplete': 'new-password'}),
+        strip=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+    def clean_new_password1(self):
+        password = self.cleaned_data.get('new_password1')
+        if self.user:
+            validate_password(password, self.user)
+        return password
+
+    def clean(self):
+        cleaned_data = super().clean()
+        new_password1 = cleaned_data.get("new_password1")
+        new_password2 = cleaned_data.get("new_password2")
+        if new_password1 and new_password2 and new_password1 != new_password2:
+            self.add_error('new_password2', "Las contraseñas no coinciden.")
+        return cleaned_data
+
+class RegistroRapidoForm(forms.ModelForm):
+    TIPO_CHOICES = [
+        ('inacap', 'Comunidad INACAP (Alumno / Docente / Directivo)'),
+        ('externo', 'Invitado Externo / Empresa')
+    ]
+    tipo_asistente = forms.ChoiceField(
+        choices=TIPO_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'btn-check'}),
+        initial='inacap',
+        label="Tipo de Asistente"
+    )
+
+    class Meta:
+        model = Usuario
+        fields = [
+            'nombre', 'apellido', 'email', 'telefono',
+            'rubro', 'institucion_empresa'
+        ]
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Juan'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Pérez'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'ejemplo@inacap.cl'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+56 9 1234 5678'}),
+            'rubro': forms.Select(attrs={'class': 'form-select'}),
+            'institucion_empresa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de tu empresa u organización'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['telefono'].required = False
+        self.fields['institucion_empresa'].required = False
+        if 'rubro' in self.fields:
+            self.fields['rubro'].required = False
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if Usuario.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("Este correo ya se encuentra registrado. Ingresa otro o usa tu RUT.")
+        return email
+
+    def save(self, rut, commit=True):
+        usuario = super().save(commit=False)
+        usuario.rut = rut
+        # Asignar contraseña segura automática sin molestar al usuario
+        if not usuario.password:
+            import secrets
+            usuario.set_password(secrets.token_urlsafe(12))
+        
+        tipo = self.cleaned_data.get('tipo_asistente')
+        if tipo == 'externo':
+            usuario.rubro = 'externo'
+            if not usuario.institucion_empresa:
+                usuario.institucion_empresa = 'Particular'
+        else:
+            if not usuario.rubro or usuario.rubro == 'externo':
+                usuario.rubro = 'estudiante'
+            if not usuario.institucion_empresa:
+                usuario.institucion_empresa = 'INACAP'
+
+        if commit:
+            usuario.save()
+        return usuario

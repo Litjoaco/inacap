@@ -3,85 +3,511 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Respuestas de Encuesta</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analítica y Respuestas - {{ encuesta.titulo }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #f8f9fa; }
-        header { background: linear-gradient(to right, #D90429, #A9001F); color: white; }
-        .star-rating { color: #ffc107; }
-        .card-header { font-weight: 500; }
+        :root {
+            --inacap-red: #B70420;
+            --inacap-dark: #1e293b;
+        }
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', system-ui, sans-serif; }
+        .hero-banner {
+            background: linear-gradient(135deg, #8B0014 0%, #B70420 50%, #d32f2f 100%);
+            color: white;
+            padding: 2.2rem 0;
+            box-shadow: 0 4px 20px rgba(183, 4, 32, 0.25);
+        }
+        .kpi-card {
+            border: none;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+            background: white;
+        }
+        .kpi-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+        .star-gold { color: #f59e0b; }
+        .chart-box {
+            background: white;
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+        .response-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        .response-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+        .filter-btn.active {
+            background-color: var(--inacap-red) !important;
+            color: white !important;
+            border-color: var(--inacap-red) !important;
+        }
     </style>
 </head>
 <body>
-<header class="p-3 shadow-sm d-flex justify-content-between align-items-center">
-    <div>
-        <h4 class="mb-0">Resultados de la Encuesta</h4>
-        <small>{{ encuesta.titulo }} para "{{ encuesta.reunion.detalle }}"</small>
+
+<!-- HERO HEADER -->
+<header class="hero-banner mb-4">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1 text-white-50 small">
+                        <li class="breadcrumb-item"><a href="{% url 'panel-admin:panel_admin' %}" class="text-white-50 text-decoration-none">Panel Admin</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'panel-admin:gestion_encuestas' %}" class="text-white-50 text-decoration-none">Encuestas</a></li>
+                        <li class="breadcrumb-item active text-white" aria-current="page">Resultados</li>
+                    </ol>
+                </nav>
+                <h2 class="fw-bold mb-1"><i class="bi bi-bar-chart-line-fill me-2"></i>Resultados: {{ encuesta.titulo }}</h2>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge bg-light text-dark"><i class="bi bi-calendar-event me-1"></i>{{ encuesta.reunion.detalle }}</span>
+                    {% if encuesta.modalidad_entrega == 'al_finalizar' %}
+                    <span class="badge bg-warning text-dark"><i class="bi bi-broadcast me-1"></i>Al terminar reunión</span>
+                    {% else %}
+                    <span class="badge bg-info text-dark"><i class="bi bi-envelope-check me-1"></i>Envío por Correo</span>
+                    {% endif %}
+                    {% if encuesta.activa %}
+                    <span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>Activa</span>
+                    {% else %}
+                    <span class="badge bg-secondary"><i class="bi bi-pause-circle me-1"></i>Pausada</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'panel-admin:editar_encuesta' encuesta.id %}" class="btn btn-warning fw-semibold shadow-sm">
+                    <i class="bi bi-pencil-square me-1"></i>Configurar Encuesta
+                </a>
+                <a href="{% url 'panel-admin:gestion_encuestas' %}" class="btn btn-outline-light">
+                    <i class="bi bi-arrow-left me-1"></i>Volver
+                </a>
+            </div>
+        </div>
     </div>
-    <a href="{% url 'panel-admin:gestion_encuestas' %}" class="btn btn-outline-light">Volver a Encuestas</a>
 </header>
 
-<main class="container my-5">
-    <div class="card shadow-lg mb-4">
-        <div class="card-body text-center p-4">
-            <h5 class="card-title">Puntuación Promedio General</h5>
-            <p class="display-4 fw-bold star-rating">
-                {% if promedio %}
-                    {{ promedio|floatformat:1 }} <i class="bi bi-star-fill"></i>
-                {% else %}
-                    N/A
+<main class="container pb-5">
+    <!-- MENSAJES DJANGO -->
+    {% if messages %}
+    <div class="row mb-3">
+        <div class="col-12">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ACCIONES RÁPIDAS MODALIDAD -->
+    <div class="card border-0 shadow-sm mb-4 bg-white" style="border-radius: 14px;">
+        <div class="card-body p-3 d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle p-2 {% if encuesta.modalidad_entrega == 'al_finalizar' %}bg-warning-subtle text-warning-emphasis{% else %}bg-primary-subtle text-primary{% endif %}">
+                    <i class="bi {% if encuesta.modalidad_entrega == 'al_finalizar' %}bi-display{% else %}bi-envelope-paper-fill{% endif %} fs-4"></i>
+                </div>
+                <div>
+                    <strong class="d-block">Modalidad Activa: {% if encuesta.modalidad_entrega == 'al_finalizar' %}Al terminar la reunión (En pantalla / Landing){% else %}Envío masivo por correo electrónico{% endif %}</strong>
+                    <span class="text-muted small">
+                        {% if encuesta.modalidad_entrega == 'al_finalizar' %}
+                        Se presenta a los asistentes directamente al cerrarse el evento o al ingresar a la reunión.
+                        {% else %}
+                        {% if encuesta.enviada_por_correo %}
+                        <span class="text-success"><i class="bi bi-check-all"></i> Enviada por correo a los acreditados el {{ encuesta.fecha_envio_correo|date:"d/m/Y H:i" }}</span>
+                        {% else %}
+                        Pendiente de envío por correo a los asistentes acreditados.
+                        {% endif %}
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'panel-admin:responder_encuesta_publica' encuesta.reunion.id %}" target="_blank" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Ver Encuesta en Vivo
+                </a>
+                <button type="button" class="btn btn-outline-dark btn-sm" onclick="copiarLinkEncuesta('{{ request.scheme }}://{{ request.get_host }}/encuesta/{{ encuesta.reunion.id }}/')">
+                    <i class="bi bi-link-45deg me-1"></i>Copiar Enlace
+                </button>
+                {% if encuesta.modalidad_entrega == 'correo' %}
+                <form action="{% url 'panel-admin:enviar_encuesta_correo_asistentes' encuesta.id %}" method="POST" class="d-inline" onsubmit="return confirm('¿Enviar la encuesta por correo a todos los asistentes acreditados?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-sm fw-semibold">
+                        <i class="bi bi-send-fill me-1"></i>Enviar a Asistentes ({% if total_asistentes %}{{ total_asistentes }}{% else %}0{% endif %})
+                    </button>
+                </form>
                 {% endif %}
-            </p>
-            <p class="text-muted">Basado en {{ respuestas|length }} respuesta(s).</p>
+            </div>
         </div>
     </div>
 
-    <div class="card shadow-lg">
-        <div class="card-header bg-dark text-white">
-            <h5><i class="bi bi-chat-left-text-fill me-2"></i>Comentarios y Puntuaciones Individuales</h5>
-        </div>
-        <div class="card-body p-0">
-            <ul class="list-group list-group-flush">
-                {% for respuesta in respuestas %}
-                <li class="list-group-item p-3">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1">{{ respuesta.usuario.nombre }} {{ respuesta.usuario.apellido }}</h6>
-                        <small class="text-muted">{{ respuesta.fecha_respuesta|date:"d/m/Y" }}</small>
+    <!-- 4 KPI CARDS -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="kpi-card p-3 border-start border-4 border-warning">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small fw-semibold text-uppercase">Puntuación Media</span>
+                        <h2 class="fw-bold mb-0 text-dark">
+                            {% if promedio %}
+                            {{ promedio|floatformat:1 }} <small class="fs-6 text-muted">/ 5.0</small>
+                            {% else %}
+                            0.0
+                            {% endif %}
+                        </h2>
                     </div>
-                    <p class="mb-1 star-rating">
+                    <div class="text-warning fs-1"><i class="bi bi-star-fill"></i></div>
+                </div>
+                <div class="mt-2 text-warning small">
+                    {% if promedio %}
                         {% for i in "12345" %}
-                            {% if forloop.counter <= respuesta.puntuacion %}
+                            {% if forloop.counter <= promedio %}
                                 <i class="bi bi-star-fill"></i>
                             {% else %}
                                 <i class="bi bi-star"></i>
                             {% endif %}
                         {% endfor %}
-                        <span class="text-dark">({{ respuesta.get_puntuacion_display }})</span>
-                    </p>
-                    {% if respuesta.comentarios %}
-                        <p class="mb-0 fst-italic">"{{ respuesta.comentarios }}"</p>
                     {% else %}
-                        <p class="mb-0 text-muted fst-italic">Sin comentarios adicionales.</p>
+                        Sin calificaciones aún
                     {% endif %}
-                    
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="kpi-card p-3 border-start border-4 border-primary">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small fw-semibold text-uppercase">Total Respuestas</span>
+                        <h2 class="fw-bold mb-0 text-primary">{{ total_respuestas }}</h2>
+                    </div>
+                    <div class="text-primary fs-1"><i class="bi bi-chat-heart-fill"></i></div>
+                </div>
+                <div class="mt-2 text-muted small">
+                    <i class="bi bi-people me-1"></i>{{ total_asistentes }} asistentes acreditados
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="kpi-card p-3 border-start border-4 border-info">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small fw-semibold text-uppercase">Tasa de Respuesta</span>
+                        <h2 class="fw-bold mb-0 text-info">{{ tasa_respuesta }}%</h2>
+                    </div>
+                    <div class="text-info fs-1"><i class="bi bi-pie-chart-fill"></i></div>
+                </div>
+                <div class="mt-2">
+                    <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ tasa_respuesta }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="kpi-card p-3 border-start border-4 border-success">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="text-muted small fw-semibold text-uppercase">Satisfacción Positiva</span>
+                        <h2 class="fw-bold mb-0 text-success">{{ positivas_pct }}%</h2>
+                    </div>
+                    <div class="text-success fs-1"><i class="bi bi-emoji-smile-fill"></i></div>
+                </div>
+                <div class="mt-2 text-success small">
+                    <i class="bi bi-hand-thumbs-up me-1"></i>Calificaciones 4 y 5 estrellas
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRELOADED CHARTS SECTION -->
+    <div class="row g-4 mb-4">
+        <!-- BAR CHART: DISTRIBUCIÓN DE ESTRELLAS -->
+        <div class="col-lg-7">
+            <div class="chart-box">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-bar-chart-fill me-2 text-danger"></i>Distribución de Calificaciones</h5>
+                    <span class="badge bg-secondary-subtle text-secondary">{{ total_respuestas }} votos totales</span>
+                </div>
+                <p class="text-muted small mb-3">Previsualización gráfica de las valoraciones de 1 a 5 estrellas.</p>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="starsBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- DONUT CHART: NIVEL DE SATISFACCIÓN -->
+        <div class="col-lg-5">
+            <div class="chart-box">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart-fill me-2 text-primary"></i>Nivel de Satisfacción</h5>
+                    <span class="badge bg-primary-subtle text-primary">Segmentación</span>
+                </div>
+                <p class="text-muted small mb-3">Promotores (4-5★), Neutros (3★) y Críticos (1-2★).</p>
+                <div style="position: relative; height: 260px;">
+                    <canvas id="satisfactionDonutChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PREGUNTAS Y DETALLE CONFIGURADO -->
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 14px;">
+        <div class="card-body p-4">
+            <h6 class="fw-bold text-uppercase text-muted mb-3"><i class="bi bi-card-checklist me-2"></i>Preguntas configuradas en esta encuesta</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <small class="text-primary fw-bold text-uppercase d-block mb-1">Pregunta de Calificación (Estrellas)</small>
+                        <p class="fw-semibold text-dark mb-0">{{ encuesta.pregunta_estrellas|default:"¿Cómo calificarías tu experiencia general en esta reunión?" }}</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded-3 border">
+                        <small class="text-success fw-bold text-uppercase d-block mb-1">Pregunta de Opinión (Comentario abierto)</small>
+                        <p class="fw-semibold text-dark mb-0">{{ encuesta.pregunta_opinion|default:"¿Tienes alguna sugerencia o comentario para mejorar futuras sesiones?" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESPUESTAS Y COMENTARIOS INDIVIDUALES -->
+    <div class="card border-0 shadow-sm" style="border-radius: 14px;">
+        <div class="card-header bg-white border-0 p-4 pb-2">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                <div>
+                    <h5 class="fw-bold mb-1"><i class="bi bi-chat-square-quote-fill me-2 text-danger"></i>Opiniones y Respuestas de Asistentes</h5>
+                    <p class="text-muted small mb-0">Revisa las calificaciones individuales, comentarios y selecciona testimonios para destacar.</p>
+                </div>
+                <!-- FILTROS -->
+                <div class="btn-group btn-group-sm" role="group" id="filterGroup">
+                    <button type="button" class="btn btn-outline-secondary filter-btn active" onclick="filtrarRespuestas('all')">Todas ({{ respuestas|length }})</button>
+                    <button type="button" class="btn btn-outline-secondary filter-btn" onclick="filtrarRespuestas('5')">5 ★</button>
+                    <button type="button" class="btn btn-outline-secondary filter-btn" onclick="filtrarRespuestas('4')">4 ★</button>
+                    <button type="button" class="btn btn-outline-secondary filter-btn" onclick="filtrarRespuestas('bajas')">1-3 ★</button>
+                    <button type="button" class="btn btn-outline-secondary filter-btn" onclick="filtrarRespuestas('comentarios')">Con Opinión</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4 pt-3">
+            <div id="respuestasContainer">
+                {% for respuesta in respuestas %}
+                <div class="response-card" data-rating="{{ respuesta.puntuacion }}" data-has-comment="{% if respuesta.comentarios %}true{% else %}false{% endif %}">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            {% if respuesta.es_anonimo %}
+                            <div class="bg-secondary-subtle text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                <i class="bi bi-incognito"></i>
+                            </div>
+                            <div>
+                                <strong class="text-dark">Asistente Anónimo</strong>
+                                <span class="badge bg-light text-muted border ms-1">Anónimo</span>
+                            </div>
+                            {% else %}
+                            <div class="bg-danger-subtle text-danger rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px;">
+                                {{ respuesta.usuario.nombre|slice:":1" }}
+                            </div>
+                            <div>
+                                <strong class="text-dark">{{ respuesta.usuario.nombre }} {{ respuesta.usuario.apellido }}</strong>
+                                <small class="text-muted ms-1">({{ respuesta.usuario.correo }})</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="text-end">
+                            <span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ respuesta.fecha_respuesta|date:"d/m/Y H:i" }}</span>
+                        </div>
+                    </div>
+
+                    <!-- ESTRELLAS -->
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="star-gold fs-5">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= respuesta.puntuacion %}
+                                    <i class="bi bi-star-fill"></i>
+                                {% else %}
+                                    <i class="bi bi-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="badge bg-warning-subtle text-warning-emphasis fw-semibold">
+                            {{ respuesta.puntuacion }}/5 - {{ respuesta.get_puntuacion_display }}
+                        </span>
+                    </div>
+
+                    <!-- COMENTARIO -->
                     {% if respuesta.comentarios %}
-                    <div class="mt-2">
+                    <div class="p-3 bg-light rounded-3 mb-3 border-start border-3 border-danger">
+                        <p class="mb-0 text-dark fst-italic">"{{ respuesta.comentarios }}"</p>
+                    </div>
+                    {% else %}
+                    <p class="text-muted small fst-italic mb-3">Sin comentarios adicionales.</p>
+                    {% endif %}
+
+                    <!-- BOTÓN TESTIMONIO -->
+                    {% if respuesta.comentarios %}
+                    <div class="d-flex justify-content-end">
                         <form action="{% url 'panel-admin:toggle_destacado_respuesta' respuesta.id %}" method="POST" class="d-inline">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-sm {% if respuesta.destacado %}btn-warning{% else %}btn-outline-warning{% endif %}">
-                                <i class="bi {% if respuesta.destacado %}bi-star-fill{% else %}bi-star{% endif %}"></i> {% if respuesta.destacado %}Quitar de Testimonios{% else %}Destacar como Testimonio{% endif %}
+                            <button type="submit" class="btn btn-sm {% if respuesta.destacado %}btn-warning text-dark fw-semibold{% else %}btn-outline-warning text-dark{% endif %}">
+                                <i class="bi {% if respuesta.destacado %}bi-star-fill{% else %}bi-star{% endif %} me-1"></i>
+                                {% if respuesta.destacado %}Destacado en Testimonios Públicos{% else %}Destacar como Testimonio{% endif %}
                             </button>
                         </form>
                     </div>
                     {% endif %}
-                </li>
+                </div>
                 {% empty %}
-                <li class="list-group-item text-center text-muted p-3">Aún no hay respuestas para esta encuesta.</li>
+                <div class="text-center py-5">
+                    <div class="display-1 text-muted"><i class="bi bi-chat-left-dots"></i></div>
+                    <h5 class="fw-bold mt-3 text-secondary">Aún no se registran respuestas</h5>
+                    <p class="text-muted">Comparte el enlace con los asistentes o envíalo por correo para comenzar a recibir valoraciones.</p>
+                    <a href="{% url 'panel-admin:responder_encuesta_publica' encuesta.reunion.id %}" target="_blank" class="btn btn-danger btn-sm">
+                        <i class="bi bi-pencil-square me-1"></i>Responder Encuesta de Prueba
+                    </a>
+                </div>
                 {% endfor %}
-            </ul>
+            </div>
         </div>
     </div>
 </main>
+
+<script>
+    // Inicialización de Gráficos Pre-cargados
+    document.addEventListener('DOMContentLoaded', function() {
+        const d5 = {{ distribucion_estrellas.5|default:0 }};
+        const d4 = {{ distribucion_estrellas.4|default:0 }};
+        const d3 = {{ distribucion_estrellas.3|default:0 }};
+        const d2 = {{ distribucion_estrellas.2|default:0 }};
+        const d1 = {{ distribucion_estrellas.1|default:0 }};
+
+        // 1. Bar Chart
+        const barCtx = document.getElementById('starsBarChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: ['5 Estrellas ★', '4 Estrellas ★', '3 Estrellas ★', '2 Estrellas ★', '1 Estrella ★'],
+                datasets: [{
+                    label: 'Votos',
+                    data: [d5, d4, d3, d2, d1],
+                    backgroundColor: [
+                        '#10b981', // 5 stars: green
+                        '#3b82f6', // 4 stars: blue
+                        '#f59e0b', // 3 stars: amber
+                        '#f97316', // 2 stars: orange
+                        '#ef4444'  // 1 star: red
+                    ],
+                    borderRadius: 8,
+                    maxBarThickness: 38
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = d1 + d2 + d3 + d4 + d5;
+                                const pct = total > 0 ? ((context.parsed.y / total) * 100).toFixed(1) : 0;
+                                return ` ${context.parsed.y} respuestas (${pct}%)`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                }
+            }
+        });
+
+        // 2. Satisfaction Donut Chart
+        const donutCtx = document.getElementById('satisfactionDonutChart').getContext('2d');
+        const promotores = d5 + d4;
+        const neutros = d3;
+        const criticos = d2 + d1;
+
+        new Chart(donutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Satisfechos (4-5★)', 'Neutros (3★)', 'Por Mejorar (1-2★)'],
+                datasets: [{
+                    data: [promotores, neutros, criticos],
+                    backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                    borderWidth: 2,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 14, padding: 15 }
+                    }
+                },
+                cutout: '65%'
+            }
+        });
+    });
+
+    // Filtros de respuestas
+    function filtrarRespuestas(filtro) {
+        document.querySelectorAll('#filterGroup button').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+
+        const cards = document.querySelectorAll('#respuestasContainer .response-card');
+        cards.forEach(card => {
+            const rating = card.getAttribute('data-rating');
+            const hasComment = card.getAttribute('data-has-comment') === 'true';
+
+            if (filtro === 'all') {
+                card.style.display = 'block';
+            } else if (filtro === '5' && rating === '5') {
+                card.style.display = 'block';
+            } else if (filtro === '4' && rating === '4') {
+                card.style.display = 'block';
+            } else if (filtro === 'bajas' && (rating === '1' || rating === '2' || rating === '3')) {
+                card.style.display = 'block';
+            } else if (filtro === 'comentarios' && hasComment) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function copiarLinkEncuesta(url) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert('¡Enlace de encuesta copiado al portapapeles!');
+        }).catch(err => {
+            prompt('Copia este enlace para compartir:', url);
+        });
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -2,200 +2,396 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Usuarios - Inacap</title>
-
-    <!-- Bootstrap CSS -->
+    <title>Gestión de Usuarios - INACAP</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
+        :root {
+            --inacap-red: #B70420;
+            --inacap-dark: #8B0014;
         }
-        header {
-            background: linear-gradient(to right, #D90429, #A9001F);
-            padding: 10px 20px;
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f4f7f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        .header-admin {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            color: white;
+            padding: 14px 0;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
             color: white;
         }
-        header img {
-            height: 50px;
+
+        .header-brand img {
+            height: 42px;
+            width: auto;
+            margin-right: 12px;
         }
-        .table-responsive {
-            margin-top: 2rem;
-        }
-        .table-container {
-            max-height: 60vh; 
-            overflow-y: auto;
-        }
+
         .user-photo {
             width: 40px;
             height: 40px;
-            object-fit: cover;
             border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #E2E8F0;
+        }
+
+        .admin-card-container {
+            background: #FFFFFF;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .filter-card-header {
+            background: #F8FAFC;
+            border-bottom: 1px solid #E2E8F0;
+            padding: 14px 20px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #0F172A;
+        }
+
+        .table-container {
+            max-height: 620px;
+            overflow-y: auto;
+        }
+
+        .table-container table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #F8FAFC;
+            color: #475569;
+            font-size: 0.76rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 12px 14px;
+            border-bottom: 2px solid #E2E8F0;
+            z-index: 2;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 11px 14px;
+            font-size: 0.88rem;
+            color: #1E293B;
+            border-bottom: 1px solid #F1F5F9;
+        }
+
+        .badge-asistencia-pill {
+            background-color: #FEF2F2;
+            color: var(--inacap-red);
+            border: 1px solid #FEE2E2;
+            font-weight: 700;
+            font-size: 0.82rem;
+            padding: 3px 10px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+
+        .metric-pill-badge {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #475569;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .metric-pill-badge strong {
+            color: #0F172A;
+            font-size: 0.95rem;
+        }
+
+        footer.bottom-footer {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            color: #FFFFFF;
+            padding: 18px 0;
+            text-align: center;
+            font-size: 0.84rem;
+            margin-top: auto;
+        }
+
+        .user-meta-name {
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #0F172A;
+            line-height: 1.25;
+        }
+
+        .user-meta-email {
+            font-size: 0.78rem;
+            color: #64748B;
+            line-height: 1.2;
         }
     </style>
 </head>
 <body>
-<header class="d-flex justify-content-between align-items-center">
-    <div class="d-flex align-items-center"> 
-        <img src="{% static 'img/logo.png' %}" class="img-fluid rounded me-2" alt="Logo Inacap" style="height:50px;">
-        <div>
-            <span class="fw-bold fs-5 d-block">Inacap</span>
-            <small>Panel de Administración</small>
+
+<header class="header-admin shadow-sm">
+    <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <a href="{% url 'panel-admin:panel_admin' %}" class="header-brand">
+            <img src="{% static 'img/inacap-logo.png' %}" alt="Logo INACAP">
+            <div>
+                <span class="fw-bold fs-5 d-block">Gestión de Usuarios</span>
+                <small class="opacity-80">Nómina General y Credenciales</small>
+            </div>
+        </a>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a href="{% url 'panel-admin:descargar_plantilla_usuarios_excel' %}" class="btn btn-outline-light btn-sm fw-medium shadow-sm">
+                <i class="bi bi-file-earmark-arrow-down me-1"></i> Plantilla Carga
+            </a>
+            <a href="{% url 'panel-admin:carga_masiva_usuarios' %}" class="btn btn-warning btn-sm fw-bold text-dark shadow-sm">
+                <i class="bi bi-cloud-arrow-up-fill me-1"></i> Carga Masiva Excel
+            </a>
+            <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Panel
+            </a>
         </div>
-    </div>
-    <div>
-        <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light">Volver al Panel</a>
     </div>
 </header>
 
-<main class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="mb-0">Gestión de Usuarios</h1>
+<main class="container my-4 flex-grow-1">
+
+    <!-- KPI METRICS SUMMARY PILLS -->
+    <div class="d-flex gap-2 mb-4 flex-wrap align-items-center">
+        <div class="metric-pill-badge">
+            <i class="bi bi-people-fill text-primary"></i>
+            <span>Total Usuarios: <strong>{{ total_usuarios_count }}</strong></span>
+        </div>
+        <div class="metric-pill-badge">
+            <i class="bi bi-mortarboard-fill text-danger"></i>
+            <span>Alumnos INACAP: <strong>{{ total_estudiantes_count }}</strong></span>
+        </div>
+        <div class="metric-pill-badge">
+            <i class="bi bi-building text-info"></i>
+            <span>Externos / Empresas: <strong>{{ total_externos_count }}</strong></span>
+        </div>
+        <div class="metric-pill-badge">
+            <i class="bi bi-shield-check text-success"></i>
+            <span>Administradores: <strong>{{ total_admins_count }}</strong></span>
+        </div>
     </div>
 
-    <!-- Filtros y Búsqueda -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form id="search-filter-form" onsubmit="return false;" data-ajax-url="{% url 'panel-admin:buscar_usuarios_ajax' %}">
-                <!-- Barra de Búsqueda Principal -->
-                <div class="input-group mb-3">
-                    <input type="text" name="q" id="q" class="form-control form-control-lg" placeholder="Buscar por nombre, email, RUT, sede o carrera..." value="{{ query }}">
-                    <button class="btn btn-primary" type="button" id="search-button"><i class="bi bi-search"></i></button>
-                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFilters" aria-expanded="false" aria-controls="collapseFilters" title="Filtros avanzados">
-                        <i class="bi bi-funnel-fill"></i>
-                    </button>
-                    <a href="{% url 'panel-admin:gestion_usuarios' %}" class="btn btn-outline-secondary" title="Limpiar filtros"><i class="bi bi-x-lg"></i></a>
-                </div>
-
-                <!-- Filtros Colapsables -->
-                <div class="collapse" id="collapseFilters">
-                    <div class="row g-2">
-                        <div class="col-md-4">
-                            <label for="rubro" class="form-label">Filtrar por Rol</label>
-                            <select name="rubro" id="rubro" class="form-select">
-                                <option value="">Todos los Roles</option>
-                                {% for key, value in flat_rubro_choices.items %}
-                                    <option value="{{ key }}" {% if rubro_filter == key %}selected{% endif %}>{{ value }}</option>
-                                {% endfor %}
-                            </select>
+    <!-- TARJETA DE FILTROS -->
+    <div class="admin-card-container mb-4">
+        <div class="filter-card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-funnel-fill text-danger me-2"></i>Filtros de Búsqueda
+            </div>
+            {% if query or rubro_filter %}
+                <a href="{% url 'panel-admin:gestion_usuarios' %}" class="btn btn-sm btn-link text-danger text-decoration-none py-0">
+                    <i class="bi bi-x-circle me-1"></i>Limpiar Filtros
+                </a>
+            {% endif %}
+        </div>
+        <div class="p-3 p-md-4">
+            <form method="GET" action="{% url 'panel-admin:gestion_usuarios' %}" id="search-filter-form">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-7 col-lg-8">
+                        <label for="q" class="form-label fw-bold small text-muted text-uppercase mb-1">Buscar por Nombre, RUT, Correo o Empresa</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                            <input type="text" name="q" id="q" class="form-control border-start-0 ps-0" placeholder="Escribe un nombre, apellido, RUT, correo o empresa..." value="{{ query }}">
+                            {% if query %}
+                                <a href="{% url 'panel-admin:gestion_usuarios' %}{% if rubro_filter %}?rubro={{ rubro_filter }}{% endif %}" class="btn btn-outline-secondary" title="Limpiar búsqueda">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                            {% endif %}
                         </div>
-                        <div class="col-md-4">
-                            <label for="sede" class="form-label">Filtrar por Sede</label>
-                            <select name="sede" id="sede" class="form-select">
-                                <option value="">Todas las Sedes</option>
-                                {% for key, value in flat_sede_choices.items %}
-                                    <option value="{{ key }}" {% if sede_filter == key %}selected{% endif %}>{{ value }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="carrera" class="form-label">Filtrar por Carrera</label>
-                            <select name="carrera" id="carrera" class="form-select">
-                                <option value="">Todas las Carreras</option>
-                                {% for key, value in flat_carrera_choices.items %}
-                                    <option value="{{ key }}" {% if carrera_filter == key %}selected{% endif %}>{{ value }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
+                    </div>
+                    <div class="col-md-3 col-lg-3">
+                        <label for="rubro" class="form-label fw-bold small text-muted text-uppercase mb-1">Perfil / Rol</label>
+                        <select name="rubro" id="rubro" class="form-select">
+                            <option value="">Todos los Roles</option>
+                            {% for key, value in flat_rubro_choices.items %}
+                                <option value="{{ key }}" {% if rubro_filter == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 col-lg-1 d-grid">
+                        <button type="submit" class="btn btn-danger fw-semibold" title="Buscar">
+                            <i class="bi bi-search"></i>
+                        </button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
     
-    <div class="card shadow">
-        <div class="card-body">
-            <div class="table-responsive table-container">
-                <table class="table table-striped table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th scope="col">Foto</th>
-                            <th scope="col">Nombre Completo</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">RUT</th>
-                            <th scope="col">Rubro</th>
-                            <th scope="col">Sede</th>
-                            <th scope="col">Carrera</th>
-                            <th scope="col">Teléfono</th>
-                            <th scope="col" class="text-center">Asistencias</th>
-                            <th scope="col">Admin</th>
-                            <th scope="col">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for usuario in usuarios %}
-                        <tr>
-                            <td>
+    <!-- TARJETA DE TABLA DE USUARIOS (OPTIMIZADA SIN DESPLAZAMIENTO HORIZONTAL) -->
+    <div class="admin-card-container">
+        <div class="table-responsive table-container">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col" style="min-width: 250px;">Usuario / Participante</th>
+                        <th scope="col" style="min-width: 120px;">RUT</th>
+                        <th scope="col" style="min-width: 140px;">Rol / Perfil</th>
+                        <th scope="col" style="min-width: 170px;">Empresa / Institución</th>
+                        <th scope="col" style="min-width: 120px;">Teléfono</th>
+                        <th scope="col" class="text-center" style="min-width: 90px;">Asistencias</th>
+                        <th scope="col" class="text-end" style="min-width: 125px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
                                 {% if usuario.foto %}
-                                    <img src="{{ usuario.foto.url }}" alt="Foto de {{ usuario.nombre }}" class="user-photo">
+                                    <img src="{{ usuario.foto.url }}" alt="Foto de {{ usuario.nombre }}" class="user-photo flex-shrink-0">
                                 {% else %}
-                                    <img src="{% static 'img/persn.jpg' %}" alt="Sin foto" class="user-photo">
+                                    <img src="{% static 'img/persn.jpg' %}" alt="Sin foto" class="user-photo flex-shrink-0">
                                 {% endif %}
-                            </td>
-                            <td>{{ usuario.nombre }} {{ usuario.apellido }}</td>
-                            <td>{{ usuario.email }}</td>
-                            <td>{{ usuario.rut }}</td>
-                            <td>{{ usuario.get_rubro_real_display }}</td>
-                            <td>{{ usuario.get_sede_real_display }}</td>
-                            <td>{{ usuario.get_carrera_real_display }}</td>
-                            <td>{{ usuario.telefono }}</td>
-                            <td class="text-center">
-                                <span class="badge bg-primary rounded-pill">{{ usuario.cantidad_asistencias }}</span>
-                            </td>
-                            <td>{% if usuario.es_admin %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}<i class="bi bi-x-circle-fill text-danger"></i>{% endif %}</td>
-                            <td>
-                                <!-- El botón de editar es visible para admin y ayudante -->
-                                <a href="{% url 'panel-admin:editar_usuario_admin' usuario.id %}" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i></a>
-                                <!-- El botón de eliminar solo es visible para el admin -->
+                                <div class="ms-2.5 overflow-hidden ps-1">
+                                    <div class="user-meta-name text-truncate">{{ usuario.nombre }} {{ usuario.apellido }}</div>
+                                    <div class="user-meta-email text-truncate"><i class="bi bi-envelope me-1"></i>{{ usuario.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="font-monospace fw-semibold text-secondary">{{ usuario.rut_formateado|default:usuario.rut|default:"-" }}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1 flex-wrap">
+                                {% if usuario.rubro == 'externo' %}
+                                    <span class="badge bg-secondary text-white border">Externo</span>
+                                {% elif usuario.rubro == 'estudiante' %}
+                                    <span class="badge bg-primary text-white border">Estudiante</span>
+                                {% elif usuario.rubro == 'docente' %}
+                                    <span class="badge bg-info text-dark border">Docente</span>
+                                {% elif usuario.rubro == 'directivo' %}
+                                    <span class="badge bg-warning text-dark border">Directivo</span>
+                                {% elif usuario.rubro == 'administrativo' %}
+                                    <span class="badge bg-dark text-white border">Administrativo</span>
+                                {% else %}
+                                    <span class="badge bg-light text-dark border">{{ usuario.get_rubro_real_display|default:"General" }}</span>
+                                {% endif %}
+
+                                {% if usuario.es_admin %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle" title="Administrador">
+                                        <i class="bi bi-shield-fill-check"></i>
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if usuario.rubro == 'externo' %}
+                                {% if usuario.institucion_empresa %}
+                                    <span class="fw-semibold text-dark"><i class="bi bi-building me-1 text-secondary"></i>{{ usuario.institucion_empresa }}</span>
+                                {% else %}
+                                    <span class="text-muted small fst-italic">Particular</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                    <i class="bi bi-mortarboard-fill me-1"></i>INACAP
+                                </span>
+                                {% if usuario.institucion_empresa and usuario.institucion_empresa != 'INACAP' %}
+                                    <small class="text-muted d-block">{{ usuario.institucion_empresa }}</small>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if usuario.telefono %}
+                                <small class="text-dark"><i class="bi bi-telephone text-muted me-1"></i>{{ usuario.telefono }}</small>
+                            {% else %}
+                                <small class="text-muted">-</small>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <span class="badge-asistencia-pill" title="Asistencias registradas">{{ usuario.cantidad_asistencias }}</span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1">
+                                <a href="{% url 'imprimir_etiqueta' usuario.id %}" target="_blank" class="btn btn-outline-secondary btn-sm" title="Ver / Imprimir Credencial QR">
+                                    <i class="bi bi-qr-code"></i>
+                                </a>
+                                
+                                <a href="{% url 'panel-admin:editar_usuario_admin' usuario.id %}" class="btn btn-outline-primary btn-sm" title="Editar Perfil">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                                
                                 {% if usuario_actual.es_admin and usuario.id != request.session.usuario_id %}
                                     <form action="{% url 'panel-admin:eliminar_usuario' usuario.id %}" method="POST" class="d-inline delete-form">
                                         {% csrf_token %}
-                                        <button type="button" class="btn btn-danger btn-sm delete-btn" data-nombre="{{ usuario.nombre }} {{ usuario.apellido }}">
-                                            <i class="bi bi-trash3-fill"></i>
+                                        <button type="button" class="btn btn-outline-danger btn-sm delete-btn" data-nombre="{{ usuario.nombre }} {{ usuario.apellido }}" title="Eliminar Usuario">
+                                            <i class="bi bi-trash3"></i>
                                         </button>
                                     </form>
                                 {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %} {# Cierre del forloop de usuarios #}
-                        {% if not usuarios %}
-                        <tr>
-                            <td colspan="9" class="text-center text-muted p-4">No se encontraron usuarios con los filtros aplicados.</td>
-                        </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted p-5">
+                            <i class="bi bi-people display-5 text-secondary d-block mb-2"></i>
+                            No se encontraron usuarios con los filtros aplicados.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- BARRA INFERIOR DE ACCIONES Y EXPORTACIÓN -->
+        <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="text-muted small">
+                <i class="bi bi-people me-1"></i> Total en vista: <strong class="text-dark">{{ usuarios.count|default:"0" }} usuarios</strong>
+            </div>
+            <div>
+                <a href="{% url 'panel-admin:exportar_usuarios_excel' %}?q={{ query|urlencode }}&rubro={{ rubro_filter|urlencode }}" class="btn btn-success btn-sm fw-semibold shadow-sm d-inline-flex align-items-center gap-1.5 px-3 py-2" id="btnExportarUsuariosBottom">
+                    <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i>
+                    <span>Exportar Nómina a Excel</span>
+                </a>
             </div>
         </div>
+
     </div>
 </main>
 
-<!-- Pasamos de forma segura el estado de admin a Javascript -->
-{{ usuario_actual.es_admin|json_script:"is-current-user-admin" }}
+<footer class="bottom-footer">
+    <div class="container">
+        &copy; 2026 INACAP. Todos los derechos reservados | Panel de Administración Institucional.
+    </div>
+</footer>
 
-<script src="{% static 'js/sweetalert2.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('q');
     const rubroFilter = document.getElementById('rubro');
-    const sedeFilter = document.getElementById('sede'); // Nuevo
-    const carreraFilter = document.getElementById('carrera'); // Nuevo
-    const userTableBody = document.querySelector('table tbody');
     const searchForm = document.getElementById('search-filter-form');
     const deleteFormSelector = '.delete-form';
     const deleteBtnSelector = '.delete-btn';
-    const csrfToken = '{{ csrf_token }}';
-    const searchButton = document.getElementById('search-button');
-    const currentAdminId = '{{ request.session.usuario_id }}';
 
-    let debounceTimer;
     function attachDeleteEventListeners() {
         document.querySelectorAll(deleteBtnSelector).forEach(button => {
-            // Evita duplicar listeners si ya existe uno
             if (button.dataset.listenerAttached) return;
 
             button.addEventListener('click', function(event) {
@@ -208,9 +404,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     text: "¡No podrás revertir esta acción!",
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonColor: '#d33',
+                    confirmButtonColor: '#B70420',
                     cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Sí, ¡eliminar!',
+                    confirmButtonText: 'Sí, eliminar',
                     cancelButtonText: 'Cancelar'
                 }).then((result) => {
                     if (result.isConfirmed) {
@@ -222,97 +418,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function fetchUsers() {
-        const query = searchInput.value;
-        const rubro = rubroFilter.value;
-        const sede = sedeFilter.value; // Nuevo
-        const carrera = carreraFilter.value; // Nuevo
-        const baseUrl = searchForm.dataset.ajaxUrl;
-        const url = `${baseUrl}?q=${encodeURIComponent(query)}&rubro=${encodeURIComponent(rubro)}&sede=${encodeURIComponent(sede)}&carrera=${encodeURIComponent(carrera)}`;
-
-        // Mostrar estado de carga en el botón
-        searchButton.disabled = true;
-        searchButton.innerHTML = `<i class="bi bi-hourglass-split me-1"></i> Buscando...`;
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                updateTable(data.usuarios);
-            })
-            .catch(error => console.error('Error fetching users:', error))
-            .finally(() => {
-                // Restaurar el botón
-                searchButton.disabled = false;
-                searchButton.innerHTML = `<i class="bi bi-search me-1"></i> Buscar`;
-            });
-    }
-
-    function updateTable(usuarios) {
-        userTableBody.innerHTML = ''; // Limpiar la tabla
-
-        if (usuarios.length === 0) {
-            userTableBody.innerHTML = `
-                <tr> 
-                    <td colspan="9" class="text-center text-muted p-4">No se encontraron usuarios con los filtros aplicados.</td>
-                </tr>
-            `;
-            return;
-        }
-
-        usuarios.forEach(usuario => {
-            const adminIcon = usuario.es_admin 
-                ? '<i class="bi bi-check-circle-fill text-success"></i>' 
-                : '<i class="bi bi-x-circle-fill text-danger"></i>';
-
-            // Solo se genera el botón de eliminar si el usuario actual es admin
-            const isCurrentUserAdmin = JSON.parse(document.getElementById('is-current-user-admin').textContent);
-            const deleteButton = isCurrentUserAdmin && usuario.id != currentAdminId
-                ? `<form action="/panel-admin/usuarios/eliminar/${usuario.id}/" method="POST" class="d-inline delete-form"> \
-                       <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}"> \
-                       <button type="button" class="btn btn-danger btn-sm delete-btn" data-nombre="${usuario.nombre} ${usuario.apellido}"> \
-                           <i class="bi bi-trash3-fill"></i> \
-                       </button> \
-                   </form>`
-                : '';
-
-            const row = `
-                <tr>
-                    <td><img src="${usuario.foto_url}" alt="Foto de ${usuario.nombre}" class="user-photo"></td>
-                    <td>${usuario.nombre} ${usuario.apellido}</td>
-                    <td>${usuario.email}</td>
-                    <td>${usuario.rut}</td>
-                    <td>${usuario.rubro}</td>
-                    <td>${usuario.sede}</td> {# Nuevo #}
-                    <td>${usuario.carrera}</td> {# Nuevo #}
-                    <td>${usuario.telefono}</td>
-                    <td class="text-center"><span class="badge bg-primary rounded-pill">${usuario.cantidad_asistencias}</span></td>
-                    <td>${adminIcon}</td>
-                    <td class="text-nowrap">
-                        <a href="/panel-admin/usuarios/editar/${usuario.id}/" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i></a>
-                        ${deleteButton}
-                    </td>
-                </tr>
-            `;
-            userTableBody.insertAdjacentHTML('beforeend', row);
-        });
-        // Volver a asociar los eventos a los nuevos botones de eliminar
-        attachDeleteEventListeners();
-    }
-    
-    // Event listeners para los nuevos filtros
-    sedeFilter.addEventListener('change', fetchUsers);
-    carreraFilter.addEventListener('change', fetchUsers);
-    // Event listeners para la búsqueda en tiempo real
-    searchInput.addEventListener('input', () => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(fetchUsers, 300); // Espera 300ms después de la última tecla
-    });
-    searchButton.addEventListener('click', fetchUsers); // También permite búsqueda con el botón
-    rubroFilter.addEventListener('change', fetchUsers);
-
-    // Asocia los eventos a los botones de eliminar que cargan inicialmente
     attachDeleteEventListeners();
+
+    if (rubroFilter) {
+        rubroFilter.addEventListener('change', () => {
+            searchForm.submit();
+        });
+    }
 });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

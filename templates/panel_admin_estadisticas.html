@@ -1,33 +1,39 @@
 {% extends 'panel_admin_base.html' %}
 
-{% block title %}Estadísticas - Panel de Administrador{% endblock %}
+{% block title %}Estadísticas y Reportes - INACAP{% endblock %}
 
 {% block panel_nav_buttons %}
-    <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light">Volver al Panel</a>
+    <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Volver al Panel
+    </a>
 {% endblock panel_nav_buttons %}
 
 {% block content %}
 <div class="container">
+    
     <!-- Encabezado y Filtro -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
         <div>
-            <h1 class="mb-0">
+            <h2 class="fw-bold text-dark mb-0">
                 {% if reunion_seleccionada %}
                     Estadísticas del Evento
                 {% else %}
                     Estadísticas Generales
                 {% endif %}
-            </h1>
+            </h2>
             {% if reunion_seleccionada %}
-                <p class="lead text-muted mb-0">{{ reunion_seleccionada.detalle }}</p>
+                <p class="text-muted mb-0"><i class="bi bi-calendar-event me-1 text-danger"></i> {{ reunion_seleccionada.detalle }} &bull; {{ reunion_seleccionada.fecha|date:"d/m/Y - H:i" }} hrs</p>
+            {% else %}
+                <p class="text-muted mb-0">Métricas consolidadas de asistencia, participación y encuestas.</p>
             {% endif %}
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <!-- Formulario de Filtro -->
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            
             <form method="GET" id="filtroReunionForm" class="d-flex align-items-center gap-2">
-                <select name="reunion_id" class="form-select" onchange="this.form.submit()">
+                <select name="reunion_id" class="form-select form-select-sm shadow-sm" onchange="this.form.submit()" style="min-width: 240px; border-radius: 6px;">
                     {% if usuario_actual.es_admin %}
-                        <option value="">Ver Estadísticas Generales</option>
+                        <option value="">📊 Ver Estadísticas Generales</option>
                     {% endif %}
                     {% for reunion in reuniones_para_filtro %}
                         <option value="{{ reunion.id }}" {% if reunion_seleccionada_id == reunion.id %}selected{% endif %}>
@@ -36,48 +42,54 @@
                     {% endfor %}
                 </select>
             </form>
-            <!-- El ayudante no puede exportar la vista general -->
+
+            <!-- Exportar Excel -->
             {% if usuario_actual.es_admin or reunion_seleccionada_id %}
-            <a href="{% url 'panel-admin:exportar_estadisticas_excel' %}{% if reunion_seleccionada_id %}?reunion_id={{ reunion_seleccionada_id }}{% endif %}" class="btn btn-success flex-shrink-0" title="Exportar {% if reunion_seleccionada %}estadísticas del evento{% else %}estadísticas generales{% endif %} a Excel">
+            <a href="{% url 'panel-admin:exportar_estadisticas_excel' %}{% if reunion_seleccionada_id %}?reunion_id={{ reunion_seleccionada_id }}{% endif %}" class="btn btn-success btn-sm fw-semibold shadow-sm d-inline-flex align-items-center gap-1 px-3" title="Exportar reporte a Excel">
                 <i class="bi bi-file-earmark-excel-fill"></i>
+                <span>Exportar Excel</span>
             </a>
             {% endif %}
+            <a href="{% url 'panel-admin:gestion_encuestas' %}" class="btn btn-outline-danger btn-sm fw-semibold shadow-sm d-inline-flex align-items-center gap-1 px-3">
+                <i class="bi bi-patch-question-fill"></i>
+                <span>Encuestas</span>
+            </a>
         </div>
     </div>
 
-    <!-- Tarjetas de Estadísticas Principales -->
+    <!-- Tarjetas de Estadísticas Principales (4 KPIs) -->
     <div class="row g-4 mb-4">
-        {% if not reunion_seleccionada and usuario_actual.es_admin %} {# Solo para admin en vista general #}
+        {% if not reunion_seleccionada and usuario_actual.es_admin %}
             <div class="col-lg-3 col-md-6">
-                <div class="card text-center shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-people-fill text-primary"></i> Usuarios Totales</h5>
-                        <p class="card-text fs-2 fw-bold">{{ total_usuarios }}</p>
+                <div class="card text-center shadow-sm h-100 border-0 rounded-3" style="border-top: 3px solid #0284C7 !important;">
+                    <div class="card-body p-3 d-flex flex-column justify-content-center">
+                        <h6 class="card-title text-muted text-uppercase fw-bold small mb-2"><i class="bi bi-people-fill text-primary me-1"></i> Usuarios Totales</h6>
+                        <p class="card-text fs-2 fw-bold text-dark mb-0">{{ total_usuarios }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-lg-3 col-md-6">
-                <div class="card text-center shadow-sm h-100">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-calendar-event-fill text-success"></i> Eventos Totales</h5>
-                        <p class="card-text fs-2 fw-bold">{{ total_reuniones }}</p>
+                <div class="card text-center shadow-sm h-100 border-0 rounded-3" style="border-top: 3px solid #059669 !important;">
+                    <div class="card-body p-3 d-flex flex-column justify-content-center">
+                        <h6 class="card-title text-muted text-uppercase fw-bold small mb-2"><i class="bi bi-calendar-event-fill text-success me-1"></i> Eventos Totales</h6>
+                        <p class="card-text fs-2 fw-bold text-dark mb-0">{{ total_reuniones }}</p>
                     </div>
                 </div>
             </div>
         {% endif %}
         <div class="col-lg-3 col-md-6">
-            <div class="card text-center shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="bi bi-person-check-fill text-info"></i> Asistencias</h5>
-                    <p class="card-text fs-2 fw-bold">{{ total_asistencias|default:"0" }}</p>
+            <div class="card text-center shadow-sm h-100 border-0 rounded-3" style="border-top: 3px solid var(--inacap-red) !important;">
+                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                    <h6 class="card-title text-muted text-uppercase fw-bold small mb-2"><i class="bi bi-person-check-fill text-danger me-1"></i> Asistencias Registradas</h6>
+                    <p class="card-text fs-2 fw-bold text-danger mb-0">{{ total_asistencias|default:"0" }}</p>
                 </div>
             </div>
         </div>
         <div class="col-lg-3 col-md-6">
-            <div class="card text-center shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title"><i class="bi bi-star-half text-warning"></i> Satisfacción Promedio</h5>
-                    <p class="card-text fs-2 fw-bold">{{ promedio_satisfaccion|floatformat:2|default:"N/A" }} / 5</p>
+            <div class="card text-center shadow-sm h-100 border-0 rounded-3" style="border-top: 3px solid #D97706 !important;">
+                <div class="card-body p-3 d-flex flex-column justify-content-center">
+                    <h6 class="card-title text-muted text-uppercase fw-bold small mb-2"><i class="bi bi-star-fill text-warning me-1"></i> Satisfacción Promedio</h6>
+                    <p class="card-text fs-2 fw-bold text-dark mb-0">{{ promedio_satisfaccion|floatformat:1|default:"N/A" }} <small class="fs-6 text-muted">/ 5.0</small></p>
                 </div>
             </div>
         </div>
@@ -85,11 +97,13 @@
 
     <!-- Gráficos -->
     <div class="row g-4">
-        {% if not reunion_seleccionada and usuario_actual.es_admin %} {# Solo para admin en vista general #}
+        {% if not reunion_seleccionada and usuario_actual.es_admin %}
         <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header">Asistencia a los Últimos 10 Eventos</div>
-                <div class="card-body">
+            <div class="card shadow-sm h-100 border-0 rounded-3">
+                <div class="card-header bg-white py-3 border-bottom fw-bold text-dark">
+                    <i class="bi bi-bar-chart-fill text-danger me-2"></i>Asistencia a los Últimos Eventos
+                </div>
+                <div class="card-body p-4">
                     <canvas id="asistenciaChart"></canvas>
                 </div>
             </div>
@@ -97,9 +111,11 @@
         {% endif %}
 
         <div class="col-lg-6">
-            <div class="card shadow-sm h-100">
-                <div class="card-header">Conversión: Interesados vs. Asistentes</div>
-                <div class="card-body">
+            <div class="card shadow-sm h-100 border-0 rounded-3">
+                <div class="card-header bg-white py-3 border-bottom fw-bold text-dark">
+                    <i class="bi bi-arrow-left-right text-danger me-2"></i>Conversión: Interesados vs. Asistentes
+                </div>
+                <div class="card-body p-4">
                     <canvas id="conversionChart"></canvas>
                 </div>
             </div>
@@ -107,10 +123,12 @@
 
         {% if data_puntuacion %}
             <div class="col-lg-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-header">Distribución de Satisfacción</div>
-                    <div class="card-body d-flex justify-content-center align-items-center">
-                        <div style="width: 80%; max-width: 350px;">
+                <div class="card shadow-sm h-100 border-0 rounded-3">
+                    <div class="card-header bg-white py-3 border-bottom fw-bold text-dark">
+                        <i class="bi bi-pie-chart-fill text-danger me-2"></i>Distribución de Satisfacción (Encuestas)
+                    </div>
+                    <div class="card-body p-4 d-flex justify-content-center align-items-center">
+                        <div style="width: 80%; max-width: 320px;">
                             <canvas id="satisfaccionChart"></canvas>
                         </div>
                     </div>
@@ -120,9 +138,11 @@
 
         {% if data_rubro %}
             <div class="col-lg-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-header">Top 5 Roles de {% if reunion_seleccionada %}Asistentes{% else %}Usuarios{% endif %}</div>
-                    <div class="card-body">
+                <div class="card shadow-sm h-100 border-0 rounded-3">
+                    <div class="card-header bg-white py-3 border-bottom fw-bold text-dark">
+                        <i class="bi bi-person-badge-fill text-danger me-2"></i>Top Perfiles / Roles de {% if reunion_seleccionada %}Asistentes{% else %}Usuarios{% endif %}
+                    </div>
+                    <div class="card-body p-4">
                         <canvas id="rubroChart"></canvas>
                     </div>
                 </div>
@@ -134,7 +154,7 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- Datos para los gráficos (en un formato que no interfiere con el linter de JS) -->
+<!-- Datos para los gráficos -->
 {% if not reunion_seleccionada and usuario_actual.es_admin and labels_reuniones %}
     {{ labels_reuniones|json_script:"chart-labels-reuniones" }}
     {{ data_asistencia|json_script:"chart-data-asistencia" }}
@@ -151,13 +171,11 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Función para leer los datos desde las etiquetas script de forma segura
         const getJSONData = (id) => {
             const element = document.getElementById(id);
             return element ? JSON.parse(element.textContent) : [];
         };
 
-        // Gráfico de Asistencia (solo en vista general)
         const asistenciaCtx = document.getElementById('asistenciaChart');
         if (asistenciaCtx) {
             new Chart(asistenciaCtx.getContext('2d'), {
@@ -165,37 +183,53 @@
                 data: {
                     labels: getJSONData('chart-labels-reuniones'),
                     datasets: [{
-                        label: 'Nº de Asistentes',
+                        label: 'N° de Asistentes',
                         data: getJSONData('chart-data-asistencia'),
-                        backgroundColor: 'rgba(217, 4, 41, 0.6)',
-                        borderColor: 'rgba(217, 4, 41, 1)',
-                        borderWidth: 1
+                        backgroundColor: 'rgba(183, 4, 32, 0.75)',
+                        borderColor: 'rgba(183, 4, 32, 1)',
+                        borderWidth: 1.5,
+                        borderRadius: 6
                     }]
                 },
-                options: { scales: { y: { beginAtZero: true, suggestedMax: 10 } }, responsive: true }
+                options: { 
+                    responsive: true,
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { stepSize: 1 } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
             });
         }
 
-        // Gráfico de Conversión
         const conversionCtx = document.getElementById('conversionChart');
         if (conversionCtx) {
             new Chart(conversionCtx.getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: ['Interesados', 'Asistentes'],
+                    labels: ['Pre-inscritos (Interesados)', 'Acreditados (Asistentes)'],
                     datasets: [{
-                        label: 'Total',
+                        label: 'Participantes',
                         data: getJSONData('chart-data-conversion'),
-                        backgroundColor: ['rgba(108, 117, 125, 0.6)', 'rgba(217, 4, 41, 0.6)'],
-                        borderColor: ['rgba(108, 117, 125, 1)', 'rgba(217, 4, 41, 1)'],
-                        borderWidth: 1
+                        backgroundColor: ['rgba(100, 116, 139, 0.75)', 'rgba(183, 4, 32, 0.85)'],
+                        borderColor: ['#64748B', '#B70420'],
+                        borderWidth: 1.5,
+                        borderRadius: 6
                     }]
                 },
-                options: { scales: { y: { beginAtZero: true } }, responsive: true, plugins: { legend: { display: false } } }
+                options: { 
+                    responsive: true,
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#F1F5F9' } },
+                        x: { grid: { display: false } }
+                    }, 
+                    plugins: { legend: { display: false } } 
+                }
             });
         }
 
-        // Gráfico de Satisfacción
         const satisfaccionCtx = document.getElementById('satisfaccionChart');
         if (satisfaccionCtx) {
             new Chart(satisfaccionCtx.getContext('2d'), {
@@ -205,14 +239,20 @@
                     datasets: [{
                         label: 'Cantidad de Votos',
                         data: getJSONData('chart-data-puntuacion'),
-                        backgroundColor: ['#A9001F', '#D90429', '#ffc107', '#6c757d', '#343a40'],
+                        backgroundColor: ['#059669', '#10B981', '#F59E0B', '#EF4444', '#991B1B'],
+                        borderWidth: 2,
+                        borderColor: '#FFFFFF'
                     }]
                 },
-                options: { responsive: true, plugins: { legend: { position: 'top' } } }
+                options: { 
+                    responsive: true, 
+                    plugins: { 
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { family: 'Poppins', size: 11 } } } 
+                    } 
+                }
             });
         }
 
-        // Gráfico de Rubros
         const rubroCtx = document.getElementById('rubroChart');
         if (rubroCtx) {
             new Chart(rubroCtx.getContext('2d'), {
@@ -220,18 +260,22 @@
                 data: {
                     labels: getJSONData('chart-labels-rubro'),
                     datasets: [{
-                        label: 'Cantidad de Usuarios',
+                        label: 'Total',
                         data: getJSONData('chart-data-rubro'),
-                        backgroundColor: 'rgba(217, 4, 41, 0.6)',
-                        borderColor: 'rgba(217, 4, 41, 1)',
-                        borderWidth: 1
+                        backgroundColor: 'rgba(183, 4, 32, 0.75)',
+                        borderColor: 'rgba(183, 4, 32, 1)',
+                        borderWidth: 1.5,
+                        borderRadius: 6
                     }]
                 },
                 options: { 
                     indexAxis: 'y', 
                     responsive: true, 
                     plugins: { legend: { display: false } },
-                    scales: { y: { afterFit: (scale) => { scale.width = 150; } } } // Ajusta el ancho para etiquetas largas
+                    scales: { 
+                        x: { beginAtZero: true, grid: { color: '#F1F5F9' }, ticks: { stepSize: 1 } },
+                        y: { grid: { display: false } }
+                    }
                 }
             });
         }

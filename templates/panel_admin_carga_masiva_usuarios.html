@@ -1,0 +1,939 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carga Masiva de Usuarios - INACAP</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --inacap-red: #B70420;
+      --inacap-dark: #8B0014;
+      --inacap-border: #E2E8F0;
+      --inacap-gray-bg: #F8FAFC;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--inacap-gray-bg);
+      color: #1E293B;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+    }
+
+    .top-header {
+      background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+      padding: 14px 0;
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      color: white;
+    }
+
+    .header-brand img {
+      height: 40px;
+      width: auto;
+      margin-right: 12px;
+    }
+
+    .brand-title {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      margin: 0;
+      line-height: 1.1;
+    }
+
+    .brand-sub {
+      font-size: 0.76rem;
+      opacity: 0.85;
+      margin: 0;
+    }
+
+    .stepper-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 30px auto 25px;
+      max-width: 700px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #E2E8F0;
+      color: #64748B;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .step-label {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #64748B;
+      transition: color 0.3s;
+    }
+
+    .step-item.active .step-circle {
+      background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(183, 4, 32, 0.35);
+    }
+
+    .step-item.active .step-label {
+      color: var(--inacap-red);
+      font-weight: 700;
+    }
+
+    .step-item.completed .step-circle {
+      background: #10B981;
+      color: #FFFFFF;
+    }
+
+    .step-item.completed .step-label {
+      color: #059669;
+    }
+
+    .step-divider {
+      flex: 1;
+      height: 3px;
+      background: #E2E8F0;
+      margin: 0 15px;
+      max-width: 90px;
+      transition: background 0.3s;
+    }
+
+    .step-divider.active {
+      background: var(--inacap-red);
+    }
+
+    .card-wizard {
+      background: #FFFFFF;
+      border-radius: 14px;
+      border: 1px solid var(--inacap-border);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+      padding: 36px;
+      margin-bottom: 40px;
+    }
+
+    .dropzone-box {
+      border: 2.5px dashed #CBD5E1;
+      border-radius: 14px;
+      padding: 45px 20px;
+      text-align: center;
+      background-color: #F8FAFC;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .dropzone-box:hover, .dropzone-box.dragover {
+      border-color: var(--inacap-red);
+      background-color: #FEF2F2;
+      transform: translateY(-2px);
+    }
+
+    .dropzone-icon {
+      font-size: 3.8rem;
+      color: var(--inacap-red);
+      margin-bottom: 12px;
+    }
+
+    .stat-card-kpi {
+      background: #FFFFFF;
+      border-radius: 10px;
+      border: 1px solid var(--inacap-border);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    .stat-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .filter-pills-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill-btn {
+      border: 1px solid var(--inacap-border);
+      background: #FFFFFF;
+      color: #64748B;
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-pill-btn.active {
+      background: var(--inacap-red);
+      color: #FFFFFF;
+      border-color: var(--inacap-red);
+    }
+
+    .table-interactive-wrapper {
+      max-height: 520px;
+      overflow-y: auto;
+      border: 1px solid var(--inacap-border);
+      border-radius: 8px;
+    }
+
+    .table-interactive th {
+      background-color: #F1F5F9;
+      color: #334155;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 12px 10px;
+    }
+
+    .table-interactive td {
+      vertical-align: middle;
+      padding: 8px 10px;
+      font-size: 0.88rem;
+    }
+
+    .table-input-cell {
+      border: 1px solid #CBD5E1;
+      border-radius: 4px;
+      padding: 5px 8px;
+      font-size: 0.86rem;
+      width: 100%;
+      transition: border 0.2s;
+    }
+
+    .table-input-cell:focus {
+      border-color: var(--inacap-red);
+      outline: none;
+      background-color: #FFFFFF;
+    }
+
+    .row-has-error {
+      background-color: #FEF2F2 !important;
+    }
+
+    .row-has-warning {
+      background-color: #FFFBEB !important;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .status-badge.valido { background: #DCFCE7; color: #15803D; }
+    .status-badge.advertencia { background: #FEF3C7; color: #B45309; }
+    .status-badge.error { background: #FEE2E2; color: #B91C1C; }
+
+    footer.bottom-footer {
+      background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+      color: #FFFFFF;
+      padding: 20px 0;
+      text-align: center;
+      font-size: 0.84rem;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="container d-flex justify-content-between align-items-center">
+    <a href="{% url 'panel-admin:gestion_usuarios' %}" class="header-brand">
+      <img src="{% static 'img/Logo_60anos.png' %}" alt="Logo INACAP">
+      <div>
+        <h1 class="brand-title">INACAP</h1>
+        <p class="brand-sub">Asistente de Carga Masiva de Alumnos y Usuarios</p>
+      </div>
+    </a>
+    <a href="{% url 'panel-admin:gestion_usuarios' %}" class="btn btn-outline-light btn-sm fw-semibold">
+      <i class="bi bi-arrow-left me-1"></i> Volver a Usuarios
+    </a>
+  </div>
+</header>
+
+<div class="container my-4 flex-grow-1">
+  
+  <!-- STEPPER DE 3 PASOS -->
+  <div class="stepper-container">
+    <div class="step-item active" id="stepIndicator1">
+      <div class="step-circle">1</div>
+      <span class="step-label">Subir Nómina</span>
+    </div>
+    <div class="step-divider" id="stepDivider1"></div>
+    
+    <div class="step-item" id="stepIndicator2">
+      <div class="step-circle">2</div>
+      <span class="step-label">Previsualizar y Corregir</span>
+    </div>
+    <div class="step-divider" id="stepDivider2"></div>
+
+    <div class="step-item" id="stepIndicator3">
+      <div class="step-circle">3</div>
+      <span class="step-label">Confirmación</span>
+    </div>
+  </div>
+
+  
+  <div id="step1Container">
+    <div class="card-wizard">
+      <h3 class="fw-bold mb-1 text-dark">Subir Archivo de Nómina</h3>
+      <p class="text-muted small mb-4">
+        Sube la lista de participantes en formato Excel (.xlsx, .xls o .csv) para importar sus datos y generar sus credenciales QR.
+      </p>
+
+      <!-- DROPZONE -->
+      <div class="dropzone-box mb-4" id="dropzoneBox" onclick="document.getElementById('fileInput').click()">
+        <i class="bi bi-cloud-arrow-up-fill dropzone-icon d-block"></i>
+        <h5 class="fw-bold text-dark mb-1">Arrastra y suelta tu archivo Excel aquí</h5>
+        <p class="text-muted small mb-3">o haz clic para examinar en tu computadora</p>
+        <span class="badge bg-light text-secondary border px-3 py-1.5 fw-normal" id="fileNameSelected">
+          Formatos compatibles: .xlsx, .xls, .csv (Máx. 10 MB)
+        </span>
+        <input type="file" id="fileInput" class="d-none" accept=".xlsx, .xls, .csv">
+      </div>
+
+      <!-- POLÍTICA DE DUPLICADOS -->
+      <div class="p-3 bg-light rounded-3 border mb-4">
+        <label class="fw-bold small text-muted text-uppercase d-block mb-2">Política ante usuarios ya registrados:</label>
+        <div class="d-flex gap-4 flex-wrap">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="politica_duplicados" id="pol_actualizar" value="actualizar" checked>
+            <label class="form-check-label small fw-semibold" for="pol_actualizar">
+              <i class="bi bi-arrow-repeat text-primary me-1"></i> Actualizar información existente (Recomendado)
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="politica_duplicados" id="pol_omitir" value="omitir">
+            <label class="form-check-label small fw-semibold" for="pol_omitir">
+              <i class="bi bi-skip-forward-fill text-secondary me-1"></i> Omitir filas ya existentes
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- INSTRUCCIONES Y PLANTILLA -->
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-2 border-top">
+        <a href="{% url 'panel-admin:descargar_plantilla_usuarios_excel' %}" class="btn btn-outline-success fw-bold btn-sm d-inline-flex align-items-center gap-1">
+          <i class="bi bi-file-earmark-excel"></i> Descargar Plantilla Oficial Excel
+        </a>
+
+        <button type="button" id="btnAnalizarArchivo" class="btn text-white fw-bold px-5 py-2.5 shadow-sm d-inline-flex align-items-center gap-2" style="background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark)); border: none; border-radius: 8px;" disabled>
+          <span>Analizar y Pre-validar Nómina</span>
+          <i class="bi bi-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div id="step2Container" class="d-none">
+    
+    <!-- KPI METRIC CARDS -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3 col-6">
+        <div class="stat-card-kpi">
+          <div class="stat-icon-wrap" style="background:#F1F5F9; color:#475569;">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <div>
+            <span class="text-muted extra-small fw-bold text-uppercase d-block" style="font-size:0.72rem;">Total Filas</span>
+            <span class="fs-4 fw-bold text-dark" id="statTotalRows">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-6">
+        <div class="stat-card-kpi" style="border-left: 4px solid #10B981 !important;">
+          <div class="stat-icon-wrap" style="background:#ECFDF5; color:#059669;">
+            <i class="bi bi-check-circle-fill"></i>
+          </div>
+          <div>
+            <span class="extra-small fw-bold text-uppercase d-block text-success" style="font-size:0.72rem;">Válidos</span>
+            <span class="fs-4 fw-bold text-success" id="statValidRows">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-6">
+        <div class="stat-card-kpi" style="border-left: 4px solid #F59E0B !important;">
+          <div class="stat-icon-wrap" style="background:#FEF3C7; color:#D97706;">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          </div>
+          <div>
+            <span class="extra-small fw-bold text-uppercase d-block text-warning" style="font-size:0.72rem;">Alertas</span>
+            <span class="fs-4 fw-bold text-warning" id="statWarningRows">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-6">
+        <div class="stat-card-kpi" style="border-left: 4px solid #EF4444 !important;">
+          <div class="stat-icon-wrap" style="background:#FEE2E2; color:#DC2626;">
+            <i class="bi bi-x-circle-fill"></i>
+          </div>
+          <div>
+            <span class="extra-small fw-bold text-uppercase d-block text-danger" style="font-size:0.72rem;">Errores Bloqueantes</span>
+            <span class="fs-4 fw-bold text-danger" id="statErrorRows">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TARJETA CON TABLA INTERACTIVA -->
+    <div class="card-wizard p-0 overflow-hidden">
+      
+      <div class="p-3.5 px-4 bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div>
+          <h5 class="fw-bold mb-0 text-dark">Previsualización y Edición en Vivo</h5>
+          <p class="text-muted small mb-0">Puedes hacer doble clic en cualquier celda para corregir errores antes de guardar.</p>
+        </div>
+
+        <!-- FILTROS -->
+        <div class="filter-pills-bar mb-0">
+          <button type="button" class="filter-pill-btn active" data-filter="all">Todos (<span id="countFilterAll">0</span>)</button>
+          <button type="button" class="filter-pill-btn" data-filter="error">Errores (<span id="countFilterError">0</span>)</button>
+          <button type="button" class="filter-pill-btn" data-filter="advertencia">Alertas (<span id="countFilterWarn">0</span>)</button>
+          <button type="button" class="filter-pill-btn" data-filter="valido">Válidos (<span id="countFilterValid">0</span>)</button>
+        </div>
+      </div>
+
+      <div class="table-interactive-wrapper">
+        <table class="table table-interactive table-hover mb-0">
+          <thead>
+            <tr>
+              <th class="text-center" style="width: 45px;">#</th>
+              <th style="width: 100px;">Estado</th>
+              <th style="width: 130px;">RUT</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Email</th>
+              <th>Empresa / Institución</th>
+              <th>Teléfono</th>
+              <th>Rol</th>
+              <th>Detalle / Errores</th>
+              <th class="text-center" style="width: 40px;"></th>
+            </tr>
+          </thead>
+          <tbody id="tbodyPrevisualizacion">
+            <!-- Filas dinámicas -->
+          </tbody>
+        </table>
+      </div>
+
+      
+      <div class="p-3 px-4 bg-light border-top d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <button type="button" id="btnVolverPaso1" class="btn btn-outline-secondary fw-semibold btn-sm px-3">
+          <i class="bi bi-arrow-left me-1"></i> Subir otro archivo
+        </button>
+
+        <div class="d-flex align-items-center gap-3">
+          <span class="text-danger small fw-bold d-none" id="msgBloqueoErrores">
+            <i class="bi bi-exclamation-octagon-fill me-1"></i> Corrige los errores en rojo para continuar.
+          </span>
+
+          <button type="button" id="btnConfirmarImportacion" class="btn text-white fw-bold px-4 py-2 shadow-sm d-inline-flex align-items-center gap-2" style="background: linear-gradient(135deg, #10B981, #059669); border: none; border-radius: 8px;">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+            <span>Confirmar e Importar Nómina</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  
+  <div id="step3Container" class="d-none">
+    <div class="card-wizard text-center py-5">
+      
+      <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 shadow-lg" style="width:84px; height:84px; background:linear-gradient(135deg, #10B981 0%, #059669 100%); color:#FFFFFF; font-size:2.8rem;">
+        <i class="bi bi-check-lg"></i>
+      </div>
+
+      <h2 class="fw-bold fs-3 mb-2 text-dark">¡Importación Completada con Éxito!</h2>
+      <p class="text-muted small mb-4" id="txtSubtituloExito">
+        Los usuarios han sido registrados y sus credenciales QR ya están generadas en el sistema.
+      </p>
+
+      <!-- RESUMEN DE TARJETAS -->
+      <div class="row g-3 justify-content-center max-w-lg mx-auto mb-5" style="max-width: 580px;">
+        <div class="col-4">
+          <div class="p-3 bg-light border rounded-3">
+            <span class="text-muted extra-small fw-bold text-uppercase d-block" style="font-size: 0.72rem;">Nuevos Creados</span>
+            <span class="fs-3 fw-bold text-success" id="resCreados">0</span>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="p-3 bg-light border rounded-3">
+            <span class="text-muted extra-small fw-bold text-uppercase d-block" style="font-size: 0.72rem;">Actualizados</span>
+            <span class="fs-3 fw-bold text-primary" id="resActualizados">0</span>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="p-3 bg-light border rounded-3">
+            <span class="text-muted extra-small fw-bold text-uppercase d-block" style="font-size: 0.72rem;">Omitidos</span>
+            <span class="fs-3 fw-bold text-muted" id="resOmitidos">0</span>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% url 'panel-admin:gestion_usuarios' %}" class="btn text-white fw-bold px-4 py-2.5 shadow-sm d-flex align-items-center gap-2" style="background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark)); border: none; border-radius: 8px;">
+          <i class="bi bi-people-fill"></i>
+          <span>Ir a la Gestión de Usuarios</span>
+        </a>
+
+        <button type="button" class="btn btn-outline-secondary fw-semibold px-4 py-2.5" style="border-radius: 8px;" onclick="location.reload()">
+          <i class="bi bi-arrow-repeat me-1"></i> Realizar Otra Carga
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer class="bottom-footer">
+  <div class="container">
+    &copy; 2026 INACAP. Todos los derechos reservados | Panel de Administración.
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  let parsedRows = [];
+  let currentFilter = 'all';
+
+  const dropzoneBox = document.getElementById('dropzoneBox');
+  const fileInput = document.getElementById('fileInput');
+  const fileNameSelected = document.getElementById('fileNameSelected');
+  const btnAnalizarArchivo = document.getElementById('btnAnalizarArchivo');
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzoneBox.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzoneBox.classList.add('dragover');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzoneBox.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzoneBox.classList.remove('dragover');
+    }, false);
+  });
+
+  dropzoneBox.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files.length) {
+      fileInput.files = files;
+      handleFileSelected(files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', function() {
+    if (this.files.length) {
+      handleFileSelected(this.files[0]);
+    }
+  });
+
+  function handleFileSelected(file) {
+    fileNameSelected.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    btnAnalizarArchivo.disabled = false;
+  }
+
+  btnAnalizarArchivo.addEventListener('click', function() {
+    if (!fileInput.files.length) return;
+
+    const formData = new FormData();
+    formData.append('archivo', fileInput.files[0]);
+
+    Swal.fire({
+      title: 'Analizando nómina...',
+      text: 'Validando formato, RUTs chilenos y correos...',
+      allowOutsideClick: false,
+      didOpen: () => { Swal.showLoading(); }
+    });
+
+    fetch("{% url 'panel-admin:api_analizar_carga_masiva_usuarios' %}", {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+      Swal.close();
+      if (data.error) {
+        Swal.fire('Error en el archivo', data.error, 'error');
+        return;
+      }
+
+      parsedRows = data.filas || [];
+      mostrarPaso2();
+    })
+    .catch(err => {
+      Swal.close();
+      Swal.fire('Error de conexión', 'No se pudo procesar el archivo: ' + err, 'error');
+    });
+  });
+
+  function mostrarPaso2() {
+    document.getElementById('step1Container').classList.add('d-none');
+    document.getElementById('step2Container').classList.remove('d-none');
+
+    document.getElementById('stepIndicator1').classList.remove('active');
+    document.getElementById('stepIndicator1').classList.add('completed');
+    document.getElementById('stepDivider1').classList.add('active');
+    document.getElementById('stepIndicator2').classList.add('active');
+
+    renderizarTabla();
+  }
+
+  function validarRUTChileno(rut) {
+    let valor = rut.replace(/[^0-9kK]/g, '').toUpperCase();
+    if (valor.length < 8 || valor.length > 9) return false;
+    let cuerpo = valor.slice(0, -1);
+    let dv = valor.slice(-1);
+    let suma = 0, multiplo = 2;
+    for (let i = cuerpo.length - 1; i >= 0; i--) {
+      suma += parseInt(cuerpo.charAt(i)) * multiplo;
+      multiplo = multiplo < 7 ? multiplo + 1 : 2;
+    }
+    let dvEsperado = 11 - (suma % 11);
+    let dvCalculado = dvEsperado === 11 ? '0' : (dvEsperado === 10 ? 'K' : dvEsperado.toString());
+    return dv === dvCalculado;
+  }
+
+  function renderizarTabla() {
+    const tbody = document.getElementById('tbodyPrevisualizacion');
+    tbody.innerHTML = '';
+
+    let total = parsedRows.length;
+    let validos = 0;
+    let advertencias = 0;
+    let errores = 0;
+
+    parsedRows.forEach((row, idx) => {
+      row.errores = [];
+      row.advertencias = [];
+
+      if (!row.nombre.trim()) row.errores.push("Falta el nombre.");
+      if (!row.email.trim()) {
+        row.errores.push("Falta el email.");
+      } else if (!row.email.includes('@') || !row.email.includes('.')) {
+        row.errores.push("Email inválido.");
+      }
+      
+      if (!row.rut.trim()) {
+        row.errores.push("Falta el RUT.");
+      } else if (!validarRUTChileno(row.rut)) {
+        row.errores.push("RUT no válido (DV incorrecto).");
+      }
+
+      if (row.existe_en_bd) {
+        row.advertencias.push("Usuario ya existe - se actualizará.");
+      }
+
+      if (row.errores.length > 0) {
+        row.estado = 'error';
+        errores++;
+      } else if (row.advertencias.length > 0) {
+        row.estado = 'advertencia';
+        advertencias++;
+      } else {
+        row.estado = 'valido';
+        validos++;
+      }
+
+      if (currentFilter !== 'all' && row.estado !== currentFilter) {
+        return;
+      }
+
+      const tr = document.createElement('tr');
+      if (row.estado === 'error') tr.classList.add('row-has-error');
+      if (row.estado === 'advertencia') tr.classList.add('row-has-warning');
+
+      let detalleHtml = '';
+      if (row.errores.length > 0) {
+        detalleHtml = `<span class="text-danger extra-small fw-semibold d-block">${row.errores.join(', ')}</span>`;
+      } else if (row.advertencias.length > 0) {
+        detalleHtml = `<span class="text-warning extra-small fw-semibold d-block">${row.advertencias.join(', ')}</span>`;
+      } else {
+        detalleHtml = `<span class="text-success extra-small">Listo para importar</span>`;
+      }
+
+      tr.innerHTML = `
+        <td class="text-center font-monospace text-muted small">${row.index}</td>
+        <td>
+          <span class="status-badge ${row.estado}">
+            ${row.estado === 'valido' ? '✓ Válido' : row.estado === 'advertencia' ? '⚠ Alerta' : '✕ Error'}
+          </span>
+        </td>
+        <td>
+          <input type="text" class="table-input-cell font-monospace" value="${row.rut || ''}" onchange="actualizarCampo(${idx}, 'rut', this.value)">
+        </td>
+        <td>
+          <input type="text" class="table-input-cell" value="${row.nombre || ''}" onchange="actualizarCampo(${idx}, 'nombre', this.value)">
+        </td>
+        <td>
+          <input type="text" class="table-input-cell" value="${row.apellido || ''}" onchange="actualizarCampo(${idx}, 'apellido', this.value)">
+        </td>
+        <td>
+          <input type="email" class="table-input-cell" value="${row.email || ''}" onchange="actualizarCampo(${idx}, 'email', this.value)">
+        </td>
+        <td>
+          <input type="text" class="table-input-cell" value="${row.empresa || ''}" onchange="actualizarCampo(${idx}, 'empresa', this.value)">
+        </td>
+        <td>
+          <input type="text" class="table-input-cell" value="${row.telefono || ''}" onchange="actualizarCampo(${idx}, 'telefono', this.value)">
+        </td>
+        <td>
+          <input type="text" class="table-input-cell" value="${row.rol || ''}" onchange="actualizarCampo(${idx}, 'rol', this.value)">
+        </td>
+        <td>${detalleHtml}</td>
+        <td class="text-center">
+          <button type="button" class="btn btn-sm btn-link text-danger p-0" title="Descartar fila" onclick="eliminarFila(${idx})">
+            <i class="bi bi-trash3-fill"></i>
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('statTotalRows').textContent = total;
+    document.getElementById('statValidRows').textContent = validos;
+    document.getElementById('statWarningRows').textContent = advertencias;
+    document.getElementById('statErrorRows').textContent = errores;
+
+    document.getElementById('countFilterAll').textContent = total;
+    document.getElementById('countFilterError').textContent = errores;
+    document.getElementById('countFilterWarn').textContent = advertencias;
+    document.getElementById('countFilterValid').textContent = validos;
+
+    const btnConfirmar = document.getElementById('btnConfirmarImportacion');
+    const msgBloqueo = document.getElementById('msgBloqueoErrores');
+    if (errores > 0) {
+      btnConfirmar.disabled = true;
+      btnConfirmar.classList.add('opacity-50');
+      msgBloqueo.classList.remove('d-none');
+    } else {
+      btnConfirmar.disabled = false;
+      btnConfirmar.classList.remove('opacity-50');
+      msgBloqueo.classList.add('d-none');
+    }
+  }
+
+  function actualizarCampo(idx, campo, valor) {
+    if (parsedRows[idx]) {
+      parsedRows[idx][campo] = valor;
+      renderizarTabla();
+    }
+  }
+
+  function eliminarFila(idx) {
+    parsedRows.splice(idx, 1);
+    parsedRows.forEach((r, i) => r.index = i + 1);
+    renderizarTabla();
+  }
+
+  document.querySelectorAll('.filter-pill-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentFilter = this.dataset.filter;
+      renderizarTabla();
+    });
+  });
+
+  document.getElementById('btnVolverPaso1').addEventListener('click', function() {
+    document.getElementById('step2Container').classList.add('d-none');
+    document.getElementById('step1Container').classList.remove('d-none');
+
+    document.getElementById('stepIndicator2').classList.remove('active');
+    document.getElementById('stepDivider1').classList.remove('active');
+    document.getElementById('stepIndicator1').classList.add('active');
+    document.getElementById('stepIndicator1').classList.remove('completed');
+  });
+
+  document.getElementById('btnConfirmarImportacion').addEventListener('click', function() {
+    if (!parsedRows.length) {
+      Swal.fire('Atención', 'No hay usuarios para importar.', 'info');
+      return;
+    }
+
+    const politica = document.querySelector('input[name="politica_duplicados"]:checked')?.value || 'actualizar';
+    const totalUsuarios = parsedRows.length;
+
+    Swal.fire({
+      title: `¿Confirmar importación de ${totalUsuarios} usuarios?`,
+      text: 'Se crearán sus cuentas, generarán sus códigos QR oficiales y quedarán activos de inmediato.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#10B981',
+      cancelButtonColor: '#64748B',
+      confirmButtonText: '<i class="bi bi-cloud-arrow-up-fill me-1"></i> Sí, Importar Nómina',
+      cancelButtonText: 'Revisar datos'
+    }).then(async (result) => {
+      if (!result.isConfirmed) return;
+
+      Swal.fire({
+        title: 'Importando Nómina de Usuarios',
+        html: `
+          <div class="py-2 text-start">
+            <p class="text-muted small mb-3 text-center">Guardando datos y generando credenciales QR en la base de datos...</p>
+            
+            <div class="d-flex justify-content-between mb-1 small fw-bold">
+              <span id="txtProgresoEstado" class="text-dark">Iniciando procesamiento...</span>
+              <span id="txtProgresoPorcentaje" class="text-danger">0%</span>
+            </div>
+            
+            <div class="progress" style="height: 18px; border-radius: 9px; background-color: #E2E8F0;">
+              <div id="barraProgresoImportacion" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background: linear-gradient(135deg, #B70420, #8B0014); transition: width 0.25s ease;"></div>
+            </div>
+            
+            <div class="mt-2 text-center small text-muted">
+              <span id="txtProgresoConteo" class="fw-bold text-dark">0</span> de <span class="fw-bold text-dark">${totalUsuarios}</span> usuarios procesados
+            </div>
+          </div>
+        `,
+        allowOutsideClick: false,
+        showConfirmButton: false
+      });
+
+      const barra = document.getElementById('barraProgresoImportacion');
+      const txtPorcentaje = document.getElementById('txtProgresoPorcentaje');
+      const txtEstado = document.getElementById('txtProgresoEstado');
+      const txtConteo = document.getElementById('txtProgresoConteo');
+
+      const CHUNK_SIZE = 10; // Procesar en bloques de 10 para avance fluido
+      let totalCreados = 0;
+      let totalActualizados = 0;
+      let totalOmitidos = 0;
+      let procesadosAcumulados = 0;
+
+      try {
+        for (let i = 0; i < totalUsuarios; i += CHUNK_SIZE) {
+          const chunk = parsedRows.slice(i, i + CHUNK_SIZE);
+          
+          if (txtEstado) txtEstado.textContent = `Guardando usuarios del ${i + 1} al ${Math.min(i + CHUNK_SIZE, totalUsuarios)}...`;
+
+          const response = await fetch("{% url 'panel-admin:api_procesar_carga_masiva_usuarios' %}", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+              filas: chunk,
+              politica_duplicados: politica
+            })
+          });
+
+          const data = await response.json();
+
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
+          totalCreados += (data.creados || 0);
+          totalActualizados += (data.actualizados || 0);
+          totalOmitidos += (data.omitidos || 0);
+          procesadosAcumulados = Math.min(i + CHUNK_SIZE, totalUsuarios);
+
+          const pct = Math.round((procesadosAcumulados / totalUsuarios) * 100);
+          if (barra) barra.style.width = pct + '%';
+          if (txtPorcentaje) txtPorcentaje.textContent = pct + '%';
+          if (txtConteo) txtConteo.textContent = procesadosAcumulados;
+        }
+
+        if (txtEstado) txtEstado.textContent = '¡Finalizando importación!';
+        if (barra) barra.style.width = '100%';
+        if (txtPorcentaje) txtPorcentaje.textContent = '100%';
+
+        await new Promise(res => setTimeout(res, 400));
+        Swal.close();
+
+        document.getElementById('step2Container').classList.add('d-none');
+        document.getElementById('step3Container').classList.remove('d-none');
+
+        document.getElementById('stepIndicator2').classList.remove('active');
+        document.getElementById('stepIndicator2').classList.add('completed');
+        document.getElementById('stepDivider2').classList.add('active');
+        document.getElementById('stepIndicator3').classList.add('active');
+        document.getElementById('stepIndicator3').classList.add('completed');
+
+        document.getElementById('resCreados').textContent = totalCreados;
+        document.getElementById('resActualizados').textContent = totalActualizados;
+        document.getElementById('resOmitidos').textContent = totalOmitidos;
+
+        document.getElementById('txtSubtituloExito').textContent = `Se procesaron exitosamente ${totalCreados + totalActualizados} registros de usuarios en la plataforma.`;
+
+      } catch (err) {
+        Swal.close();
+        Swal.fire({
+          icon: 'error',
+          title: 'Error durante la importación',
+          text: 'Ocurrió un inconveniente: ' + err.message,
+          confirmButtonColor: '#B70420'
+        });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>

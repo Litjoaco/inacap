@@ -4,241 +4,616 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro Usuario - Inacap</title>
+    <title>Registro de Participante - INACAP</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <style>
+        :root {
+            --inacap-red: #B70420;
+            --inacap-red-hover: #900318;
+            --inacap-dark: #111827;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5; /* Color de fondo sólido */
-            /* --- INICIO: Solución para Sticky Footer --- */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            /* --- FIN: Solución para Sticky Footer --- */
+            margin: 0;
         }
-        /* Hace que el contenido principal ocupe el espacio disponible */
-        main {
-            flex: 1 0 auto;
+
+        .top-navbar {
+            background: linear-gradient(to right, #B70420, #8B0014);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+            padding: 12px 0;
         }
-        header {
-            background: linear-gradient(to right, #D90429, #A9001F);
-            padding: 10px 20px;
-            color: white;
-        }
-        header img {
-            height: 50px;
-        }
-        header nav a {
-            margin-left: 15px;
+
+        .header-brand {
+            display: flex;
+            align-items: center;
             text-decoration: none;
-            color: white;
-            font-weight: 500;
+            color: #FFFFFF;
         }
-        .card {
+
+        .header-brand img {
+            height: 40px;
+            width: auto;
+            margin-right: 12px;
+        }
+
+        .brand-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.15rem;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .brand-sub {
+            font-size: 0.74rem;
+            opacity: 0.85;
+            margin: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 35px 15px;
+        }
+
+        .register-card-compact {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 560px;
+            padding: 36px 32px;
+        }
+
+        .card-title-main {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .card-subtitle-main {
+            font-size: 0.9rem;
+            color: #64748B;
+            margin-bottom: 22px;
+            text-align: center;
+        }
+
+        .origin-tabs-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .origin-btn-hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 14px;
             border-radius: 10px;
-            background-color: rgba(255, 255, 255, 0.95); /* Un poco de transparencia para integrar mejor */
+            font-weight: 600;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            border: 1.5px solid #E2E8F0;
+            background: #F8FAFC;
+            color: #475569;
         }
-        #fotoPreview {
-            max-width: 150px;
-            max-height: 150px;
-            display: block;
-            margin: 10px auto;
-            border-radius: 50%;
+
+        .origin-btn-hero:hover {
+            border-color: var(--inacap-red);
+            color: var(--inacap-red);
+            background: #FEF2F2;
         }
-        footer.custom-footer {
-            background: linear-gradient(to right, #D90429, #A9001F);
+
+        .btn-check:checked + .origin-btn-hero {
+            background: linear-gradient(135deg, #B70420, #8B0014) !important;
+            color: #FFFFFF !important;
+            border-color: #B70420 !important;
+            box-shadow: 0 4px 12px rgba(183, 4, 32, 0.25);
+        }
+
+        .subtipo-selector-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: #F1F5F9;
+            padding: 5px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .subtipo-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #64748B;
+        }
+
+        .subtipo-btn:hover {
+            color: #1E293B;
+        }
+
+        .btn-check:checked + .subtipo-btn {
+            background: #FFFFFF !important;
+            color: var(--inacap-red) !important;
+            border-color: #CBD5E1 !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .form-label-compact {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #CBD5E1;
+            padding: 10px 14px;
+            font-size: 0.92rem;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--inacap-red);
+            box-shadow: 0 0 0 3px rgba(183, 4, 32, 0.12);
+        }
+
+        .form-control-rut {
+            font-family: 'Poppins', monospace;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .btn-submit-inacap {
+            background-color: var(--inacap-red);
             color: white;
-            padding: 30px 0;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 13px 20px;
+            border-radius: 8px;
+            border: none;
+            width: 100%;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(183, 4, 32, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        footer.custom-footer a {
+
+        .btn-submit-inacap:hover {
+            background-color: var(--inacap-red-hover);
             color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(183, 4, 32, 0.4);
+        }
+
+        .legal-consent-box {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 20px;
+            margin-bottom: 18px;
+        }
+
+        .login-link-box {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.88rem;
+            color: #64748B;
+        }
+
+        .login-link-box a {
+            color: var(--inacap-red);
+            font-weight: 600;
             text-decoration: none;
         }
-        footer.custom-footer a:hover {
+
+        .login-link-box a:hover {
             text-decoration: underline;
         }
 
-        /* --- INICIO: Estilos para el Toggle Switch Profesional --- */
-        .toggle-switch-container {
-            display: flex;
-            border: 1px solid #dee2e6;
-            border-radius: 0.375rem; /* Bootstrap's default border-radius */
-            overflow: hidden;
-            width: 100%;
-        }
-
-        .toggle-switch-container input[type="radio"] {
-            display: none; /* Ocultamos el radio button real */
-        }
-
-        .toggle-switch-label {
-            flex: 1; /* Cada opción ocupa la mitad del espacio */
+        footer.bottom-footer {
+            background: linear-gradient(to right, #B70420, #8B0014);
+            color: #FFFFFF;
+            padding: 18px 0;
             text-align: center;
-            padding: 0.6rem 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-            background-color: #fff;
-            color: #495057;
-            margin-bottom: 0; /* Reseteo de margen */
+            font-size: 0.84rem;
+            margin-top: auto;
         }
-
-        .toggle-switch-container input[type="radio"]:checked + .toggle-switch-label {
-            background-color: #D90429; /* Rojo Inacap */
-            color: white;
-            font-weight: bold;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
-        }
-        /* --- FIN: Estilos para el Toggle Switch --- */
-
-        /* Estilo para el mensaje de la contraseña */
-        .alert-password-info {
-            background-color: #FEE2E6; /* Rojo Inacap muy pálido */
-            border-color: #FDD0D6;
-            color: #8C0018; /* Rojo oscuro para el texto, buena legibilidad */
+    
+        @media (max-width: 480px) {
+            .register-card-compact {
+                padding: 24px 18px;
+            }
+            .origin-btn-hero {
+                font-size: 0.82rem;
+                padding: 10px 8px;
+            }
+            .card-title-main {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="d-flex justify-content-between align-items-center">
-    <div class="d-flex align-items-center">
-        <img src="{% static 'img/logo.png' %}" alt="Inacap" style="height: 40px;">
-        <div class="ms-2">
-            <span class="fw-bold fs-5 d-block">Inacap</span>
-            <small>Formando a los profesionales del mañana</small>
-        </div>
+<header class="top-navbar">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a href="{% url 'inicio' %}" class="header-brand">
+            <img src="{% static 'img/Logo_60anos.png' %}" alt="Logo INACAP">
+            <div>
+                <h1 class="brand-title">INACAP</h1>
+                <p class="brand-sub">Portal de Eventos y Encuentros</p>
+            </div>
+        </a>
+        <a href="{% url 'inicio' %}" class="btn btn-outline-light btn-sm fw-medium">
+            <i class="bi bi-arrow-left me-1"></i> Volver al Inicio
+        </a>
     </div>
-    <nav>
-        <a href="/" class="btn btn-light btn-lg me-2" style="font-weight:500; border-radius:25px;">Inicio</a>
-    </nav>
 </header>
 
-<!-- FORMULARIO -->
-<main class="container mt-5 mb-5">
-    <div class="card shadow p-4 mx-auto" style="max-width:600px;">
-        <div class="text-center mb-4">
-            <h2>Registro de Usuario</h2>
-        </div>
-        <form method="POST" enctype="multipart/form-data" autocomplete="off">
+<main class="main-content">
+    <div class="register-card-compact">
+        
+        <h2 class="card-title-main">Registro de Participante</h2>
+        <p class="card-subtitle-main">Completa tus datos para emitir tu credencial y código QR de acceso</p>
+
+        <form method="POST" autocomplete="off">
             {% csrf_token %}
 
-            <!-- Bloque para mostrar errores generales del formulario (que no pertenecen a un campo específico) -->
             {% if form.non_field_errors %}
-                <div class="alert alert-danger">
+                <div class="alert alert-danger py-2 small mb-3">
                     {% for error in form.non_field_errors %}
                         <p class="mb-0">{{ error }}</p>
                     {% endfor %}
                 </div>
             {% endif %}
 
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="{{ form.nombre.id_for_label }}" class="form-label">Nombre *</label>
-                    {{ form.nombre }} {# Django aplica la clase 'form-control' desde forms.py #}
-                    {% for error in form.nombre.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+            <!-- TIPO DE ORIGEN (INACAP vs EXTERNO) -->
+            <div class="origin-tabs-container">
+                <div>
+                    <input type="radio" class="btn-check" name="tipo_usuario" id="tipo_inacap" value="inacap" {% if form.tipo_usuario.value != 'externo' %}checked{% endif %} onchange="togglePerfil()">
+                    <label class="origin-btn-hero" for="tipo_inacap">
+                        <i class="bi bi-mortarboard-fill"></i> Soy de INACAP
+                    </label>
                 </div>
-                <div class="col-md-6">
-                    <label for="{{ form.apellido.id_for_label }}" class="form-label">Apellido *</label>
-                    {{ form.apellido }}
-                    {% for error in form.apellido.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+
+                <div>
+                    <input type="radio" class="btn-check" name="tipo_usuario" id="tipo_externo" value="externo" {% if form.tipo_usuario.value == 'externo' %}checked{% endif %} onchange="togglePerfil()">
+                    <label class="origin-btn-hero" for="tipo_externo">
+                        <i class="bi bi-building"></i> Soy Externo
+                    </label>
                 </div>
-                <div class="col-md-6">
-                    <label for="{{ form.rut.id_for_label }}" class="form-label">RUT *</label>
-                    {{ form.rut }}
-                    {% for error in form.rut.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                </div>
-                <div class="col-md-6">
-                    <label for="{{ form.email.id_for_label }}" class="form-label">Email *</label>
-                    {{ form.email }}
-                    {% for error in form.email.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                </div>
-                <div class="col-12">
-                    <label class="form-label">{{ form.tipo_usuario.label }} *</label>
-                    <div class="toggle-switch-container">
-                        {% for radio in form.tipo_usuario %}
-                            {{ radio.tag }}
-                            <label class="toggle-switch-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
-                        {% endfor %}
+            </div>
+            {% for error in form.tipo_usuario.errors %}<div class="text-danger small mb-2">{{ error }}</div>{% endfor %}
+
+            <!-- SUBTIPO EXTERNO: PERSONA NATURAL VS EMPRESA -->
+            <div id="bloque_subtipo_externo" style="display: none;">
+                <div class="subtipo-selector-container">
+                    <div>
+                        <input type="radio" class="btn-check" name="subtipo_externo" id="subtipo_natural" value="natural" {% if form.subtipo_externo.value != 'empresa' %}checked{% endif %} onchange="togglePerfil()">
+                        <label class="subtipo-btn" for="subtipo_natural">
+                            <i class="bi bi-person-fill"></i> Persona Natural
+                        </label>
                     </div>
-                    {% for error in form.tipo_usuario.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    <div>
+                        <input type="radio" class="btn-check" name="subtipo_externo" id="subtipo_empresa" value="empresa" {% if form.subtipo_externo.value == 'empresa' %}checked{% endif %} onchange="togglePerfil()">
+                        <label class="subtipo-btn" for="subtipo_empresa">
+                            <i class="bi bi-briefcase-fill"></i> Empresa / Organización
+                        </label>
+                    </div>
                 </div>
+                {% for error in form.subtipo_externo.errors %}<div class="text-danger small mb-2">{{ error }}</div>{% endfor %}
+            </div>
 
-                <!-- Campos condicionales -->
-                <div class="col-12" id="camposInacap" style="display: none;">
-                    <label for="{{ form.rubro.id_for_label }}" class="form-label">{{ form.rubro.label }} *</label>
+            <!-- CAMPO EMPRESA (VISIBLE SÓLO EN EMPRESA) -->
+            <div class="mb-3" id="campo_empresa_nombre" style="display: none;">
+                <label for="{{ form.institucion_empresa.id_for_label }}" class="form-label-compact">Nombre de la Empresa u Organización</label>
+                {{ form.institucion_empresa }}
+                {% for error in form.institucion_empresa.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+
+            <!-- RUT -->
+            <div class="mb-3">
+                <label for="{{ form.rut.id_for_label }}" class="form-label-compact" id="label_rut">RUT Chileno</label>
+                {{ form.rut }}
+                {% for error in form.rut.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+
+            <!-- NOMBRE Y APELLIDO -->
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <label for="{{ form.nombre.id_for_label }}" class="form-label-compact" id="label_nombre">Nombre</label>
+                    {{ form.nombre }}
+                    {% for error in form.nombre.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+                <div class="col-6">
+                    <label for="{{ form.apellido.id_for_label }}" class="form-label-compact" id="label_apellido">Apellido</label>
+                    {{ form.apellido }}
+                    {% for error in form.apellido.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                </div>
+            </div>
+
+            <!-- EMAIL -->
+            <div class="mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label-compact" id="label_email">Correo Electrónico</label>
+                {{ form.email }}
+                {% for error in form.email.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+
+            <!-- ROL EN INACAP (SÓLO SI ES INACAP) -->
+            <div id="bloque_inacap_campos">
+                <div class="mb-3">
+                    <label for="{{ form.rubro.id_for_label }}" class="form-label-compact">Rol en INACAP</label>
                     {{ form.rubro }}
-                    {% for error in form.rubro.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
-                </div>
-
-                <div class="col-12" id="camposExterno" style="display: none;">
-                    <label for="{{ form.institucion_empresa.id_for_label }}" class="form-label">{{ form.institucion_empresa.label }} *</label>
-                    {{ form.institucion_empresa }}
-                    {% for error in form.institucion_empresa.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                    {% for error in form.rubro.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                 </div>
             </div>
 
-            <div class="d-grid mt-4">
-                <button type="submit" class="btn btn-danger btn-lg">Registrarse</button>
+            <!-- TELÉFONO (SÓLO SI ES EXTERNO) -->
+            <div class="mb-3" id="campo_telefono_contenedor" style="display: none;">
+                <label for="{{ form.telefono.id_for_label }}" class="form-label-compact">Teléfono / WhatsApp</label>
+                {{ form.telefono }}
+                {% for error in form.telefono.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
             </div>
-            <div class="alert alert-password-info mt-3">
-                <i class="bi bi-info-circle-fill me-2"></i>
-                Tu contraseña inicial es tu RUT (sin dígito verificador). Podrás cambiarla luego en tu perfil.
+
+            <!-- TÉRMINOS Y CONDICIONES -->
+            <div class="legal-consent-box">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="acepta_terminos" id="id_acepta_terminos" required {% if form.acepta_terminos.value %}checked{% endif %}>
+                    <label class="form-check-label small text-muted" for="id_acepta_terminos" style="font-size: 0.82rem; line-height: 1.45;">
+                        He leído y acepto los <a href="#" data-bs-toggle="modal" data-bs-target="#modalTerminos" class="text-danger fw-semibold text-decoration-none">Términos y Condiciones</a> y la <a href="#" data-bs-toggle="modal" data-bs-target="#modalPrivacidad" class="text-danger fw-semibold text-decoration-none">Política de Protección de Datos Personales</a> de INACAP conforme a la Ley N° 19.628.
+                    </label>
+                </div>
+                {% for error in form.acepta_terminos.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+            </div>
+
+            <!-- BOTÓN ENVIAR -->
+            <div>
+                <button type="submit" class="btn btn-submit-inacap">
+                    <i class="bi bi-qr-code-scan"></i> Registrarme y Obtener Credencial
+                </button>
+            </div>
+
+            <div class="login-link-box">
+                ¿Ya estás registrado? <a href="{% url 'login' %}">Inicia sesión</a>
             </div>
         </form>
     </div>
 </main>
 
-<!-- FOOTER -->
-<footer class="custom-footer">
-    <div class="container text-center">
-        &copy; 2025 Inacap. Todos los derechos reservados.
+<div class="modal fade" id="modalTerminos" tabindex="-1" aria-labelledby="modalTerminosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header text-white" style="background: linear-gradient(to right, #B70420, #8B0014);">
+                <h5 class="modal-title fw-bold" id="modalTerminosLabel">
+                    <i class="bi bi-file-text-fill me-2"></i> Términos y Condiciones de Uso - INACAP
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-4 text-secondary" style="font-size: 0.92rem; line-height: 1.6;">
+                <h6 class="fw-bold text-dark mb-2">1. Identificación del Responsable</h6>
+                <p>El presente portal institucional de eventos y encuentros es operado por el <strong>Instituto Profesional INACAP / Universidad Tecnológica de Chile INACAP</strong>, con domicilio legal en Santiago de Chile.</p>
+
+                <h6 class="fw-bold text-dark mb-2 mt-3">2. Objeto del Servicio</h6>
+                <p>La plataforma tiene por objeto facilitar la inscripción, auto-acreditación, emisión de credenciales digitales QR y gestión de asistencia a actividades, charlas, seminarios y encuentros académicos o de vinculación con el medio.</p>
+
+                <h6 class="fw-bold text-dark mb-2 mt-3">3. Veracidad de la Información</h6>
+                <p>El usuario declara que todos los datos proporcionados (RUT, nombre, apellidos, correo institucional o personal) son verídicos, exactos y le pertenecen legalmente.</p>
+
+                <h6 class="fw-bold text-dark mb-2 mt-3">4. Uso de la Credencial y Código QR</h6>
+                <p>El código QR emitido es de carácter personal e intransferible. Se utilizará exclusivamente para el control de asistencia y verificación de acceso en las sedes y recintos designados por INACAP.</p>
+
+                <h6 class="fw-bold text-dark mb-2 mt-3">5. Modificaciones del Servicio</h6>
+                <p>INACAP se reserva el derecho de actualizar los presentes términos para adecuarse a nuevas disposiciones legales o mejoras en la infraestructura tecnológica.</p>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-danger btn-sm px-4 fw-semibold" data-bs-dismiss="modal">He Leído y Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPrivacidad" tabindex="-1" aria-labelledby="modalPrivacidadLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header text-white" style="background: linear-gradient(to right, #B70420, #8B0014);">
+                <h5 class="modal-title fw-bold" id="modalPrivacidadLabel">
+                    <i class="bi bi-shield-lock-fill me-2"></i> Política de Protección de Datos Personales (Ley 19.628)
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-4 text-secondary" style="font-size: 0.92rem; line-height: 1.6;">
+                <div class="alert alert-light border-danger border-start border-3 py-2 px-3 mb-3 small text-dark">
+                    <strong>Compromiso Institucional:</strong> En cumplimiento de la Ley N° 19.628 sobre Protección de la Vida Privada y la nueva normativa de Protección de Datos Personales de la República de Chile, INACAP garantiza el tratamiento seguro y confidencial de tus datos.
+                </div>
+
+                <h6 class="fw-bold text-dark mb-2">1. Finalidad del Tratamiento de Datos</h6>
+                <p>Los datos personales recabados (RUT, Nombres, Apellidos, Correo Electrónico, Rol y Empresa/Organización) serán utilizados exclusivamente para:</p>
+                <ul class="ps-3 mb-3">
+                    <li>Generar y emitir tu credencial oficial de participante con código QR.</li>
+                    <li>Registrar y acreditar tu asistencia presencial en eventos y actividades de INACAP.</li>
+                    <li>Enviar recordatorios, material complementario y certificados de participación.</li>
+                    <li>Elaboración de reportes estadísticos e indicadores agregados y anonimizados.</li>
+                </ul>
+
+                <h6 class="fw-bold text-dark mb-2 mt-3">2. Base Legal del Tratamiento</h6>
+                <p>El tratamiento de tus datos se realiza sobre la base del <strong>consentimiento expreso, libre e informado</strong> otorgado por el titular al momento de completar el registro.</p>
+
+                <h6 class="fw-bold text-dark mb-2 mt-3">3. Derechos del Titular (Derechos ARCO)</h6>
+                <p>Conforme a la legislación vigente, tienes derecho a ejercer en cualquier momento:</p>
+                <ul class="ps-3 mb-3">
+                    <li><strong>Acceso:</strong> Conocer los datos personales almacenados en tu registro.</li>
+                    <li><strong>Rectificación:</strong> Actualizar o corregir tus antecedentes en caso de error.</li>
+                    <li><strong>Cancelación / Supresión:</strong> Solicitar la eliminación o baja de tus datos de nuestros registros activos.</li>
+                    <li><strong>Oposición:</strong> Oponerte al uso de tus datos para fines informativos específicos.</li>
+                </ul>
+                <p>Para ejercer tus derechos, puedes ingresar a la sección <em>Mi Perfil</em> o contactar a la Dirección de Tecnologías de INACAP.</p>
+
+                <h6 class="fw-bold text-dark mb-2 mt-3">4. Confidencialidad y No Cesión a Terceros</h6>
+                <p>INACAP se compromete formalmente a <strong>no comercializar, vender, arrendar ni ceder</strong> tus datos personales a empresas o entidades externas ajenas a la institución.</p>
+
+                <h6 class="fw-bold text-dark mb-2 mt-3">5. Medidas de Seguridad</h6>
+                <p>Toda la información es resguardada mediante protocolos de cifrado, almacenamiento en bases de datos protegidas y control de accesos restringido exclusivamente a personal autorizado.</p>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-danger btn-sm px-4 fw-semibold" data-bs-dismiss="modal">Aceptar y Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bottom-footer">
+    <div class="container">
+        &copy; 2026 INACAP &bull; Sistema Oficial de Eventos y Encuentros &bull; Protección de Datos Garantizada.
     </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Lógica para mostrar/ocultar campos condicionales
-    document.addEventListener('DOMContentLoaded', function() {
-        const tipoUsuarioRadios = document.querySelectorAll('input[name="tipo_usuario"]');
-        const camposInacap = document.getElementById('camposInacap');
-        const camposExterno = document.getElementById('camposExterno');
+    function togglePerfil() {
+        const isInacap = document.getElementById('tipo_inacap') ? document.getElementById('tipo_inacap').checked : true;
+        const isEmpresa = document.getElementById('subtipo_empresa') ? document.getElementById('subtipo_empresa').checked : false;
 
-        function toggleCampos() {
-            const selectedValue = document.querySelector('input[name="tipo_usuario"]:checked')?.value;
-            camposInacap.style.display = selectedValue === 'inacap' ? 'block' : 'none';
-            camposExterno.style.display = selectedValue === 'externo' ? 'block' : 'none';
-        }
+        const bloqueInacap = document.getElementById('bloque_inacap_campos');
+        const bloqueSubtipo = document.getElementById('bloque_subtipo_externo');
+        const campoEmpresa = document.getElementById('campo_empresa_nombre');
+        const campoTelefono = document.getElementById('campo_telefono_contenedor');
+        const labelRut = document.getElementById('label_rut');
+        const labelNombre = document.getElementById('label_nombre');
+        const labelApellido = document.getElementById('label_apellido');
+        const labelEmail = document.getElementById('label_email');
 
-        tipoUsuarioRadios.forEach(radio => {
-            radio.addEventListener('change', toggleCampos);
-        });
-
-        // Ejecutar al cargar la página para el caso de que el formulario se recargue con errores
-        toggleCampos();
-    });
-</script>
-<script>
-    // Script para formatear el RUT mientras se escribe
-    const rutInput = document.querySelector('#{{ form.rut.id_for_label }}');
-
-    rutInput.addEventListener('input', function(e) {
-        let rut = e.target.value.replace(/[^\dkK]/g, ''); // Solo números y K
-        
-        if (rut.length > 1) {
-            let body = rut.slice(0, -1);
-            let dv = rut.slice(-1).toUpperCase();
+        if (isInacap) {
+            if (bloqueInacap) bloqueInacap.style.display = 'block';
+            if (bloqueSubtipo) bloqueSubtipo.style.display = 'none';
+            if (campoEmpresa) campoEmpresa.style.display = 'none';
+            if (campoTelefono) campoTelefono.style.display = 'none';
             
-            // Formatear cuerpo con puntos
-            let formattedBody = new Intl.NumberFormat('es-CL').format(body);
-            
-            e.target.value = `${formattedBody}-${dv}`;
+            if (labelRut) labelRut.textContent = 'RUT Chileno';
+            if (labelNombre) labelNombre.textContent = 'Nombre';
+            if (labelApellido) labelApellido.textContent = 'Apellido';
+            if (labelEmail) labelEmail.textContent = 'Correo Electrónico (Institucional o Personal)';
         } else {
-            e.target.value = rut;
+            if (bloqueInacap) bloqueInacap.style.display = 'none';
+            if (bloqueSubtipo) bloqueSubtipo.style.display = 'block';
+            if (campoTelefono) campoTelefono.style.display = 'block';
+
+            if (isEmpresa) {
+                if (campoEmpresa) campoEmpresa.style.display = 'block';
+                if (labelRut) labelRut.textContent = 'RUT de la Empresa o Representante';
+                if (labelNombre) labelNombre.textContent = 'Nombre del Contacto / Representante';
+                if (labelApellido) labelApellido.textContent = 'Apellido del Contacto / Representante';
+                if (labelEmail) labelEmail.textContent = 'Correo Electrónico de Contacto';
+            } else {
+                if (campoEmpresa) campoEmpresa.style.display = 'none';
+                if (labelRut) labelRut.textContent = 'RUT Chileno';
+                if (labelNombre) labelNombre.textContent = 'Nombre';
+                if (labelApellido) labelApellido.textContent = 'Apellido';
+                if (labelEmail) labelEmail.textContent = 'Correo Electrónico';
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        togglePerfil();
+
+        const rutInput = document.querySelector('#{{ form.rut.id_for_label }}');
+        if (rutInput) {
+            function formatRUTLive(val) {
+                let valor = val.replace(/[^0-9kK]/g, '').toUpperCase();
+                if (valor.length <= 1) return valor;
+                let cuerpo = valor.slice(0, -1);
+                let dv = valor.slice(-1);
+                let cuerpoFormateado = '';
+                while (cuerpo.length > 3) {
+                    cuerpoFormateado = '.' + cuerpo.slice(-3) + cuerpoFormateado;
+                    cuerpo = cuerpo.slice(0, -3);
+                }
+                return cuerpo + cuerpoFormateado + '-' + dv;
+            }
+
+            rutInput.addEventListener('input', function(e) {
+                e.target.value = formatRUTLive(e.target.value);
+            });
+
+            if (rutInput.value) {
+                rutInput.value = formatRUTLive(rutInput.value);
+            }
         }
     });
 </script>
 
+{% if messages %}
+<div id="django-messages" style="display: none;">
+    {% for message in messages %}
+    <div class="django-message" 
+        data-text="{{ message }}" 
+        data-icon="{{ message.tags }}">
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageElements = document.querySelectorAll('#django-messages .django-message');
+        messageElements.forEach(function(el) {
+            let iconType = el.dataset.icon || 'info';
+            if (iconType.includes('error')) iconType = 'error';
+            else if (iconType.includes('success')) iconType = 'success';
+            else if (iconType.includes('warning')) iconType = 'warning';
+            else iconType = 'info';
+
+            Swal.fire({
+                text: el.dataset.text,
+                icon: iconType,
+                timer: 4000,
+                showConfirmButton: false,
+                confirmButtonColor: '#B70420',
+                heightAuto: false
+            });
+        });
+    });
+</script>
 </body>
 </html>

@@ -4,80 +4,485 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Asistencia - Inacap</title>
+    <title>Control de Asistencia - INACAP</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
+        :root {
+            --inacap-red: #B70420;
+            --inacap-dark: #8B0014;
+            --inacap-border: #E2E8F0;
+            --inacap-gray-bg: #F8FAFC;
         }
-        header {
-            background: linear-gradient(to right, #D90429, #A9001F);
-            padding: 10px 20px;
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--inacap-gray-bg);
+            color: #1E293B;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        .top-header {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            padding: 14px 0;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
             color: white;
         }
-        header img {
-            height: 50px;
+
+        .header-brand img {
+            height: 42px;
+            width: auto;
+            margin-right: 14px;
+        }
+
+        .brand-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .brand-sub {
+            font-size: 0.78rem;
+            opacity: 0.85;
+            margin: 0;
+        }
+
+        .admin-hero {
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--inacap-border);
+            padding: 30px 0 25px;
+        }
+
+        .admin-hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: #0F172A;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .admin-hero-subtitle {
+            font-size: 0.92rem;
+            color: #64748B;
+            margin: 0;
+        }
+
+        .metric-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            border: 1px solid var(--inacap-border);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .metric-icon-wrap {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .admin-card-container {
+            background: #FFFFFF;
+            border-radius: 12px;
+            border: 1px solid var(--inacap-border);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .card-toolbar {
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--inacap-border);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .search-input-custom {
+            border: 1.5px solid var(--inacap-border);
+            border-radius: 50px;
+            padding: 8px 16px 8px 38px;
+            font-size: 0.9rem;
+            width: 280px;
+            transition: all 0.2s;
+        }
+
+        .search-input-custom:focus {
+            border-color: var(--inacap-red);
+            box-shadow: 0 0 0 3px rgba(183, 4, 32, 0.12);
+            outline: none;
+            width: 320px;
+        }
+
+        .filter-pill-btn {
+            border: 1px solid var(--inacap-border);
+            background: #FFFFFF;
+            color: #64748B;
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-pill-btn.active {
+            background: var(--inacap-red);
+            color: #FFFFFF;
+            border-color: var(--inacap-red);
+        }
+
+        .table thead th {
+            background-color: #F1F5F9;
+            color: #334155;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            padding: 12px 16px;
+            border-bottom: 2px solid var(--inacap-border);
+        }
+
+        .table tbody td {
+            vertical-align: middle;
+            padding: 14px 16px;
+            font-size: 0.9rem;
+        }
+
+        .badge-status-proximo {
+            background-color: #ECFDF5;
+            color: #059669;
+            border: 1px solid #A7F3D0;
+            font-weight: 600;
+            font-size: 0.76rem;
+            padding: 4px 10px;
+            border-radius: 50px;
+        }
+
+        .badge-status-pasado {
+            background-color: #F1F5F9;
+            color: #64748B;
+            border: 1px solid #E2E8F0;
+            font-weight: 600;
+            font-size: 0.76rem;
+            padding: 4px 10px;
+            border-radius: 50px;
+        }
+
+        .badge-asistentes-pill {
+            background-color: #FEF2F2;
+            color: var(--inacap-red);
+            border: 1px solid #FEE2E2;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 4px 12px;
+            border-radius: 50px;
+        }
+
+        .btn-action-qr {
+            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
+            color: white;
+            font-weight: 600;
+            font-size: 0.82rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-action-qr:hover {
+            background: linear-gradient(135deg, #9C031A, #750011);
+            color: white;
+            box-shadow: 0 3px 8px rgba(183, 4, 32, 0.35);
+        }
+
+        footer.bottom-footer {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            color: #FFFFFF;
+            padding: 20px 0;
+            text-align: center;
+            font-size: 0.84rem;
+            margin-top: auto;
         }
     </style>
 </head>
 <body>
-<header class="d-flex justify-content-between align-items-center shadow">
-    <div class="d-flex align-items-center">
-        <img src="{% static 'img/logo.png' %}" class="img-fluid rounded me-2" alt="Logo Inacap" style="height:50px;">
-        <div>
-            <span class="fw-bold fs-5 d-block">Inacap</span>
-            <small>Panel de Administración</small>
+
+<header class="top-header">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a href="{% url 'panel-admin:panel_admin' %}" class="header-brand">
+            <img src="{% static 'img/inacap-logo.png' %}" alt="Logo INACAP">
+            <div>
+                <h1 class="brand-title">INACAP</h1>
+                <p class="brand-sub">Control de Asistencia y Acreditación</p>
+            </div>
+        </a>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{% url 'panel-admin:totem_seleccionar_reunion' %}" class="btn btn-warning btn-sm fw-bold text-dark shadow-sm">
+                <i class="bi bi-display me-1"></i> Modo Tótem
+            </a>
+            <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light btn-sm fw-medium">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Panel
+            </a>
         </div>
-    </div>
-    <div>
-        <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light">Volver al Panel</a>
     </div>
 </header>
 
-<main class="container my-5">
-    <h1 class="mb-4 text-center">Control de Asistencia a Eventos</h1>
+<!-- HERO CABECERA -->
+<section class="admin-hero">
+    <div class="container">
+        <h2 class="admin-hero-title">Control y Registro de Asistencia</h2>
+        <p class="admin-hero-subtitle">Gestiona la acreditación de asistentes, escanea credenciales QR en tiempo real o exporta nóminas de asistencia.</p>
+    </div>
+</section>
 
-    <div class="card shadow-lg">
-        <div class="card-body p-4">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr>
-                            <th>Evento</th>
-                            <th>Fecha</th>
-                            <th class="text-center">Asistentes Registrados</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for reunion in reuniones %}
-                        <tr>
-                            <td><strong>{{ reunion.detalle }}</strong></td>
-                            <td class="text-nowrap">{{ reunion.fecha|date:"d/m/Y H:i" }}</td>
-                            <td class="text-center">
-                                <span class="badge bg-primary rounded-pill fs-6">
-                                    {{ reunion.asistentes.count }}
-                                </span>
-                            </td>
-                            <td>
-                                <a href="{% url 'panel-admin:registrar_asistencia' reunion.id %}" class="btn btn-info btn-sm" title="Ver/Registrar Asistencia">
-                                    <i class="bi bi-people-fill me-1"></i> Ver Asistentes
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center text-muted">No hay eventos para mostrar.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<main class="container my-4 flex-grow-1">
+
+    <!-- KPI METRICS -->
+    <div class="row g-3 mb-4">
+        
+        <div class="col-md-3 col-6">
+            <div class="metric-card">
+                <div class="metric-icon-wrap" style="background:#E0F2FE; color:#0284C7;">
+                    <i class="bi bi-calendar-check-fill"></i>
+                </div>
+                <div>
+                    <span class="text-muted text-uppercase fw-bold d-block" style="font-size: 0.72rem;">Total Eventos</span>
+                    <span class="fs-4 fw-bold text-dark">{{ total_eventos }}</span>
+                </div>
             </div>
         </div>
+
+        <div class="col-md-3 col-6">
+            <div class="metric-card" style="border-left: 4px solid #10B981 !important;">
+                <div class="metric-icon-wrap" style="background:#ECFDF5; color:#059669;">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <span class="text-success text-uppercase fw-bold d-block" style="font-size: 0.72rem;">Asistencias Totales</span>
+                    <span class="fs-4 fw-bold text-success">{{ total_asistencias }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="metric-card" style="border-left: 4px solid var(--inacap-red) !important;">
+                <div class="metric-icon-wrap" style="background:#FEF2F2; color:var(--inacap-red);">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div>
+                    <span class="text-danger text-uppercase fw-bold d-block" style="font-size: 0.72rem;">Próximo Evento</span>
+                    <span class="fs-6 fw-bold text-dark d-block text-truncate" style="max-width: 140px;" title="{{ proximo_evento.detalle|default:'Sin próximos' }}">
+                        {{ proximo_evento.detalle|default:"Ninguno" }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-6">
+            <div class="metric-card">
+                <div class="metric-icon-wrap" style="background:#F3E8FF; color:#7E22CE;">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <div>
+                    <span class="text-muted text-uppercase fw-bold d-block" style="font-size: 0.72rem;">Promedio Asistencia</span>
+                    <span class="fs-4 fw-bold text-dark">{{ promedio_asistencia }} <small class="text-muted fs-6 fw-normal">/evento</small></span>
+                </div>
+            </div>
+        </div>
+
     </div>
+
+    <!-- TARJETA PRINCIPAL CON TABLA Y FILTROS -->
+    <div class="admin-card-container">
+        
+        
+        <div class="card-toolbar">
+            
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="fw-bold text-dark small text-uppercase">Filtrar:</span>
+                <button type="button" class="filter-pill-btn active" data-filter="all" onclick="filtrarEstado('all', this)">Todos ({{ total_eventos }})</button>
+                <button type="button" class="filter-pill-btn" data-filter="proximo" onclick="filtrarEstado('proximo', this)">Próximos / Hoy</button>
+                <button type="button" class="filter-pill-btn" data-filter="pasado" onclick="filtrarEstado('pasado', this)">Finalizados</button>
+            </div>
+
+            <div class="position-relative">
+                <i class="bi bi-search position-absolute" style="left: 14px; top: 50%; transform: translateY(-50%); color: #94A3B8;"></i>
+                <input type="text" id="inputBuscarEvento" class="search-input-custom" placeholder="Buscar evento o ubicación..." onkeyup="filtrarTablaEventos()">
+            </div>
+
+        </div>
+
+        
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="tablaAsistenciaEventos">
+                <thead>
+                    <tr>
+                        <th>Evento / Actividad</th>
+                        <th>Fecha y Hora</th>
+                        <th>Estado</th>
+                        <th>Ubicación</th>
+                        <th class="text-center">Asistentes</th>
+                        <th class="text-end" style="min-width: 280px;">Acciones de Acreditación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reunion in reuniones %}
+                    <tr class="fila-evento" data-titulo="{{ reunion.detalle|lower }}" data-ubicacion="{{ reunion.ubicacion|lower }}" data-tipo="{% if reunion.fecha >= ahora %}proximo{% else %}pasado{% endif %}">
+                        
+                        <!-- Evento -->
+                        <td>
+                            <strong class="text-dark d-block" style="font-size: 0.95rem;">{{ reunion.detalle }}</strong>
+                            <small class="text-muted">{{ reunion.descripcion|truncatewords:10|default:"Sin descripción adicional" }}</small>
+                        </td>
+
+                        <!-- Fecha -->
+                        <td class="text-nowrap">
+                            <i class="bi bi-calendar3 text-muted me-1"></i> {{ reunion.fecha|date:"d/m/Y" }}<br>
+                            <small class="text-muted"><i class="bi bi-clock me-1"></i> {{ reunion.fecha|date:"H:i" }} hrs</small>
+                        </td>
+
+                        <!-- Estado -->
+                        <td>
+                            {% if reunion.fecha >= ahora %}
+                                <span class="badge-status-proximo">
+                                    <i class="bi bi-dot"></i> Próximo
+                                </span>
+                            {% else %}
+                                <span class="badge-status-pasado">
+                                    Finalizado
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Ubicación -->
+                        <td>
+                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                            <span class="small">{{ reunion.ubicacion|default:"Sede INACAP" }}</span>
+                        </td>
+
+                        <!-- Conteo Asistentes -->
+                        <td class="text-center">
+                            <span class="badge-asistentes-pill" title="{{ reunion.asistentes.count }} acreditados">
+                                <i class="bi bi-person-check-fill me-1"></i> {{ reunion.asistentes.count }}
+                            </span>
+                        </td>
+
+                        
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-1.5 flex-wrap justify-content-end">
+                                
+                                <!-- Escanear QR Directo -->
+                                <a href="{% url 'panel-admin:registrar_asistencia' reunion.id %}" class="btn-action-qr" title="Escanear QR / Registro Manual">
+                                    <i class="bi bi-qr-code-scan"></i> Escanear
+                                </a>
+
+                                <!-- Modo Tótem -->
+                                <a href="{% url 'panel-admin:totem_escaner' reunion.id %}" class="btn btn-outline-dark btn-sm fw-semibold" title="Abrir en Modo Tótem Autoservicio">
+                                    <i class="bi bi-display"></i>
+                                </a>
+
+                                <!-- Ver Asistentes -->
+                                <a href="{% url 'panel-admin:ver_asistentes_reunion' reunion.id %}" class="btn btn-outline-secondary btn-sm fw-semibold" title="Ver Lista de Asistentes">
+                                    <i class="bi bi-people"></i>
+                                </a>
+
+                                <!-- Exportar Excel -->
+                                <a href="{% url 'panel-admin:exportar_asistentes_reunion_excel' reunion.id %}" class="btn btn-outline-success btn-sm fw-semibold" title="Exportar Lista a Excel">
+                                    <i class="bi bi-file-earmark-excel"></i>
+                                </a>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-calendar-x display-5 text-secondary d-block mb-2"></i>
+                            No hay eventos registrados en el sistema.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
 </main>
 
+<footer class="bottom-footer">
+    <div class="container">
+        &copy; 2026 INACAP. Todos los derechos reservados | Panel de Acreditación y Asistencia.
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let filtroTipoActual = 'all';
+
+function filtrarEstado(tipo, btnElement) {
+    filtroTipoActual = tipo;
+    document.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
+    if (btnElement) btnElement.classList.add('active');
+    filtrarTablaEventos();
+}
+
+function filtrarTablaEventos() {
+    const texto = document.getElementById('inputBuscarEvento').value.toLowerCase().trim();
+    const filas = document.querySelectorAll('.fila-evento');
+
+    filas.forEach(fila => {
+        const titulo = fila.getAttribute('data-titulo') || '';
+        const ubicacion = fila.getAttribute('data-ubicacion') || '';
+        const tipo = fila.getAttribute('data-tipo') || '';
+
+        const coincideTexto = titulo.includes(texto) || ubicacion.includes(texto);
+        const coincideTipo = (filtroTipoActual === 'all' || tipo === filtroTipoActual);
+
+        if (coincideTexto && coincideTipo) {
+            fila.style.display = '';
+        } else {
+            fila.style.display = 'none';
+        }
+    });
+}
+</script>
 </body>
 </html>

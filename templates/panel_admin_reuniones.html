@@ -4,98 +4,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Eventos - Inacap</title>
-
-    <!-- Bootstrap CSS -->
+    <title>Gestión de Eventos - Panel INACAP</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --inacap-red: #B70420;
+            --inacap-dark: #8B0014;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Poppins', Arial, sans-serif;
+            background-color: #f4f7f6;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
+            margin: 0;
         }
-        header {
-            background: linear-gradient(to right, #D90429, #A9001F);
-            padding: 10px 20px;
+
+        header.header-admin {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            padding: 12px 24px;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
             color: white;
         }
-        header img {
-            height: 50px;
+
+        .header-brand img {
+            height: 42px;
+            width: auto;
+            margin-right: 12px;
         }
-        .reunion-img {
-            width: 100px;
-            height: 70px;
-            object-fit: cover;
-            border-radius: 5px;
-        }
-        main {
-            flex: 1;
-        }
-        footer {
-            background: linear-gradient(to right, #D90429, #A9001F);
-            color: white;
-            padding: 15px 0;
-            text-align: center;
-            margin-top: auto;
-        }
+
         .card {
             border-radius: 12px;
-            border: none;
+            border: 1px solid #E2E8F0;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.04);
         }
-        .card-header {
-            font-weight: bold;
-            background: linear-gradient(to right, #D90429, #A9001F);
+
+        .card-header-red {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
             color: white;
-            text-align: center;
+            padding: 14px 20px;
+            font-weight: 600;
         }
-        .btn-eco {
-            background-color: #D90429;
+
+        .btn-inacap-red {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
             border: none;
             color: #fff;
+            font-weight: 600;
+            transition: all 0.2s ease-in-out;
         }
-        .btn-eco:hover {
-            background-color: #A9001F;
+
+        .btn-inacap-red:hover {
+            background: linear-gradient(to right, #9C031A, #750011);
             color: #fff;
+            transform: translateY(-1px);
         }
-        .table thead {
-            background-color: #A9001F;
-            color: #fff;
-        }
-        #map {
-            height: 300px;
-            width: 100%;
+
+        .btn-landing-top {
+            border: 1.5px solid var(--inacap-red);
+            color: var(--inacap-red);
+            font-weight: 600;
+            background-color: white;
             border-radius: 8px;
-            margin-top: 1rem;
+            transition: all 0.2s ease-in-out;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-landing-top:hover {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            color: white;
+        }
+
+        .reunion-img {
+            width: 70px;
+            height: 48px;
+            object-fit: cover;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        footer.bottom-footer {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            color: white;
+            padding: 18px 0;
+            text-align: center;
+            font-size: 0.84rem;
+            margin-top: auto;
         }
     </style>
 </head>
 <body>
-<header class="d-flex justify-content-between align-items-center shadow">
-    <div class="d-flex align-items-center">
-        <img src="{% static 'img/logo.png' %}" class="img-fluid rounded me-2" alt="Logo Inacap" style="height:50px;">
+
+<header class="header-admin d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <a href="{% url 'panel-admin:panel_admin' %}" class="header-brand">
+        <img src="{% static 'img/inacap-logo.png' %}" alt="Logo INACAP">
         <div>
-            <span class="fw-bold fs-5 d-block">Inacap</span>
-            <small>Panel de Administración</small>
+            <span class="fw-bold fs-5 d-block">Gestión de Eventos</span>
+            <small class="opacity-80">Programación y Administración Institucional</small>
         </div>
-    </div>
+    </a>
     <div>
-        <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light">Volver al Panel</a>
+        <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light btn-sm fw-semibold">
+            <i class="bi bi-arrow-left me-1"></i> Volver al Panel
+        </a>
     </div>
 </header>
 
-<main class="container my-5">
-    <h1 class="mb-4 text-center">Gestión de Eventos</h1>
+<main class="container-fluid px-lg-5 my-4 flex-grow-1">
+    <div class="mb-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <a href="{% url 'landing_reuniones' %}" target="_blank" class="btn btn-landing-top px-3 py-2 shadow-sm">
+            <i class="bi bi-box-arrow-up-right me-2"></i> Ver Cartelera Pública de Eventos
+        </a>
+        <div class="text-muted small">
+            <i class="bi bi-calendar3 me-1"></i> Total programados: <strong class="text-dark">{{ reuniones.count }} eventos</strong>
+        </div>
+    </div>
 
-    <div class="row g-4 justify-content-center">
-        <!-- Formulario para crear reunión -->
-        <div class="col-lg-5 col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-header">
-                    <h5><i class="bi bi-calendar-plus me-2"></i>Crear Nuevo Evento</h5>
+    <div class="row g-4">
+        
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-header-red d-flex align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-calendar-plus me-2"></i>Crear Nuevo Evento</h5>
                 </div>
                 <div class="card-body p-4">
                     <form method="POST" enctype="multipart/form-data">
@@ -103,27 +149,27 @@
                         {% for field in form %}
                             <div class="mb-3">
                                 {% if field.name == 'imprimir_etiqueta_al_asistir' %}
-                                    <div class="form-check">
+                                    <div class="form-check p-3 bg-light rounded-3 border">
                                         {{ field }}
-                                        <label class="form-check-label" for="{{ field.id_for_label }}">
+                                        <label class="form-check-label fw-semibold text-dark ms-1" for="{{ field.id_for_label }}">
                                             {{ field.label }}
-                                            <i class="bi bi-info-circle-fill text-primary ms-1" 
+                                            <i class="bi bi-info-circle-fill text-danger ms-1" 
                                                style="cursor: pointer;"
                                                data-bs-toggle="popover" 
                                                data-bs-trigger="hover focus"
                                                title="Información"
-                                               data-bs-content="{{ field.help_text }}"></i>
+                                               data-bs-content="Si se marca, se abrirá la ventana de impresión de credencial al escanear el QR del asistente."></i>
                                         </label>
                                     </div>
                                 {% else %}
-                                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                    <label for="{{ field.id_for_label }}" class="form-label fw-semibold text-dark small text-uppercase">{{ field.label }}</label>
                                     {{ field }}
                                 {% endif %}
                                 {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                             </div>
                         {% endfor %}
-                        <div class="d-grid mt-3">
-                            <button type="submit" class="btn btn-eco btn-lg">
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-inacap-red btn-lg py-2 shadow-sm">
                                 <i class="bi bi-check-circle me-1"></i> Guardar Evento
                             </button>
                         </div>
@@ -132,22 +178,69 @@
             </div>
         </div>
 
-        <!-- Lista de reuniones existentes -->
-        <div class="col-lg-7 col-md-10">
-            <div class="card shadow-lg">
-                <div class="card-header">
-                    <h5><i class="bi bi-list-ul me-2"></i>Eventos Programados</h5>
+        <!-- Lista de reuniones existentes (Columna Derecha) -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header-red d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-list-ul me-2"></i>Eventos y Reuniones</h5>
+                    <span class="badge bg-white text-danger fw-bold">{{ reuniones.count }} de {{ total_reuniones }}</span>
                 </div>
-                <div class="card-body p-4">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead>
+
+                <!-- BARRA DE BÚSQUEDA Y FILTROS POR ESTADO / FECHA / ID -->
+                <div class="p-3 bg-light border-bottom">
+                    <form method="GET" class="row g-2 align-items-center">
+                        <!-- Botones de Estado: Todas / Próximas / Pasadas -->
+                        <div class="col-12">
+                            <div class="btn-group btn-group-sm w-100 shadow-sm" role="group">
+                                <a href="?estado=todas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}{% if filtro_fecha %}&fecha={{ filtro_fecha }}{% endif %}" class="btn {% if filtro_estado == 'todas' %}btn-danger text-white fw-bold{% else %}btn-outline-secondary bg-white{% endif %}">
+                                    <i class="bi bi-calendar3 me-1"></i> Todas ({{ total_reuniones }})
+                                </a>
+                                <a href="?estado=proximas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}{% if filtro_fecha %}&fecha={{ filtro_fecha }}{% endif %}" class="btn {% if filtro_estado == 'proximas' %}btn-danger text-white fw-bold{% else %}btn-outline-secondary bg-white{% endif %}">
+                                    <i class="bi bi-hourglass-split me-1"></i> Próximas ({{ total_proximas }})
+                                </a>
+                                <a href="?estado=pasadas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}{% if filtro_fecha %}&fecha={{ filtro_fecha }}{% endif %}" class="btn {% if filtro_estado == 'pasadas' %}btn-danger text-white fw-bold{% else %}btn-outline-secondary bg-white{% endif %}">
+                                    <i class="bi bi-check2-all me-1"></i> Ya Pasaron ({{ total_pasadas }})
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Filtro por Fecha y Mes -->
+                        <div class="col-sm-6 col-12">
+                            <label class="form-label small fw-semibold text-muted mb-0">Filtrar por Mes:</label>
+                            <input type="month" name="mes" value="{{ filtro_mes|default:'' }}" class="form-control form-control-sm" onchange="this.form.submit()" title="Filtrar eventos por mes">
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <label class="form-label small fw-semibold text-muted mb-0">O por Fecha exacta:</label>
+                            <input type="date" name="fecha" value="{{ filtro_fecha|default:'' }}" class="form-control form-control-sm" onchange="this.form.submit()" title="Filtrar eventos por día">
+                        </div>
+
+                        <!-- Buscador por ID o texto -->
+                        <div class="col-12 mt-1">
+                            <input type="hidden" name="estado" value="{{ filtro_estado|default:'todas' }}">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                                <input type="text" name="q" value="{{ filtro_q|default:'' }}" class="form-control border-start-0" placeholder="Buscar por ID (ej: #1 o 1), nombre, lugar...">
+                                {% if filtro_q or filtro_mes or filtro_fecha %}
+                                <a href="?estado={{ filtro_estado|default:'todas' }}" class="btn btn-outline-secondary" title="Limpiar todos los filtros">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                                {% endif %}
+                                <button type="submit" class="btn btn-danger fw-semibold px-3">Buscar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 600px; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
                                 <tr>
-                                    <th>Imagen</th>
-                                    <th>Detalle</th>
-                                    <th>Fecha</th>
+                                    <th style="width: 75px;">Portada</th>
+                                    <th>Detalle del Evento</th>
+                                    <th>Fecha y Hora</th>
                                     <th>Ubicación</th>
-                                    <th>Acciones</th>
+                                    <th class="text-end" style="min-width: 190px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -157,33 +250,75 @@
                                         {% if reunion.imagen %}
                                             <img src="{{ reunion.imagen.url }}" alt="{{ reunion.detalle }}" class="reunion-img">
                                         {% else %}
-                                            <span class="text-muted">Sin imagen</span>
+                                            <div class="reunion-img text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));">
+                                                <i class="bi bi-calendar-event fs-5"></i>
+                                            </div>
                                         {% endif %}
                                     </td>
-                                    <td>{{ reunion.detalle }}</td>
-                                    <td class="text-nowrap">{{ reunion.fecha|date:"d/m/Y H:i" }}</td>
                                     <td>
-                                        <span class="d-block">{{ reunion.ubicacion }}</span>
-                                        <small class="text-muted">{{ reunion.direccion }}</small>
+                                        <div class="d-flex align-items-center gap-1 mb-1 flex-wrap">
+                                            <span class="badge bg-dark text-white fw-bold" style="font-size: 0.72rem;">ID #{{ reunion.id }}</span>
+                                            {% if reunion.fecha >= now %}
+                                                <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.72rem;">
+                                                    <i class="bi bi-clock me-1"></i>Próxima
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary-subtle text-secondary border" style="font-size: 0.72rem;">
+                                                    <i class="bi bi-check2-all me-1"></i>Ya Pasó
+                                                </span>
+                                            {% endif %}
+                                            <small class="badge bg-light text-secondary border" style="font-size: 0.72rem;">{{ reunion.interesados.count }} pre-inscritos</small>
+                                            {% if reunion.tiene_aforo_limitado %}
+                                                <span class="badge {% if reunion.aforo_completo %}bg-danger text-white{% elif reunion.porcentaje_aforo >= 85 %}bg-warning text-dark{% else %}bg-info-subtle text-primary border border-info-subtle{% endif %}" style="font-size: 0.72rem;">
+                                                    <i class="bi bi-speedometer2 me-1"></i>Aforo: {{ reunion.asistentes.count }}/{{ reunion.aforo_maximo }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                        <span class="fw-bold text-dark d-block" style="font-size: 0.95rem;">{{ reunion.detalle }}</span>
+                                    </td>
+                                    <td class="text-nowrap small">
+                                        <i class="bi bi-calendar3 me-1 text-danger"></i> {{ reunion.fecha|date:"d/m/Y" }}<br>
+                                        <i class="bi bi-clock me-1 text-muted"></i> {{ reunion.fecha|date:"H:i" }} hrs
                                     </td>
                                     <td>
-                                        <a href="{% url 'panel-admin:registrar_asistencia' reunion.id %}" class="btn btn-info btn-sm" title="Registrar Asistencia">
-                                            <i class="bi bi-qr-code-scan"></i>
-                                        </a>
-                                        <a href="{% url 'panel-admin:editar_reunion' reunion.id %}" class="btn btn-warning btn-sm" title="Editar">
-                                            <i class="bi bi-pencil-fill"></i>
-                                        </a>
-                                        <form action="{% url 'panel-admin:eliminar_reunion' reunion.id %}" method="POST" class="d-inline delete-form">
-                                            {% csrf_token %}
-                                            <button type="button" class="btn btn-danger btn-sm delete-btn" data-detalle="{{ reunion.detalle }}">
-                                                <i class="bi bi-trash3-fill"></i>
+                                        <span class="d-block small fw-medium text-dark">{{ reunion.ubicacion|default:"Sede INACAP" }}</span>
+                                        {% if reunion.direccion %}<small class="text-muted">{{ reunion.direccion }}</small>{% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex gap-1">
+                                            <!-- Tomar Asistencia QR -->
+                                            <a href="{% url 'panel-admin:registrar_asistencia' reunion.id %}" class="btn btn-sm text-white" style="background-color: var(--inacap-red);" title="Acreditar / Tomar Asistencia QR">
+                                                <i class="bi bi-qr-code-scan"></i>
+                                            </a>
+                                            <!-- Compartir link -->
+                                            <button type="button" onclick="copiarLinkReunion({{ reunion.id }})" class="btn btn-sm btn-outline-danger" title="Copiar Link Público">
+                                                <i class="bi bi-share-fill"></i>
                                             </button>
-                                        </form>
+                                            <!-- Ver Lista de Asistentes -->
+                                            <a href="{% url 'panel-admin:ver_asistentes_reunion' reunion.id %}" class="btn btn-sm btn-primary" title="Ver Lista de Asistentes">
+                                                <i class="bi bi-people-fill"></i>
+                                            </a>
+                                            <!-- Editar -->
+                                            <a href="{% url 'panel-admin:editar_reunion' reunion.id %}" class="btn btn-sm btn-warning text-dark" title="Editar Evento">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </a>
+                                            <!-- Eliminar -->
+                                            <form action="{% url 'panel-admin:eliminar_reunion' reunion.id %}" method="POST" class="d-inline delete-form">
+                                                {% csrf_token %}
+                                                <button type="button" class="btn btn-sm btn-danger delete-btn" data-detalle="{{ reunion.detalle }}" title="Eliminar Evento">
+                                                    <i class="bi bi-trash3-fill"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="5" class="text-center text-muted">No hay eventos programados</td>
+                                    <td colspan="5" class="text-center text-muted py-5">
+                                        <i class="bi bi-calendar-x display-4 d-block mb-2 text-danger opacity-50"></i>
+                                        <strong class="d-block text-dark">No se encontraron eventos con los filtros aplicados.</strong>
+                                        <small class="text-muted">Prueba cambiando el término de búsqueda o seleccionando "Todas".</small>
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -195,23 +330,59 @@
     </div>
 </main>
 
-<footer>
-    <p class="mb-0">&copy; 2025 Inacap | Todos los derechos reservados</p>
+<footer class="bottom-footer">
+    <div class="container">
+        &copy; 2026 INACAP. Todos los derechos reservados | Gestión de Eventos Institucionales.
+    </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'js/sweetalert2.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+function copiarLinkReunion(reunionId) {
+    const url = window.location.protocol + '//' + window.location.host + 
+                '/panel-admin/reunion/' + reunionId + '/publica/';
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Link copiado!',
+                text: 'El enlace del evento ha sido copiado al portapapeles.',
+                timer: 2500,
+                confirmButtonColor: '#B70420',
+                showConfirmButton: false
+            });
+        }).catch(err => {
+            mostrarLinkModal(url);
+        });
+    } else {
+        mostrarLinkModal(url);
+    }
+}
+
+function mostrarLinkModal(url) {
+    Swal.fire({
+        icon: 'info',
+        title: 'Link del evento',
+        input: 'text',
+        inputValue: url,
+        inputAttributes: {
+            readonly: true
+        },
+        text: 'Copia este enlace para compartir el evento:',
+        confirmButtonColor: '#B70420',
+        confirmButtonText: 'Cerrar'
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-    // Inicializar todos los popovers
     var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
     var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
         return new bootstrap.Popover(popoverTriggerEl)
     });
-});
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteButtons = document.querySelectorAll('.delete-btn');
 
+    const deleteButtons = document.querySelectorAll('.delete-btn');
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(event) {
             event.preventDefault();
@@ -219,13 +390,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const reunionDetalle = this.dataset.detalle;
 
             Swal.fire({
-                title: `¿Estás seguro de eliminar la reunión "${reunionDetalle}"?`,
-                text: "¡No podrás revertir esta acción!",
+                title: `¿Eliminar "${reunionDetalle}"?`,
+                text: "¡Esta acción eliminará el evento y sus registros de asistencia!",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#d33',
+                confirmButtonColor: '#B70420',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Sí, ¡eliminar!',
+                confirmButtonText: 'Sí, eliminar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -236,6 +407,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-
 </body>
 </html>

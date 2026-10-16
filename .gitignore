@@ -1,0 +1,46 @@
+# Python y Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Variables de entorno y secretos
+.env
+.env.*
+*.env
+
+# Base de datos local
+*.sqlite3
+db.sqlite3
+
+# Archivos estáticos recolectados
+staticfiles/
+
+# Archivos de medios generados/subidos dinámicamente
+media/**/*
+!media/**/
+!media/**/.gitkeep
+
+# IDEs y Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs y Temporales
+*.log
+scratch/
+temp/
+

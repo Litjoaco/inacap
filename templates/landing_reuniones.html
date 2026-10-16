@@ -1,0 +1,400 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Eventos - INACAP</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --inacap-red: #B70420;
+            --inacap-dark: #8B0014;
+            --inacap-border: #E2E8F0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        .top-header {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            padding: 14px 0;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+        }
+
+        .header-brand img {
+            height: 42px;
+            width: auto;
+            margin-right: 14px;
+        }
+
+        .brand-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: -0.2px;
+            margin: 0;
+            line-height: 1.1;
+        }
+
+        .brand-sub {
+            font-size: 0.78rem;
+            opacity: 0.85;
+            margin: 0;
+        }
+
+        .agenda-hero {
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--inacap-border);
+            padding: 40px 0 35px;
+            text-align: center;
+        }
+
+        .agenda-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #0F172A;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .agenda-subtitle {
+            font-size: 1rem;
+            color: #64748B;
+            max-width: 620px;
+            margin: 0 auto 24px;
+        }
+
+        .search-box-wrapper {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-input-custom {
+            border: 1.5px solid var(--inacap-border);
+            border-radius: 50px;
+            padding: 11px 20px 11px 45px;
+            font-size: 0.95rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s;
+        }
+
+        .search-input-custom:focus {
+            border-color: var(--inacap-red);
+            box-shadow: 0 0 0 3px rgba(183, 4, 32, 0.12);
+            outline: none;
+        }
+
+        .search-icon-pos {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94A3B8;
+            font-size: 1.1rem;
+        }
+
+        .event-card {
+            background: #FFFFFF;
+            border-radius: 12px;
+            border: 1px solid var(--inacap-border);
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.09);
+            border-color: #CBD5E1;
+        }
+
+        .event-card-img {
+            height: 190px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .event-card-img-placeholder {
+            height: 190px;
+            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .badge-date-pill {
+            background-color: #FEF2F2;
+            color: var(--inacap-red);
+            border: 1px solid #FEE2E2;
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 50px;
+        }
+
+        .btn-card-inscribir {
+            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-card-inscribir:hover {
+            background: linear-gradient(135deg, #9C031A, #750011);
+            color: white;
+            box-shadow: 0 4px 12px rgba(183, 4, 32, 0.3);
+        }
+
+        .past-reunions .event-card-img {
+            filter: grayscale(85%);
+            opacity: 0.85;
+        }
+
+        .past-reunions .event-card {
+            opacity: 0.9;
+        }
+
+        footer.bottom-footer {
+            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            color: #FFFFFF;
+            padding: 24px 0;
+            text-align: center;
+            font-size: 0.85rem;
+            margin-top: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="top-header">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="{% url 'inicio' %}" class="header-brand">
+                <img src="{% static 'img/Logo_60anos.png' %}" alt="Logo INACAP">
+                <div>
+                    <h1 class="brand-title">INACAP</h1>
+                    <p class="brand-sub">Portal Oficial de Eventos y Encuentros</p>
+                </div>
+            </a>
+            <div class="d-flex gap-2">
+                <a href="{% url 'inicio' %}" class="btn btn-outline-light btn-sm fw-medium">
+                    <i class="bi bi-house-door-fill me-1"></i> Inicio
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-light btn-sm fw-semibold text-danger">
+                    Ingresar
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO CABECERA CON BUSCADOR -->
+    <section class="agenda-hero">
+        <div class="container">
+            <span class="badge text-uppercase fw-bold mb-2 px-3 py-1"
+                style="background-color: #FEF2F2; color: #B70420; border: 1px solid #FEE2E2; border-radius: 50px; font-size: 0.78rem;">
+                Cartelera de Actividades
+            </span>
+            <h2 class="agenda-title">Agenda de Eventos</h2>
+            <p class="agenda-subtitle">
+                Explora las charlas, talleres y actividades organizadas por la comunidad INACAP.
+            </p>
+
+            <div class="search-box-wrapper position-relative">
+                <i class="bi bi-search search-icon-pos"></i>
+                <input type="text" id="filtroEventosInput" class="form-control search-input-custom"
+                    placeholder="Buscar evento por título o ubicación..." onkeyup="filtrarEventos()">
+            </div>
+        </div>
+    </section>
+
+    <main class="container my-5 flex-grow-1">
+
+
+        <section class="mb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+                <h4 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-calendar-check-fill text-danger me-2"></i> Próximos Eventos
+                </h4>
+                <span class="text-muted small fw-medium" id="conteoEventos">{{ reuniones_proximas.count|default:"0" }}
+                    evento{{ reuniones_proximas.count|pluralize:",s" }}</span>
+            </div>
+
+            {% if reuniones_proximas %}
+            <div class="row g-4" id="contenedorEventosProximos">
+                {% for reunion in reuniones_proximas %}
+                <div class="col-lg-4 col-md-6 item-evento-tarjeta" data-titulo="{{ reunion.detalle|lower }}"
+                    data-ubicacion="{{ reunion.ubicacion|lower }}">
+                    <div class="event-card">
+                        {% if reunion.imagen %}
+                        <img src="{{ reunion.imagen.url }}" class="event-card-img" alt="{{ reunion.detalle }}">
+                        {% else %}
+                        <div class="event-card-img-placeholder">
+                            <i class="bi bi-calendar-event" style="font-size: 3.5rem; opacity: 0.9;"></i>
+                        </div>
+                        {% endif %}
+
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge-date-pill">
+                                    <i class="bi bi-calendar3 me-1"></i> {{ reunion.fecha|date:"d/m/Y" }}
+                                </span>
+                                <span class="text-muted small">
+                                    <i class="bi bi-clock me-1"></i> {{ reunion.fecha|date:"H:i" }} hrs
+                                </span>
+                            </div>
+
+                            <h5 class="fw-bold text-dark mb-2" style="font-size: 1.15rem;">{{ reunion.detalle }}</h5>
+                            <p class="text-muted small flex-grow-1 mb-3">
+                                {{ reunion.descripcion|truncatewords:20 }}
+                            </p>
+
+                            <div class="border-top pt-3 mt-auto">
+                                <div class="text-muted small mb-3">
+                                    <i class="bi bi-geo-alt-fill text-danger me-1"></i> {{ reunion.ubicacion }}
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'panel-admin:inscribirse_reunion' reunion.id %}"
+                                        class="btn-card-inscribir flex-grow-1">
+                                        <i class="bi bi-ticket-perforated me-1"></i> Inscribirme (1 Clic)
+                                    </a>
+                                    <a href="{% url 'panel-admin:reunion_publica' reunion.id %}"
+                                        class="btn btn-outline-secondary btn-sm d-flex align-items-center px-3"
+                                        title="Ver Detalles">
+                                        <i class="bi bi-info-circle"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5 bg-white rounded-4 border p-4">
+                <i class="bi bi-calendar-x display-4 text-muted d-block mb-3"></i>
+                <h5 class="fw-bold text-dark">Aún no hay reuniones programadas</h5>
+                <p class="text-muted mb-0">Cuando se creen nuevos eventos aparecerán automáticamente aquí.</p>
+            </div>
+            {% endif %}
+        </section>
+
+
+        {% if reuniones_pasadas %}
+        <section class="past-reunions mt-5 pt-4">
+            <h5 class="fw-bold mb-4 text-secondary border-bottom pb-2">
+                <i class="bi bi-clock-history me-2"></i> Archivo de Eventos Anteriores
+            </h5>
+            <div class="row g-4">
+                {% for reunion in reuniones_pasadas %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="event-card">
+                        {% if reunion.imagen %}
+                        <img src="{{ reunion.imagen.url }}" class="event-card-img" alt="{{ reunion.detalle }}">
+                        {% else %}
+                        <div
+                            class="event-card-img bg-secondary text-white d-flex align-items-center justify-content-center">
+                            <i class="bi bi-calendar-x" style="font-size: 3rem;"></i>
+                        </div>
+                        {% endif %}
+
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-secondary-subtle text-secondary small px-2 py-1 rounded">
+                                    Realizado
+                                </span>
+                                <span class="text-muted small">
+                                    {{ reunion.fecha|date:"d/m/Y" }}
+                                </span>
+                            </div>
+
+                            <h6 class="fw-bold text-dark mb-2">{{ reunion.detalle }}</h6>
+                            <p class="text-muted small flex-grow-1 mb-3">
+                                {{ reunion.descripcion|truncatewords:16 }}
+                            </p>
+
+                            <div class="border-top pt-3 mt-auto">
+                                <a href="{% url 'panel-admin:reunion_publica' reunion.id %}"
+                                    class="btn btn-outline-secondary btn-sm w-100">
+                                    Ver Ficha del Evento
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+    </main>
+
+    <footer class="bottom-footer">
+        <div class="container">
+            &copy; 2026 INACAP. Todos los derechos reservados | Portal Oficial de Eventos.
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function filtrarEventos() {
+            const texto = document.getElementById('filtroEventosInput').value.toLowerCase().trim();
+            const tarjetas = document.querySelectorAll('.item-evento-tarjeta');
+            let visibles = 0;
+
+            tarjetas.forEach(tarjeta => {
+                const titulo = tarjeta.getAttribute('data-titulo') || '';
+                const ubicacion = tarjeta.getAttribute('data-ubicacion') || '';
+
+                if (titulo.includes(texto) || ubicacion.includes(texto)) {
+                    tarjeta.style.display = 'block';
+                    visibles++;
+                } else {
+                    tarjeta.style.display = 'none';
+                }
+            });
+
+            const conteo = document.getElementById('conteoEventos');
+            if (conteo) {
+                conteo.textContent = `${visibles} evento${visibles === 1 ? '' : 's'} encontrado${visibles === 1 ? '' : 's'}`;
+            }
+        }
+    </script>
+</body>
+
+</html>

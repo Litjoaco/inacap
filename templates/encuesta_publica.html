@@ -1,0 +1,267 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ encuesta.titulo }} - INACAP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --inacap-red: #B70420;
+            --inacap-dark: #8B0014;
+        }
+        body {
+            background-color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        .header-bar {
+            background: linear-gradient(135deg, var(--inacap-dark) 0%, var(--inacap-red) 100%);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 15px rgba(183, 4, 32, 0.2);
+        }
+        .survey-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            background: white;
+            overflow: hidden;
+        }
+        /* Interactive Star Rating */
+        .rating-stars {
+            display: inline-flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 10px;
+        }
+        .rating-stars input[type="radio"] {
+            display: none;
+        }
+        .rating-stars label {
+            font-size: 2.8rem;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .rating-stars label:hover,
+        .rating-stars label:hover ~ label,
+        .rating-stars input[type="radio"]:checked ~ label {
+            color: #f59e0b;
+        }
+        .rating-stars label:hover {
+            transform: scale(1.18);
+        }
+        .rating-feedback-badge {
+            font-size: 1.05rem;
+            font-weight: 600;
+            min-height: 28px;
+            color: #475569;
+        }
+        .modalidad-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<header class="header-bar">
+    <div class="container text-center">
+        <div class="d-inline-flex align-items-center gap-2 mb-1">
+            <i class="bi bi-mortarboard-fill fs-4"></i>
+            <span class="fs-5 fw-bold text-uppercase tracking-wider">INACAP</span>
+        </div>
+        <h4 class="mb-0 fw-bold">Encuesta de Satisfacción y Opinión</h4>
+    </div>
+</header>
+
+<main class="container my-auto py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+
+            {% if messages %}
+            <div class="mb-3">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% if ha_respondido %}
+            <!-- YA RESPONDIDA -->
+            <div class="survey-card text-center p-5">
+                <div class="text-success display-1 mb-3">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <h3 class="fw-bold text-dark mb-2">¡Ya respondiste esta encuesta!</h3>
+                <p class="text-muted fs-5 mb-4">
+                    Agradecemos enormemente tu tiempo y valoración para el evento <strong>"{{ reunion.detalle }}"</strong>. Tus respuestas nos ayudan a seguir mejorando.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'panel-admin:reunion_publica' reunion.id %}" class="btn btn-outline-danger">
+                        <i class="bi bi-arrow-left me-1"></i>Volver al Evento
+                    </a>
+                    <a href="{% url 'inicio' %}" class="btn btn-danger">
+                        <i class="bi bi-house-door me-1"></i>Ir al Inicio
+                    </a>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- FORMULARIO DE ENCUESTA -->
+            <div class="survey-card">
+                <!-- CABECERA DE LA ENCUESTA -->
+                <div class="p-4 p-md-5 pb-3 border-bottom bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                        <span class="badge bg-danger-subtle text-danger px-3 py-2 rounded-pill fw-semibold">
+                            <i class="bi bi-calendar-event me-1"></i>{{ reunion.fecha|date:"d M Y, H:i" }}
+                        </span>
+                        {% if encuesta.modalidad_entrega == 'al_finalizar' %}
+                        <span class="modalidad-badge bg-warning-subtle text-warning-emphasis">
+                            <i class="bi bi-display"></i> Encuesta al finalizar evento
+                        </span>
+                        {% else %}
+                        <span class="modalidad-badge bg-info-subtle text-info-emphasis">
+                            <i class="bi bi-envelope"></i> Enviada a tu correo
+                        </span>
+                        {% endif %}
+                    </div>
+                    <h3 class="fw-bold text-dark mb-1">{{ encuesta.titulo }}</h3>
+                    <p class="text-muted mb-0">Evento: <strong>{{ reunion.detalle }}</strong></p>
+                </div>
+
+                <!-- FORMULARIO -->
+                <form method="POST" action="{% url 'panel-admin:responder_encuesta_publica' reunion.id %}" class="p-4 p-md-5 pt-4" id="surveyForm">
+                    {% csrf_token %}
+
+                    <!-- IDENTIFICACIÓN DEL USUARIO SI NO ESTÁ AUTENTICADO -->
+                    {% if not request.user.is_authenticated and not usuario %}
+                    <div class="p-3 mb-4 bg-light rounded-3 border">
+                        <h6 class="fw-bold mb-2 text-dark"><i class="bi bi-person-badge me-2 text-danger"></i>Identificación de Asistente</h6>
+                        <p class="small text-muted mb-3">Para asociar tu participación y evitar duplicados, ingresa tu RUT o Correo electrónico registrado en la reunión:</p>
+                        <div class="row g-2">
+                            <div class="col-sm-6">
+                                <label class="form-label small fw-semibold">RUT (ej: 12345678-9):</label>
+                                <input type="text" name="identificador_rut" class="form-control" placeholder="12345678-9">
+                            </div>
+                            <div class="col-sm-6">
+                                <label class="form-label small fw-semibold">O Correo Electrónico:</label>
+                                <input type="email" name="identificador_correo" class="form-control" placeholder="tu.correo@ejemplo.com">
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="d-flex align-items-center gap-2 mb-4 p-2 bg-light rounded-3 border">
+                        <i class="bi bi-check2-circle text-success fs-5 ms-2"></i>
+                        <span class="small text-muted">
+                            Respondiendo como: <strong>{% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username }}{% else %}{{ usuario.nombre }} {{ usuario.apellido }}{% endif %}</strong>
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <!-- PREGUNTA 1: SISTEMA DE ESTRELLAS -->
+                    <div class="text-center mb-5">
+                        <label class="form-label fw-bold fs-5 text-dark d-block mb-3">
+                            <span class="badge bg-danger rounded-circle me-1" style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">1</span>
+                            {{ encuesta.pregunta_estrellas|default:"¿Cómo calificarías tu experiencia general en esta reunión?" }}
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <!-- RATING STARS WIDGET -->
+                        <div class="rating-stars mb-2" id="starGroup">
+                            <input type="radio" id="star5" name="puntuacion" value="5" required onchange="actualizarTextoRating(5)">
+                            <label for="star5" title="5 estrellas - Excelente"><i class="bi bi-star-fill"></i></label>
+
+                            <input type="radio" id="star4" name="puntuacion" value="4" onchange="actualizarTextoRating(4)">
+                            <label for="star4" title="4 estrellas - Muy Bueno"><i class="bi bi-star-fill"></i></label>
+
+                            <input type="radio" id="star3" name="puntuacion" value="3" onchange="actualizarTextoRating(3)">
+                            <label for="star3" title="3 estrellas - Regular / Bueno"><i class="bi bi-star-fill"></i></label>
+
+                            <input type="radio" id="star2" name="puntuacion" value="2" onchange="actualizarTextoRating(2)">
+                            <label for="star2" title="2 estrellas - Mejorable"><i class="bi bi-star-fill"></i></label>
+
+                            <input type="radio" id="star1" name="puntuacion" value="1" onchange="actualizarTextoRating(1)">
+                            <label for="star1" title="1 estrella - Insatisfactorio"><i class="bi bi-star-fill"></i></label>
+                        </div>
+                        <div id="ratingFeedback" class="rating-feedback-badge">
+                            <span class="text-muted fst-italic">Selecciona una calificación haciendo clic en las estrellas</span>
+                        </div>
+                    </div>
+
+                    <!-- PREGUNTA 2: OPINIÓN / SUGERENCIA ABIERTA -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark d-block mb-2">
+                            <span class="badge bg-danger rounded-circle me-1" style="width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">2</span>
+                            {{ encuesta.pregunta_opinion|default:"¿Tienes alguna sugerencia o comentario para mejorar futuras sesiones?" }}
+                        </label>
+                        <textarea name="comentarios" rows="4" class="form-control" placeholder="Escribe aquí tu opinión, sugerencia o lo que más te gustó... (Opcional)" style="border-radius: 12px; resize: vertical;"></textarea>
+                    </div>
+
+                    <!-- OPCIÓN ANÓNIMA -->
+                    {% if encuesta.permitir_anonimo %}
+                    <div class="mb-4 p-3 bg-light rounded-3 border">
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" role="switch" id="checkAnonimo" name="es_anonimo" value="true">
+                            <label class="form-check-label fw-semibold text-dark" for="checkAnonimo">
+                                <i class="bi bi-incognito text-secondary me-1"></i> Enviar mi opinión de forma anónima
+                            </label>
+                            <div class="form-text text-muted small mt-1">
+                                Si marcas esta opción, tu nombre y correo se mantendrán confidenciales en las listas y testimonios públicos.
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- BOTÓN ENVIAR -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger btn-lg fw-bold shadow-sm" style="border-radius: 12px; padding: 14px;">
+                            <i class="bi bi-send-fill me-2"></i>Enviar mi Calificación y Opinión
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</main>
+
+<footer class="text-center py-3 text-muted small mt-auto border-top bg-white">
+    <div class="container">
+        &copy; INACAP - Sistema de Gestión de Eventos y Encuestas
+    </div>
+</footer>
+
+<script>
+    const feedbackTexts = {
+        5: '🌟 ¡Excelente! Nos alegra mucho que hayas tenido una gran experiencia.',
+        4: '👍 ¡Muy Bueno! Agradecemos tu valoración positiva.',
+        3: '👌 Regular. Tomaremos en cuenta tus puntos para enriquecer la experiencia.',
+        2: '⚠️ Mejorable. Lamentamos no haber cumplido totalmente tus expectativas.',
+        1: '❌ Insatisfactorio. Te pedimos disculpas y trabajaremos para corregirlo.'
+    };
+
+    function actualizarTextoRating(val) {
+        const feedbackDiv = document.getElementById('ratingFeedback');
+        if (feedbackTexts[val]) {
+            feedbackDiv.innerHTML = `<span class="fw-bold text-dark">${feedbackTexts[val]}</span>`;
+        }
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

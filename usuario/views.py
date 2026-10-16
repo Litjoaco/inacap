@@ -1,18 +1,28 @@
+import functools
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
+from .forms import PasswordResetRequestForm, SetNewPasswordForm
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .forms import UsuarioForm, EditarUsuarioForm, RespuestaEncuestaForm, CambiarPasswordForm, LoginForm
 from .models import CARRERA_CHOICES, SEDE_CHOICES, Usuario, RUBRO_CHOICES
 from paneladm.models import Reunion, Encuesta, RespuestaEncuesta, SoporteTicket, TicketRespuesta
 from paneladm.forms import SoporteTicketForm, TicketRespuestaForm, ReunionForm
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password, make_password
 from django.utils import timezone
 from django.db.models import Q
+from django.core.cache import cache
 import random
 
 def login_required(view_func):
     """
     Decorador personalizado para verificar que el usuario ha iniciado sesión.
     """
+    @functools.wraps(view_func)
     def wrapper(request, *args, **kwargs):
         if 'usuario_id' not in request.session:
             messages.error(request, 'Debes iniciar sesión para acceder a esta página.')
@@ -32,17 +42,19 @@ def login(request):
             try:
                 usuario = Usuario.objects.get(email=email)
                 if check_password(password, usuario.password):
+                    # Mitigación de fijación de sesión
+                    request.session.cycle_key()
                     request.session['usuario_id'] = usuario.id
                     messages.success(request, f'¡Bienvenido de vuelta, {usuario.nombre}!')
                     
-                    # --- LÓGICA DE REDIRECCIÓN POR ROL ---
                     if usuario.es_totem:
                         return redirect('totem_seleccionar_reunion')
                     return redirect('inicio')
                 else:
-                    messages.error(request, 'La contraseña es incorrecta.')
+                    messages.error(request, 'Correo o contraseña incorrectos.')
             except Usuario.DoesNotExist:
-                messages.error(request, 'No existe un usuario con ese correo electrónico.')
+                # Mensaje genérico para mitigar enumeración de usuarios
+                messages.error(request, 'Correo o contraseña incorrectos.')
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form})
@@ -52,19 +64,19 @@ def registro(request):
         form = UsuarioForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, '¡Usuario creado con éxito!')
-            return redirect('login') # Si es válido, redirige a login
-        # Si el formulario NO es válido, se renderiza la misma página
-        # pero el 'form' ahora contiene los errores y los datos anteriores.
+            messages.success(request, '¡Usuario registrado con éxito!')
+            return redirect('inicio')
     else:
-        form = UsuarioForm()
+        initial_data = {}
+        rut_param = request.GET.get('rut')
+        if rut_param:
+            initial_data['rut'] = rut_param
+        form = UsuarioForm(initial=initial_data)
     return render(request, 'registro.html', {'form': form})
 
-
+@login_required
 def perfil(request):
     usuario_id = request.session.get('usuario_id')
-    if not usuario_id:
-        return redirect('login')
     usuario = get_object_or_404(Usuario, id=usuario_id)
     if request.method == 'POST' and 'responder_encuesta' in request.POST:
         form_respuesta = RespuestaEncuestaForm(request.POST)
@@ -90,7 +102,16 @@ def perfil(request):
         'usuario': usuario, 'encuestas_pendientes': encuestas_pendientes, 'form_resp_encuesta': form_respuesta
     })
 
+@login_required
 def editar_perfil(request, usuario_id):
+    session_uid = request.session.get('usuario_id')
+    usuario_actual = get_object_or_404(Usuario, id=session_uid)
+
+    # Protección IDOR: Solo el propio usuario o un administrador pueden editar este perfil
+    if session_uid != usuario_id and not usuario_actual.es_admin:
+        messages.error(request, 'No tienes permiso para modificar este perfil.')
+        return redirect('perfil')
+
     usuario = get_object_or_404(Usuario, id=usuario_id)
     if request.method == 'POST':
         form = EditarUsuarioForm(request.POST, request.FILES, instance=usuario)
@@ -102,16 +123,30 @@ def editar_perfil(request, usuario_id):
         form = EditarUsuarioForm(instance=usuario)
     return render(request, 'editar_perfil.html', {'form': form, 'usuario': usuario})
 
-def perfil_publico(request, usuario_id):
+def imprimir_etiqueta(request, usuario_id, reunion_id=None):
+    """
+    Vista que muestra la etiqueta de un usuario con soporte para plantillas personalizadas.
+    """
     usuario = get_object_or_404(Usuario, id=usuario_id)
-    return render(request, 'perfil_publico.html', {'usuario': usuario})
+    reunion = None
+    plantilla = None
+    
+    if reunion_id:
+        reunion = Reunion.objects.filter(id=reunion_id).first()
+        if reunion:
+            plantilla = reunion.plantilla_etiqueta
 
-def imprimir_etiqueta(request, usuario_id):
-    """
-    Vista que muestra solo la etiqueta de un usuario para impresión directa.
-    """
-    usuario = get_object_or_404(Usuario, id=usuario_id)
-    return render(request, 'etiqueta_imprimir.html', {'usuario': usuario})
+    if not plantilla:
+        plantilla = {
+            'orden_elementos': ['nombre_completo', 'carrera', 'sede', 'asistencias']
+        }
+
+    context = {
+        'usuario': usuario,
+        'reunion': reunion,
+        'plantilla': plantilla,
+    }
+    return render(request, 'etiqueta_imprimir.html', context)
 
 def inicio(request):
     usuario_id = request.session.get('usuario_id')
@@ -140,11 +175,9 @@ def inicio(request):
     }
     return render(request, 'inicio.html', contexto)
 
+@login_required
 def registrar_interes(request, reunion_id):
     usuario_id = request.session.get('usuario_id')
-    if not usuario_id:
-        messages.error(request, 'Debes iniciar sesión para mostrar interés en una reunión.')
-        return redirect('login')
     if request.method == 'POST':
         reunion = get_object_or_404(Reunion, id=reunion_id)
         usuario = get_object_or_404(Usuario, id=usuario_id)
@@ -152,16 +185,18 @@ def registrar_interes(request, reunion_id):
         messages.success(request, f'¡Genial! Has mostrado interés en "{reunion.detalle}".')
     return redirect('inicio')
 
-
-@login_required
 def toggle_interes(request, reunion_id):
     """
     Registra o quita el interés de un usuario en una reunión (AJAX).
     """
     from django.http import JsonResponse
+    usuario_id = request.session.get('usuario_id')
+    if not usuario_id:
+        return JsonResponse({'status': 'error', 'message': 'Debes iniciar sesión para mostrar interés.'}, status=401)
+
     if request.method == 'POST':
         reunion = get_object_or_404(Reunion, id=reunion_id)
-        usuario = get_object_or_404(Usuario, id=request.session.get('usuario_id'))
+        usuario = get_object_or_404(Usuario, id=usuario_id)
 
         if usuario in reunion.asistentes.all():
             return JsonResponse({'status': 'error', 'message': 'Tu asistencia ya está confirmada.'}, status=400)
@@ -185,26 +220,20 @@ def panel_admin(request):
     except Usuario.DoesNotExist:
         return redirect('login')
 
-    return render(request, 'panel_admin.html', {'usuario': usuario_actual})
+    # Métricas y estadísticas para el panel
+    total_usuarios = Usuario.objects.count()
+    total_reuniones = Reunion.objects.count()
+    proximos_eventos = Reunion.objects.filter(fecha__gte=timezone.now()).count()
+    tickets_abiertos = SoporteTicket.objects.filter(estado='abierto').count()
 
-@login_required
-def configuracion(request):
-    """
-    Muestra la página de configuración del usuario.
-    """
-    usuario_id = request.session.get('usuario_id')
-    usuario = get_object_or_404(Usuario, id=usuario_id)
-
-    if request.method == 'POST':
-        usuario.perfil_publico = request.POST.get('perfil_publico') == 'true'
-        usuario.save(update_fields=['perfil_publico'])
-        messages.success(request, 'Tu configuración de privacidad ha sido actualizada.')
-        return redirect('configuracion')
-
-    contexto = {
-        'usuario': usuario
+    context = {
+        'usuario': usuario_actual,
+        'total_usuarios': total_usuarios,
+        'total_reuniones': total_reuniones,
+        'proximos_eventos': proximos_eventos,
+        'tickets_abiertos': tickets_abiertos,
     }
-    return render(request, 'configuracion.html', contexto)
+    return render(request, 'panel_admin.html', context)
 
 @login_required
 def cambiar_password(request):
@@ -219,11 +248,12 @@ def cambiar_password(request):
             if not check_password(password_actual, usuario.password):
                 messages.error(request, 'La contraseña actual es incorrecta.')
             else:
-                from django.contrib.auth.hashers import make_password
-                usuario.password = nueva_password
-                usuario.save()
+                # Contraseña hasheada de forma segura
+                usuario.password = make_password(nueva_password)
+                usuario.save(update_fields=['password'])
+                request.session.cycle_key()
                 messages.success(request, '¡Contraseña actualizada con éxito!')
-                return redirect('configuracion')
+                return redirect('perfil')
     else:
         form = CambiarPasswordForm()
     
@@ -233,138 +263,138 @@ def cambiar_password(request):
     }
     return render(request, 'cambiar_password.html', contexto)
 
-@login_required
-def eliminar_cuenta(request):
+def password_reset_request(request):
     if request.method == 'POST':
-        usuario_id = request.session.get('usuario_id')
-        usuario = get_object_or_404(Usuario, id=usuario_id)
-        usuario.delete()
-        request.session.flush()
-        messages.success(request, 'Tu cuenta ha sido eliminada permanentemente.')
-        return redirect('inicio')
-    return redirect('configuracion')
-
-@login_required
-def crear_ticket_soporte(request):
-    usuario = get_object_or_404(Usuario, id=request.session.get('usuario_id'))
-    if request.method == 'POST':
-        form = SoporteTicketForm(request.POST)
+        form = PasswordResetRequestForm(request.POST)
         if form.is_valid():
-            ticket = form.save(commit=False)
-            ticket.usuario = usuario
-            ticket.save()
-            messages.success(request, 'Tu ticket de soporte ha sido enviado. Te responderemos pronto.')
-            return redirect('ver_ticket_usuario', ticket_id=ticket.id)
+            email = form.cleaned_data['email']
+            associated_users = Usuario.objects.filter(email__iexact=email)
+            if associated_users.exists():
+                for user in associated_users:
+                    token = default_token_generator.make_token(user)
+                    uid = urlsafe_base64_encode(force_bytes(user.pk))
+                    
+                    reset_url = request.build_absolute_uri(
+                        reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+                    )
+                    
+                    subject = 'Restablecimiento de contraseña - Eventos INACAP'
+                    message = render_to_string('password_reset_email.html', {
+                        'user': user,
+                        'reset_url': reset_url,
+                    })
+                    
+                    send_mail(subject, message, None, [user.email])
+
+            messages.success(request, 'Si tu correo electrónico está en nuestra base de datos, recibirás un enlace para restablecer tu contraseña en breve.')
+            return redirect('login')
     else:
-        form = SoporteTicketForm()
+        form = PasswordResetRequestForm()
     
+    return render(request, 'password_reset_request.html', {'form': form})
+
+def password_reset_confirm(request, uidb64=None, token=None):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = Usuario.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Usuario.DoesNotExist):
+        user = None
+
+    if user is not None and default_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = SetNewPasswordForm(request.POST, user=user)
+            if form.is_valid():
+                user.set_password(form.cleaned_data['new_password1'])
+                user.save()
+                messages.success(request, 'Tu contraseña ha sido restablecida. Ahora puedes iniciar sesión.')
+                return redirect('login')
+        else:
+            form = SetNewPasswordForm(user=user)
+        return render(request, 'password_reset_confirm.html', {'form': form, 'validlink': True})
+    else:
+        messages.error(request, 'El enlace de restablecimiento de contraseña no es válido o ha expirado.')
+        return render(request, 'password_reset_confirm.html', {'validlink': False})
+
+def landing_reuniones(request):
+    """
+    Landing pública que lista los eventos y reuniones de INACAP.
+    """
+    now = timezone.now()
+    reuniones_proximas = Reunion.objects.filter(fecha__gte=now).order_by('fecha')
+    reuniones_pasadas = Reunion.objects.filter(fecha__lt=now).order_by('-fecha')
     contexto = {
-        'form': form,
-        'usuario': usuario
+        'reuniones_proximas': reuniones_proximas,
+        'reuniones_pasadas': reuniones_pasadas,
     }
-    return render(request, 'crear_ticket.html', contexto)
+    return render(request, 'landing_reuniones.html', contexto)
 
-@login_required
-def mis_tickets(request):
-    usuario = get_object_or_404(Usuario, id=request.session.get('usuario_id'))
-    tickets = SoporteTicket.objects.filter(usuario=usuario).order_by('-fecha_creacion')
-    return render(request, 'mis_tickets.html', {'usuario': usuario, 'tickets': tickets})
+from django.http import JsonResponse
 
-@login_required
-def ver_ticket_usuario(request, ticket_id):
-    usuario = get_object_or_404(Usuario, id=request.session.get('usuario_id'))
-    ticket = get_object_or_404(SoporteTicket, id=ticket_id, usuario=usuario) # Seguridad: solo el dueño puede ver
+def _ofuscar_email(email):
+    """
+    Ofusca el correo electrónico para prevenir raspado masivo de datos (ej: j***s@inacap.cl).
+    """
+    if not email or '@' not in email:
+        return ''
+    partes = email.split('@', 1)
+    usuario_str = partes[0]
+    dominio = partes[1]
+    if len(usuario_str) <= 2:
+        usuario_ofuscado = usuario_str[0] + '*'
+    else:
+        usuario_ofuscado = usuario_str[0] + '*' * (len(usuario_str) - 2) + usuario_str[-1]
+    return f"{usuario_ofuscado}@{dominio}"
 
+def consultar_qr_rut(request):
+    """
+    Permite a cualquier alumno o invitado consultar y ver su código QR ingresando su RUT.
+    Incluye limitación de tasa (rate-limit) por IP para mitigar recolección masiva (scraping).
+    """
     if request.method == 'POST':
-        respuesta_form = TicketRespuestaForm(request.POST, request.FILES)
-        if respuesta_form.is_valid():
-            respuesta = respuesta_form.save(commit=False)
-            respuesta.ticket = ticket
-            respuesta.usuario = usuario
-            respuesta.save()
-            messages.success(request, 'Tu respuesta ha sido enviada.')
-            return redirect('ver_ticket_usuario', ticket_id=ticket.id)
+        import json
+        from usuario.forms import validate_rut
 
-    respuesta_form = TicketRespuestaForm()
-    contexto = {
-        'ticket': ticket,
-        'respuesta_form': respuesta_form,
-        'usuario': usuario,
-    }
-    return render(request, 'ver_ticket_usuario.html', contexto)
+        # Rate Limiting por IP: máx 10 consultas por minuto
+        ip = request.META.get('HTTP_X_FORWARDED_FOR', request.META.get('REMOTE_ADDR', ''))
+        if ip:
+            ip = ip.split(',')[0].strip()
+        cache_key = f"rate_limit_qr_{ip or 'unknown'}"
+        intentos = cache.get(cache_key, 0)
+        if intentos >= 10:
+            return JsonResponse({
+                'status': 'error',
+                'mensaje': 'Has superado el límite de consultas por minuto. Por favor, intenta nuevamente más tarde.'
+            }, status=429)
+        cache.set(cache_key, intentos + 1, timeout=60)
 
-@login_required
-def directorio_miembros(request):
-    usuario_id = request.session.get('usuario_id')
-    usuario_actual = get_object_or_404(Usuario, id=usuario_id) # El que está viendo la página
+        try:
+            data = json.loads(request.body)
+            rut_input = data.get('rut', '').strip()
+        except:
+            rut_input = request.POST.get('rut', '').strip()
 
-    query = request.GET.get('q', '')
-    rubro_filter = request.GET.get('rubro', '') # Ahora es rol_filter
-    sede_filter = request.GET.get('sede', '')
-    carrera_filter = request.GET.get('carrera', '')
+        es_valido, rut_o_error = validate_rut(rut_input)
+        if not es_valido:
+            return JsonResponse({'status': 'error', 'mensaje': rut_o_error})
 
-    # Los usuarios solo ven perfiles públicos. El admin ve todos.
-    # Nota: `request.user_is_admin` no está definido en este contexto. Asumo que es una variable de contexto o middleware.
-    # Para mayor seguridad, se debería verificar `usuario_actual.es_admin`.
-    if usuario_actual.es_admin: # Asumiendo que request.user_is_admin es equivalente a usuario_actual.es_admin
-        # El admin ve a todos los usuarios (no admins), ordenando por destacado y luego por visibilidad
-        miembros = Usuario.objects.filter(es_admin=False).order_by('-destacado', '-perfil_publico', 'nombre')
-    else:
-        miembros = Usuario.objects.filter(perfil_publico=True, es_admin=False).order_by('-destacado', 'nombre')
+        rut_limpio = rut_o_error
+        usuario = Usuario.objects.filter(rut=rut_limpio).first()
 
-    if query:
-        # Incluimos búsqueda en sede y carrera también
-        miembros = miembros.filter(
-            Q(nombre__icontains=query) | 
-            Q(apellido__icontains=query) |
-            Q(rut__icontains=query) |
-            Q(sede__icontains=query) |
-            Q(sede_otro__icontains=query) |
-            Q(carrera__icontains=query) |
-            Q(carrera_otro__icontains=query)
-        )
-    
-    if rubro_filter:
-        miembros = miembros.filter(rubro__iexact=rubro_filter)
-    if sede_filter:
-        miembros = miembros.filter(sede__iexact=sede_filter)
-    if carrera_filter:
-        miembros = miembros.filter(carrera__iexact=carrera_filter)
+        if usuario:
+            qr_url = usuario.qr_code.url if usuario.qr_code else None
+            return JsonResponse({
+                'status': 'ok',
+                'nombre': f"{usuario.nombre} {usuario.apellido}",
+                'rut': usuario.rut,
+                'email': _ofuscar_email(usuario.email),
+                'rol': usuario.get_rubro_real_display if callable(getattr(usuario, 'get_rubro_real_display', None)) else (usuario.rubro or 'General'),
+                'empresa': usuario.institucion_empresa or ('INACAP' if usuario.rubro != 'externo' else 'Particular'),
+                'qr_url': qr_url
+            })
+        else:
+            return JsonResponse({
+                'status': 'not_found',
+                'mensaje': 'No se encontraron registros con este RUT. Puedes inscribirte en cualquier evento para generar tu código.'
+            })
 
-    contexto = {
-        'usuario': usuario_actual,
-        'miembros': miembros,
-        'RUBRO_CHOICES': RUBRO_CHOICES,
-        'SEDE_CHOICES': SEDE_CHOICES,
-        'CARRERA_CHOICES': CARRERA_CHOICES,
-    }
-    return render(request, 'directorio.html', contexto)
-
-@login_required
-def mis_reuniones(request):
-    """
-    Muestra al usuario un resumen de su actividad en las reuniones.
-    """
-    usuario = get_object_or_404(Usuario, id=request.session.get('usuario_id'))
-
-    # Reuniones futuras en las que el usuario ha mostrado interés O ya es asistente.
-    # Usamos Q para combinar ambas consultas y .distinct() para evitar duplicados.
-    reuniones_futuras_actividad = Reunion.objects.filter(
-        Q(interesados=usuario) | Q(asistentes=usuario),
-        fecha__gte=timezone.now()
-    ).distinct().order_by('fecha')
-
-    # Historial de reuniones a las que el usuario ha asistido
-    # Usamos select_related para optimizar y evitar consultas extra en el bucle de la plantilla
-    reuniones_asistidas = usuario.reuniones_asistidas.filter(fecha__lt=timezone.now()).order_by('-fecha').select_related('encuesta')
-
-    # Obtenemos los IDs de las encuestas que el usuario ya ha respondido
-    encuestas_respondidas_ids = set(RespuestaEncuesta.objects.filter(usuario=usuario).values_list('encuesta_id', flat=True))
-
-    contexto = {
-        'usuario': usuario,
-        'reuniones_interesado': reuniones_futuras_actividad,
-        'reuniones_asistidas': reuniones_asistidas,
-        'encuestas_respondidas_ids': encuestas_respondidas_ids,
-    }
-    return render(request, 'mis_reuniones.html', contexto)
+    return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)
