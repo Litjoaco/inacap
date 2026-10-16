@@ -490,11 +490,11 @@
 
                     <button type="button" class="btn btn-nav-qr" data-bs-toggle="modal"
                         data-bs-target="#modalConsultarQR">
-                        <i class="bi bi-qr-code me-1"></i> ¿Ya inscrito? Consultar QR
+                        <i class="bi bi-qr-code me-1"></i> ¿Ya estás registrado? Consulta tu QR
                     </button>
 
-                    <a href="#eventos-agenda" class="btn-nav-inscribir-blanco">
-                        <i class="bi bi-pencil-square me-1"></i> Inscribirme
+                    <a href="{% url 'registro' %}" class="btn-nav-inscribir-blanco">
+                        <i class="bi bi-person-plus-fill me-1"></i> Regístrate
                     </a>
 
                     {% if usuario %}
@@ -515,17 +515,16 @@
             <h2 class="hero-title">Participa en los Próximos Eventos</h2>
 
             <p class="hero-subtitle">
-                Inscríbete a charlas, seminarios y actividades con <strong>1 solo clic</strong> usando tu RUT. Sin
-                contraseñas ni trámites largos.
+                Regístrate en la plataforma para obtener tu <strong>Credencial QR Oficial</strong> y confirma tu asistencia a las actividades de INACAP en 1 solo clic.
             </p>
 
             <div class="d-flex justify-content-center gap-3 flex-wrap">
-                <a href="#eventos-agenda" class="hero-btn-primary">
-                    <i class="bi bi-pencil-square"></i> Inscríbete Aquí
+                <a href="{% url 'registro' %}" class="hero-btn-primary">
+                    <i class="bi bi-person-plus-fill"></i> Regístrate Aquí
                 </a>
                 <button type="button" class="hero-btn-secondary" data-bs-toggle="modal"
                     data-bs-target="#modalConsultarQR">
-                    <i class="bi bi-qr-code"></i> ¿Ya estás inscrito? Consultar QR
+                    <i class="bi bi-qr-code"></i> ¿Ya estás registrado? Consulta tu QR
                 </button>
             </div>
         </div>
@@ -587,7 +586,7 @@
             <div class="d-flex justify-content-between align-items-end section-header-box flex-wrap gap-2">
                 <div>
                     <h2 class="section-title">Cartelera de Actividades</h2>
-                    <p class="section-subtitle">Selecciona una actividad para inscribirte o ver sus detalles completos.
+                    <p class="section-subtitle">Selecciona una reunión para inscribirte y registrar que te interesa asistir.
                     </p>
                 </div>
                 <a href="{% url 'landing_reuniones' %}"
@@ -633,7 +632,7 @@
                                 <div class="d-flex gap-2">
                                     <a href="{% url 'panel-admin:inscribirse_reunion' reunion.id %}"
                                         class="btn-card-inscribir flex-grow-1">
-                                        <i class="bi bi-pencil-square me-1"></i> Inscríbete Aquí
+                                        <i class="bi bi-ticket-perforated me-1"></i> Inscribirme a la Reunión
                                     </a>
                                     <a href="{% url 'panel-admin:reunion_publica' reunion.id %}"
                                         class="btn btn-outline-secondary btn-sm d-flex align-items-center px-3"
@@ -657,14 +656,14 @@
                 <h4 class="fw-bold text-dark mb-2">No hay eventos activos en este momento</h4>
                 <p class="text-muted mb-4 mx-auto" style="max-width: 520px;">
                     Pronto se publicarán nuevas charlas, talleres y actividades institucionales.<br>
-                    Aún así, puedes <strong>inscribirte en la plataforma</strong> para obtener tu <strong>Credencial QR Oficial de INACAP</strong> y quedar habilitado de inmediato.
+                    Aún así, puedes <strong>registrarte en la plataforma</strong> para obtener tu <strong>Credencial QR Oficial de INACAP</strong> y quedar listo para los próximos eventos.
                 </p>
                 <div class="d-flex justify-content-center gap-3 flex-wrap">
                     <a href="{% url 'registro' %}" class="btn btn-danger btn-lg rounded-pill px-4 fw-semibold shadow-sm">
-                        <i class="bi bi-person-plus-fill me-2"></i> Inscribirme y Obtener mi QR
+                        <i class="bi bi-person-plus-fill me-2"></i> Regístrate y Obtén tu QR
                     </a>
                     <button type="button" class="btn btn-outline-secondary btn-lg rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalConsultarQR">
-                        <i class="bi bi-qr-code me-2"></i> Consultar mi QR
+                        <i class="bi bi-qr-code me-2"></i> Consulta tu QR
                     </button>
                 </div>
             </div>
