@@ -140,6 +140,20 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
         }
 
+        ::placeholder,
+        .form-control::placeholder,
+        input::placeholder {
+            color: #94A3B8 !important;
+            font-weight: 400 !important;
+            opacity: 0.9 !important;
+            letter-spacing: normal !important;
+        }
+
+        #inputRutConsulta {
+            color: #0F172A;
+            font-weight: 600;
+        }
+
         .btn-nav-admin {
             background: rgba(255, 255, 255, 0.1);
             color: #FFFFFF !important;
@@ -693,7 +707,7 @@
                         </p>
                         <div class="input-group mb-3">
                             <input type="text" id="inputRutConsulta"
-                                class="form-control form-control-lg text-center fw-bold font-monospace"
+                                class="form-control form-control-lg text-center font-monospace"
                                 placeholder="12.345.678-9" autofocus>
                         </div>
                         <div id="qrSearchError" class="alert alert-danger py-2 small d-none"></div>

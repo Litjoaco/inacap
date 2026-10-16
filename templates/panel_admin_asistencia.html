@@ -59,6 +59,20 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.04);
         }
 
+        ::placeholder,
+        .form-control::placeholder,
+        input::placeholder {
+            color: #94A3B8 !important;
+            font-weight: 400 !important;
+            opacity: 0.9 !important;
+            letter-spacing: normal !important;
+        }
+
+        #modal_input_rut {
+            color: #0F172A;
+            font-weight: 600;
+        }
+
         .card-header-red {
             background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
             color: white;
@@ -337,8 +351,8 @@
 
                             <!-- RUT -->
                             <div class="mb-3">
-                                <label class="form-label fw-semibold small text-uppercase text-secondary mb-1" id="modal_label_rut">RUT Chileno <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-lg fw-bold font-monospace text-center bg-white" name="rut" id="modal_input_rut" placeholder="12.345.678-9" required>
+                                <label class="form-label fw-semibold small text-uppercase text-secondary mb-1" id="modal_label_rut">RUT <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-lg font-monospace text-center bg-white" name="rut" id="modal_input_rut" placeholder="12.345.678-9" required>
                                 <div class="form-text small" style="font-size: 0.75rem;">Formato automático con puntos y guion.</div>
                             </div>
 
@@ -912,13 +926,13 @@ function toggleModalPerfil() {
 
         if (isEmpresa) {
             if (campoEmpresa) campoEmpresa.style.display = 'block';
-            if (labelRut) labelRut.innerHTML = 'RUT de Empresa o Representante <span class="text-danger">*</span>';
-            if (labelNombre) labelNombre.innerHTML = 'Nombre Representante / Contacto <span class="text-danger">*</span>';
-            if (labelApellido) labelApellido.innerHTML = 'Apellido Representante / Contacto <span class="text-danger">*</span>';
-            if (labelEmail) labelEmail.innerHTML = 'Correo de Contacto <span class="text-danger">*</span>';
+            if (labelRut) labelRut.innerHTML = 'RUT <span class="text-danger">*</span>';
+            if (labelNombre) labelNombre.innerHTML = 'Nombre <span class="text-danger">*</span>';
+            if (labelApellido) labelApellido.innerHTML = 'Apellido <span class="text-danger">*</span>';
+            if (labelEmail) labelEmail.innerHTML = 'Correo Electrónico <span class="text-danger">*</span>';
         } else {
             if (campoEmpresa) campoEmpresa.style.display = 'none';
-            if (labelRut) labelRut.innerHTML = 'RUT Chileno <span class="text-danger">*</span>';
+            if (labelRut) labelRut.innerHTML = 'RUT <span class="text-danger">*</span>';
             if (labelNombre) labelNombre.innerHTML = 'Nombre <span class="text-danger">*</span>';
             if (labelApellido) labelApellido.innerHTML = 'Apellido <span class="text-danger">*</span>';
             if (labelEmail) labelEmail.innerHTML = 'Correo Electrónico <span class="text-danger">*</span>';

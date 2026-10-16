@@ -70,13 +70,13 @@ class UsuarioForm(forms.ModelForm):
         fields = ['tipo_usuario', 'subtipo_externo', 'rut', 'nombre', 'apellido', 'email',
             'rubro', 'telefono', 'institucion_empresa', 'acepta_terminos']
         widgets = {
-            'rut': forms.TextInput(attrs={'class': 'form-control form-control-lg fw-bold text-center form-control-rut', 'placeholder': '12.345.678-9'}),
+            'rut': forms.TextInput(attrs={'class': 'form-control form-control-lg text-center form-control-rut', 'placeholder': '12.345.678-9'}),
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Juan'}),
             'apellido': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Pérez'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'ejemplo@correo.cl'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+56 9 1234 5678'}),
             'rubro': forms.Select(attrs={'class': 'form-select'}),
-            'institucion_empresa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la empresa u organización'}),
+            'institucion_empresa': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la empresa'}),
         }
         labels = {
             'rut': 'RUT',
@@ -85,7 +85,7 @@ class UsuarioForm(forms.ModelForm):
             'email': 'Correo Electrónico',
             'telefono': 'Teléfono / WhatsApp',
             'rubro': 'Rol en INACAP',
-            'institucion_empresa': 'Empresa u Organización'
+            'institucion_empresa': 'Empresa'
         }
 
     def __init__(self, *args, **kwargs):

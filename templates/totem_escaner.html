@@ -31,6 +31,19 @@
             user-select: none;
         }
 
+        ::placeholder,
+        .form-control::placeholder,
+        input::placeholder {
+            color: #94A3B8 !important;
+            font-weight: 400 !important;
+            opacity: 0.9 !important;
+            letter-spacing: normal !important;
+        }
+
+        #kioskRutInput:not(:placeholder-shown) {
+            font-weight: 700;
+        }
+
         /* =========================================================
            PANTALLA 1: ESPERA / BIENVENIDA HERO (ESTÉTICA INICIO)
            ========================================================= */
@@ -474,7 +487,7 @@
                         <p class="text-muted small mb-2">Presiona los números en pantalla:</p>
 
                         <!-- Input de RUT en Grande -->
-                        <input type="text" id="kioskRutInput" class="form-control form-control-lg text-center font-monospace fw-bold mx-auto mb-2" placeholder="12.345.678-9" style="font-size: 1.6rem; letter-spacing: 2px; height: 54px; max-width: 320px; border: 2px solid #CBD5E1; color: #0F172A;" readonly>
+                        <input type="text" id="kioskRutInput" class="form-control form-control-lg text-center font-monospace mx-auto mb-2" placeholder="12.345.678-9" style="font-size: 1.6rem; letter-spacing: 2px; height: 54px; max-width: 320px; border: 2px solid #CBD5E1; color: #0F172A;" readonly>
                     </div>
 
                     

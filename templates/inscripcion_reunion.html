@@ -89,6 +89,20 @@
             padding: 25px 20px;
             text-align: center;
         }
+
+        ::placeholder,
+        .form-control::placeholder,
+        input::placeholder {
+            color: #94A3B8 !important;
+            font-weight: 400 !important;
+            opacity: 0.9 !important;
+            letter-spacing: normal !important;
+        }
+
+        #rut {
+            color: #0F172A;
+            font-weight: 600;
+        }
     
         .origin-btn-hero {
             background: #FFFFFF;
@@ -168,7 +182,7 @@
 
                         <div class="mb-4">
                             <label for="rut" class="form-label fw-semibold">RUT (con o sin puntos y guión)</label>
-                            <input type="text" name="rut" id="rut" class="form-control form-control-lg text-center fw-bold fs-4 font-monospace" placeholder="12.345.678-9" value="{{ rut_ingresado|default:'' }}" required autofocus><div id="rutFeedbackError" class="text-danger small mt-1 text-center d-none"></div>
+                            <input type="text" name="rut" id="rut" class="form-control form-control-lg text-center fs-4 font-monospace" placeholder="12.345.678-9" value="{{ rut_ingresado|default:'' }}" required autofocus><div id="rutFeedbackError" class="text-danger small mt-1 text-center d-none"></div>
                         </div>
 
                         <div class="d-grid">

@@ -189,6 +189,15 @@
             transition: all 0.2s ease;
         }
 
+        .form-control::placeholder,
+        input::placeholder,
+        .form-control-rut::placeholder {
+            color: #94A3B8 !important;
+            font-weight: 400 !important;
+            opacity: 0.9 !important;
+            letter-spacing: normal !important;
+        }
+
         .form-control:focus, .form-select:focus {
             border-color: var(--inacap-red);
             box-shadow: 0 0 0 3px rgba(183, 4, 32, 0.12);
@@ -198,6 +207,7 @@
             font-family: 'Poppins', monospace;
             font-weight: 600;
             letter-spacing: 1px;
+            color: #0F172A;
         }
 
         .btn-submit-inacap {
@@ -346,14 +356,14 @@
 
             <!-- CAMPO EMPRESA (VISIBLE SÓLO EN EMPRESA) -->
             <div class="mb-3" id="campo_empresa_nombre" style="display: none;">
-                <label for="{{ form.institucion_empresa.id_for_label }}" class="form-label-compact">Nombre de la Empresa u Organización</label>
+                <label for="{{ form.institucion_empresa.id_for_label }}" class="form-label-compact">Nombre de la Empresa</label>
                 {{ form.institucion_empresa }}
                 {% for error in form.institucion_empresa.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
             </div>
 
             <!-- RUT -->
             <div class="mb-3">
-                <label for="{{ form.rut.id_for_label }}" class="form-label-compact" id="label_rut">RUT Chileno</label>
+                <label for="{{ form.rut.id_for_label }}" class="form-label-compact" id="label_rut">RUT</label>
                 {{ form.rut }}
                 {% for error in form.rut.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
             </div>
@@ -528,10 +538,10 @@
             if (campoEmpresa) campoEmpresa.style.display = 'none';
             if (campoTelefono) campoTelefono.style.display = 'none';
             
-            if (labelRut) labelRut.textContent = 'RUT Chileno';
+            if (labelRut) labelRut.textContent = 'RUT';
             if (labelNombre) labelNombre.textContent = 'Nombre';
             if (labelApellido) labelApellido.textContent = 'Apellido';
-            if (labelEmail) labelEmail.textContent = 'Correo Electrónico (Institucional o Personal)';
+            if (labelEmail) labelEmail.textContent = 'Correo Electrónico';
         } else {
             if (bloqueInacap) bloqueInacap.style.display = 'none';
             if (bloqueSubtipo) bloqueSubtipo.style.display = 'block';
@@ -539,13 +549,13 @@
 
             if (isEmpresa) {
                 if (campoEmpresa) campoEmpresa.style.display = 'block';
-                if (labelRut) labelRut.textContent = 'RUT de la Empresa o Representante';
-                if (labelNombre) labelNombre.textContent = 'Nombre del Contacto / Representante';
-                if (labelApellido) labelApellido.textContent = 'Apellido del Contacto / Representante';
-                if (labelEmail) labelEmail.textContent = 'Correo Electrónico de Contacto';
+                if (labelRut) labelRut.textContent = 'RUT';
+                if (labelNombre) labelNombre.textContent = 'Nombre';
+                if (labelApellido) labelApellido.textContent = 'Apellido';
+                if (labelEmail) labelEmail.textContent = 'Correo Electrónico';
             } else {
                 if (campoEmpresa) campoEmpresa.style.display = 'none';
-                if (labelRut) labelRut.textContent = 'RUT Chileno';
+                if (labelRut) labelRut.textContent = 'RUT';
                 if (labelNombre) labelNombre.textContent = 'Nombre';
                 if (labelApellido) labelApellido.textContent = 'Apellido';
                 if (labelEmail) labelEmail.textContent = 'Correo Electrónico';
