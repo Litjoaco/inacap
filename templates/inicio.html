@@ -102,6 +102,23 @@
         }
 
         .btn-nav-qr {
+            background: rgba(255, 255, 255, 0.12);
+            color: #FFFFFF !important;
+            font-weight: 600;
+            font-size: 0.88rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            transition: all 0.2s ease;
+        }
+
+        .btn-nav-qr:hover {
+            background: rgba(255, 255, 255, 0.22);
+            color: #FFFFFF !important;
+            transform: translateY(-1px);
+        }
+
+        .btn-nav-inscribir-blanco {
             background-color: #FFFFFF;
             color: #B70420 !important;
             font-weight: 700;
@@ -109,11 +126,14 @@
             padding: 8px 18px;
             border-radius: 8px;
             border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
             transition: all 0.2s ease;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
-        .btn-nav-qr:hover {
+        .btn-nav-inscribir-blanco:hover {
             background-color: #F8FAFC;
             color: #8B0014 !important;
             transform: translateY(-1px);
@@ -473,18 +493,13 @@
                         <i class="bi bi-qr-code me-1"></i> ¿Ya inscrito? Consultar QR
                     </button>
 
-                    {% if usuario %}
-                    {% if usuario.es_admin or usuario.es_ayudante %}
-                    <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-nav-admin">
-                        <i class="bi bi-shield-lock me-1"></i> Panel Admin
+                    <a href="#eventos-agenda" class="btn-nav-inscribir-blanco">
+                        <i class="bi bi-pencil-square me-1"></i> Inscribirme
                     </a>
-                    {% endif %}
+
+                    {% if usuario %}
                     <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm ms-1" title="Cerrar Sesión">
                         <i class="bi bi-box-arrow-right"></i>
-                    </a>
-                    {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-nav-admin">
-                        <i class="bi bi-person-fill me-1"></i> Acceso Admin
                     </a>
                     {% endif %}
                 </nav>
