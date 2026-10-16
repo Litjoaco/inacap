@@ -468,6 +468,10 @@
                         <i class="bi bi-calendar-event me-1"></i> Agenda Completa
                     </a>
 
+                    <a href="{% url 'registro' %}" class="nav-link-item d-none d-md-inline-block">
+                        <i class="bi bi-person-plus me-1"></i> Inscribirme
+                    </a>
+
                     <button type="button" class="btn btn-nav-qr" data-bs-toggle="modal"
                         data-bs-target="#modalConsultarQR">
                         <i class="bi bi-qr-code me-1"></i> ¿Ya inscrito? Consultar QR
@@ -505,9 +509,18 @@
             </p>
 
             <div class="d-flex justify-content-center gap-3 flex-wrap">
+                {% if reuniones %}
                 <a href="#eventos-agenda" class="hero-btn-primary">
-                    <i class="bi bi-pencil-square"></i> Inscríbete Aquí
+                    <i class="bi bi-calendar-event"></i> Inscríbete a un Evento
                 </a>
+                <a href="{% url 'registro' %}" class="hero-btn-secondary" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.4); color: white;">
+                    <i class="bi bi-person-plus-fill"></i> Registro General
+                </a>
+                {% else %}
+                <a href="{% url 'registro' %}" class="hero-btn-primary">
+                    <i class="bi bi-person-plus-fill"></i> Inscríbete Aquí (Obtén tu QR)
+                </a>
+                {% endif %}
                 <button type="button" class="hero-btn-secondary" data-bs-toggle="modal"
                     data-bs-target="#modalConsultarQR">
                     <i class="bi bi-qr-code"></i> ¿Ya estás inscrito? Consultar QR
@@ -634,9 +647,24 @@
             </div>
             {% else %}
             <div class="text-center py-5 bg-white rounded-4 shadow-sm p-4 border border-dashed">
-                <i class="bi bi-calendar-x display-3 text-secondary opacity-50 d-block mb-3"></i>
-                <h4 class="fw-bold text-dark">No hay eventos próximos en este momento</h4>
-                <p class="text-muted mb-0">Pronto se publicarán nuevas charlas, talleres y encuentros.</p>
+                <div class="mb-3">
+                    <span class="d-inline-flex align-items-center justify-content-center bg-danger-subtle text-danger rounded-circle" style="width: 70px; height: 70px;">
+                        <i class="bi bi-calendar-x fs-2"></i>
+                    </span>
+                </div>
+                <h4 class="fw-bold text-dark mb-2">No hay eventos activos en este momento</h4>
+                <p class="text-muted mb-4 mx-auto" style="max-width: 520px;">
+                    Pronto se publicarán nuevas charlas, talleres y actividades institucionales.<br>
+                    Aún así, puedes <strong>inscribirte en la plataforma</strong> para obtener tu <strong>Credencial QR Oficial de INACAP</strong> y quedar habilitado de inmediato.
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'registro' %}" class="btn btn-danger btn-lg rounded-pill px-4 fw-semibold shadow-sm">
+                        <i class="bi bi-person-plus-fill me-2"></i> Inscribirme y Obtener mi QR
+                    </a>
+                    <button type="button" class="btn btn-outline-secondary btn-lg rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalConsultarQR">
+                        <i class="bi bi-qr-code me-2"></i> Consultar mi QR
+                    </button>
+                </div>
             </div>
             {% endif %}
 
