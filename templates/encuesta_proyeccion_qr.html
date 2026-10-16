@@ -1,0 +1,312 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyección QR - {{ encuesta.titulo }} | INACAP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --inacap-red: #B70420;
+            --inacap-dark: #8B0014;
+            --inacap-black: #111827;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .screen-top-bar {
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-badge img {
+            height: 38px;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+        }
+
+        .live-pulse-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            animation: pulse-ring 1.8s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .qr-card-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 28px;
+            padding: 36px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            backdrop-filter: blur(16px);
+        }
+
+        .qr-frame {
+            background: white;
+            padding: 22px;
+            border-radius: 22px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        .qr-frame:hover {
+            transform: scale(1.02);
+        }
+
+        .qr-frame img {
+            width: 270px;
+            height: 270px;
+            display: block;
+            image-rendering: pixelated;
+        }
+
+        @media (min-width: 1200px) {
+            .qr-frame img {
+                width: 320px;
+                height: 320px;
+            }
+        }
+
+        .step-pill {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            margin-bottom: 14px;
+            transition: all 0.2s ease;
+        }
+        .step-pill:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateX(4px);
+        }
+
+        .step-number {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: 800;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(183, 4, 32, 0.4);
+        }
+
+        .floating-controls {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .btn-fullscreen {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 10px 18px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-fullscreen:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            border-color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOP HEADER -->
+    <header class="screen-top-bar">
+        <div class="brand-badge">
+            <img src="{% static 'img/inacap-logo.png' %}" alt="INACAP">
+            <div class="d-none d-sm-block">
+                <span class="fw-bold fs-6 tracking-wide text-uppercase d-block">INACAP Vinculación</span>
+                <small class="text-white-50">Sistema Oficial de Evaluación de Eventos</small>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <div class="live-pulse-badge">
+                <div class="live-dot"></div>
+                <span>ENCUESTA EN SALA</span>
+            </div>
+            <a href="{% url 'panel-admin:gestion_encuestas' %}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                <i class="bi bi-x-lg me-1"></i> Salir de Proyección
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN HERO CONTENT -->
+    <main class="container my-auto py-4">
+        <div class="row align-items-center g-5">
+            
+            <!-- LEFT COLUMN: TITLES & INSTRUCTIONS -->
+            <div class="col-lg-6">
+                <div class="pe-lg-3">
+                    <span class="badge bg-danger text-uppercase px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm">
+                        <i class="bi bi-star-fill text-warning me-1"></i> Tu opinión nos hace crecer
+                    </span>
+                    <h1 class="display-4 fw-black text-white mb-2" style="font-weight: 800; letter-spacing: -0.5px;">
+                        {{ encuesta.titulo }}
+                    </h1>
+                    <p class="fs-4 text-white-50 mb-4">
+                        Reunión: <span class="text-white fw-semibold">{{ reunion.detalle }}</span>
+                    </p>
+
+                    <div class="mb-4">
+                        <div class="step-pill">
+                            <div class="step-number">1</div>
+                            <div>
+                                <strong class="fs-5 d-block text-white">Escanea el Código QR</strong>
+                                <span class="text-white-50">Apunta con la cámara de tu teléfono móvil o lector QR.</span>
+                            </div>
+                        </div>
+
+                        <div class="step-pill">
+                            <div class="step-number">2</div>
+                            <div>
+                                <strong class="fs-5 d-block text-white">Ingresa tu RUT</strong>
+                                <span class="text-white-50">Para validar tu asistencia y evitar votos duplicados.</span>
+                            </div>
+                        </div>
+
+                        <div class="step-pill">
+                            <div class="step-number">3</div>
+                            <div>
+                                <strong class="fs-5 d-block text-white">Califícanos en 1 Minuto</strong>
+                                <span class="text-white-50">Selecciona tus estrellas y cuéntanos tus opiniones o sugerencias.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LIVE COUNTER -->
+                    <div class="d-flex align-items-center gap-4 pt-2 border-top border-white-10">
+                        <div>
+                            <span class="text-white-50 small d-block">Respuestas Recibidas</span>
+                            <h3 class="fw-bold text-white mb-0" id="contadorRespuestas">
+                                <i class="bi bi-chat-heart-fill text-danger me-1"></i> {{ total_respuestas }}
+                            </h3>
+                        </div>
+                        <div class="border-start border-white-10 ps-4">
+                            <span class="text-white-50 small d-block">Calificación Promedio</span>
+                            <h3 class="fw-bold text-warning mb-0">
+                                <i class="bi bi-star-fill me-1"></i> {{ promedio|default:"5.0" }} <small class="text-white-50 fs-6">/ 5</small>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: QR PROJECTION FRAME -->
+            <div class="col-lg-6 text-center">
+                <div class="qr-card-container d-inline-block">
+                    <div class="qr-frame mb-3">
+                        <img src="data:image/png;base64,{{ qr_base64 }}" alt="Código QR Encuesta {{ reunion.detalle }}">
+                    </div>
+
+                    <div class="text-center">
+                        <span class="badge bg-white text-dark px-3 py-2 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-camera-fill text-danger fs-6"></i> Escanea directamente desde tu asiento
+                        </span>
+                        <div class="text-white-50 small font-monospace mt-1">
+                            Enlace: {{ url_encuesta }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- FLOATING ACTIONS -->
+    <div class="floating-controls">
+        <button class="btn btn-fullscreen" onclick="toggleFullScreen()" id="btnFullscreen">
+            <i class="bi bi-arrows-fullscreen me-1"></i> Pantalla Completa
+        </button>
+        <button class="btn btn-fullscreen" onclick="copiarEnlace()">
+            <i class="bi bi-clipboard-check me-1"></i> Copiar Link
+        </button>
+    </div>
+
+    <script>
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    document.getElementById('btnFullscreen').innerHTML = '<i class="bi bi-fullscreen-exit me-1"></i> Salir de Pantalla Completa';
+                }).catch(err => console.log(err));
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen().then(() => {
+                        document.getElementById('btnFullscreen').innerHTML = '<i class="bi bi-arrows-fullscreen me-1"></i> Pantalla Completa';
+                    });
+                }
+            }
+        }
+
+        function copiarEnlace() {
+            navigator.clipboard.writeText("{{ url_encuesta }}").then(() => {
+                alert("¡Enlace directo copiado al portapapeles!");
+            });
+        }
+
+        // Auto refresco suave del contador de respuestas cada 8 segundos
+        setInterval(() => {
+            fetch(window.location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .catch(() => {});
+        }, 8000);
+    </script>
+</body>
+</html>

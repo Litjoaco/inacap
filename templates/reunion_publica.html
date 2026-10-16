@@ -240,65 +240,7 @@
                             </button>
                         </div>
 
-                        {% if encuesta %}
-                        <!-- TARJETA DE ENCUESTA AL FINALIZAR O ACTIVA -->
-                        <div class="mt-5 p-4 rounded-4 border-0 shadow-sm"
-                            style="background: linear-gradient(135deg, #fffaf0 0%, #fff1f2 100%); border: 2px dashed #fca5a5 !important;">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                                <div>
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        {% if encuesta.tipo_encuesta == 'externa' %}
-                                        <span class="badge bg-info text-dark"><i
-                                                class="bi bi-box-arrow-up-right me-1"></i>Encuesta de Entidad
-                                            Externa</span>
-                                        {% else %}
-                                        <span class="badge bg-danger"><i
-                                                class="bi bi-star-fill text-warning me-1"></i>Encuesta de
-                                            Satisfacción</span>
-                                        {% endif %}
-                                        {% if encuesta.modalidad_entrega == 'al_finalizar' %}
-                                        <span class="badge bg-warning text-dark"><i class="bi bi-display me-1"></i>Al
-                                            terminar reunión</span>
-                                        {% else %}
-                                        <span class="badge bg-secondary text-white"><i
-                                                class="bi bi-envelope me-1"></i>Vía correo</span>
-                                        {% endif %}
-                                    </div>
-                                    <h4 class="fw-bold text-dark mb-1">{{ encuesta.titulo }}</h4>
-                                    <p class="text-muted mb-0">
-                                        {% if encuesta.tipo_encuesta == 'externa' %}
-                                        Por favor completa la encuesta oficial provista por los organizadores del
-                                        evento.
-                                        {% else %}
-                                        {{ encuesta.pregunta_estrellas|default:"¿Participaste en esta reunión? Califica
-                                        tu experiencia con estrellas y déjanos tu opinión." }}
-                                        {% endif %}
-                                    </p>
-                                </div>
-                                <div class="d-flex flex-wrap gap-2">
-                                    {% if encuesta.tipo_encuesta == 'externa' and encuesta.archivo_encuesta %}
-                                    <a href="{{ encuesta.archivo_encuesta.url }}" target="_blank"
-                                        class="btn btn-success fw-bold px-4 py-2 shadow-sm"
-                                        style="border-radius: 10px;">
-                                        <i class="bi bi-file-earmark-arrow-down-fill me-2"></i>Descargar Encuesta
-                                    </a>
-                                    {% endif %}
-                                    {% if encuesta.tipo_encuesta == 'externa' and encuesta.url_externa %}
-                                    <a href="{{ encuesta.url_externa }}" target="_blank"
-                                        class="btn btn-primary fw-bold px-4 py-2 shadow-sm"
-                                        style="border-radius: 10px;">
-                                        <i class="bi bi-box-arrow-up-right me-2"></i>Abrir Encuesta Oficial
-                                    </a>
-                                    {% elif encuesta.tipo_encuesta != 'externa' %}
-                                    <a href="{% url 'panel-admin:responder_encuesta_publica' reunion.id %}"
-                                        class="btn btn-danger fw-bold px-4 py-2 shadow-sm" style="border-radius: 10px;">
-                                        <i class="bi bi-pencil-square me-2"></i>Calificar y Opinar
-                                    </a>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
+
                     </div>
                 </div>
 

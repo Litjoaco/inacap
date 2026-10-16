@@ -88,9 +88,12 @@
                     {% endif %}
                 </div>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{% url 'panel-admin:proyectar_qr_encuesta' encuesta.id %}" target="_blank" class="btn btn-danger fw-semibold shadow-sm">
+                    <i class="bi bi-qr-code-scan me-1"></i>Proyectar QR en Sala
+                </a>
                 <a href="{% url 'panel-admin:editar_encuesta' encuesta.id %}" class="btn btn-warning fw-semibold shadow-sm">
-                    <i class="bi bi-pencil-square me-1"></i>Configurar Encuesta
+                    <i class="bi bi-pencil-square me-1"></i>Configurar
                 </a>
                 <a href="{% url 'panel-admin:gestion_encuestas' %}" class="btn btn-outline-light">
                     <i class="bi bi-arrow-left me-1"></i>Volver
@@ -353,13 +356,28 @@
                         </span>
                     </div>
 
-                    <!-- COMENTARIO -->
+                    <!-- COMENTARIO PRINCIPAL -->
                     {% if respuesta.comentarios %}
-                    <div class="p-3 bg-light rounded-3 mb-3 border-start border-3 border-danger">
+                    <div class="p-3 bg-light rounded-3 mb-2 border-start border-3 border-danger">
+                        <small class="text-muted fw-bold d-block mb-1" style="font-size: 0.75rem;">OPINIÓN / SUGERENCIA:</small>
                         <p class="mb-0 text-dark fst-italic">"{{ respuesta.comentarios }}"</p>
                     </div>
                     {% else %}
-                    <p class="text-muted small fst-italic mb-3">Sin comentarios adicionales.</p>
+                    <p class="text-muted small fst-italic mb-2">Sin opinión principal escrita.</p>
+                    {% endif %}
+
+                    <!-- RESPUESTAS ADICIONALES -->
+                    {% if respuesta.respuestas_adicionales %}
+                    <div class="mb-3 d-flex flex-column gap-2">
+                        {% for preg, resp in respuesta.respuestas_adicionales.items %}
+                        <div class="p-2.5 bg-white border rounded-2 shadow-xs" style="font-size: 0.88rem;">
+                            <span class="text-secondary fw-bold d-block mb-1" style="font-size: 0.78rem;">
+                                <i class="bi bi-chat-quote-fill text-danger me-1"></i>{{ preg }}
+                            </span>
+                            <span class="text-dark">{{ resp }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                     {% endif %}
 
                     <!-- BOTÓN TESTIMONIO -->

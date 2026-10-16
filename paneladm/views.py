@@ -582,7 +582,10 @@ def gestion_encuestas(request):
     if request.method == 'POST':
         form = EncuestaForm(request.POST, request.FILES)
         if form.is_valid():
-            encuesta = form.save()
+            encuesta = form.save(commit=False)
+            preguntas_raw = request.POST.getlist('preguntas_adicionales[]')
+            encuesta.preguntas_adicionales = [p.strip() for p in preguntas_raw if p.strip()]
+            encuesta.save()
             messages.success(request, f"¡Encuesta '{encuesta.titulo}' configurada y creada con éxito!")
             return redirect('panel-admin:gestion_encuestas')
     else:
@@ -625,7 +628,10 @@ def editar_encuesta(request, encuesta_id):
     if request.method == 'POST':
         form = EncuestaForm(request.POST, request.FILES, instance=encuesta)
         if form.is_valid():
-            form.save()
+            encuesta_actualizada = form.save(commit=False)
+            preguntas_raw = request.POST.getlist('preguntas_adicionales[]')
+            encuesta_actualizada.preguntas_adicionales = [p.strip() for p in preguntas_raw if p.strip()]
+            encuesta_actualizada.save()
             messages.success(request, f"¡Encuesta '{encuesta.titulo}' actualizada correctamente!")
             return redirect('panel-admin:gestion_encuestas')
     else:
@@ -634,6 +640,52 @@ def editar_encuesta(request, encuesta_id):
     return render(request, 'panel_admin_editar_encuesta.html', {
         'form': form,
         'encuesta': encuesta
+    })
+
+@solo_admin_required
+def proyectar_qr_encuesta(request, encuesta_id):
+    import qrcode
+    import io
+    import base64
+
+    encuesta = get_object_or_404(Encuesta.objects.select_related('reunion'), id=encuesta_id)
+    reunion = encuesta.reunion
+
+    if encuesta.tipo_encuesta == 'externa':
+        if encuesta.url_externa:
+            url_encuesta = encuesta.url_externa
+        elif encuesta.archivo_encuesta:
+            url_encuesta = request.build_absolute_uri(encuesta.archivo_encuesta.url)
+        else:
+            url_encuesta = request.build_absolute_uri(reverse('responder_encuesta_directa', args=[reunion.id]))
+    else:
+        url_encuesta = request.build_absolute_uri(reverse('responder_encuesta_directa', args=[reunion.id]))
+
+    # Generar código QR en memoria
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        box_size=12,
+        border=2,
+    )
+    qr.add_data(url_encuesta)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="#B70420", back_color="white")
+    
+    buffer = io.BytesIO()
+    img.save(buffer, format='PNG')
+    qr_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+
+    total_respuestas = encuesta.respuestas.count()
+    promedio = encuesta.promedio_puntuacion or 0.0
+
+    return render(request, 'encuesta_proyeccion_qr.html', {
+        'encuesta': encuesta,
+        'reunion': reunion,
+        'url_encuesta': url_encuesta,
+        'qr_base64': qr_base64,
+        'total_respuestas': total_respuestas,
+        'promedio': promedio,
     })
 
 @solo_admin_required
@@ -794,27 +846,42 @@ def responder_encuesta_publica(request, reunion_id):
     if request.method == 'POST':
         puntuacion = request.POST.get('puntuacion')
         comentarios = request.POST.get('comentarios', '').strip()
-        es_anonimo = request.POST.get('es_anonimo') == 'on'
+        es_anonimo = request.POST.get('es_anonimo') in ['on', 'true', True]
 
         # Identificación del usuario si no está logueado
         if not usuario_actual:
-            identificador = request.POST.get('identificador', '').strip()
-            from usuario.forms import validate_rut
-            _, rut_limpio = validate_rut(identificador)
-            usuario_candidato = Usuario.objects.filter(Q(rut=rut_limpio) | Q(email__iexact=identificador)).first() if identificador else None
+            identificador_rut = request.POST.get('identificador_rut', '').strip()
+            identificador_correo = request.POST.get('identificador_correo', '').strip()
             
+            from usuario.forms import validate_rut, format_rut
+            rut_limpio = ''
+            if identificador_rut:
+                valido, rut_limpio = validate_rut(identificador_rut)
+            
+            usuario_candidato = None
+            if rut_limpio:
+                usuario_candidato = Usuario.objects.filter(rut=rut_limpio).first()
+            if not usuario_candidato and identificador_correo:
+                usuario_candidato = Usuario.objects.filter(email__iexact=identificador_correo).first()
+
             if usuario_candidato:
                 usuario_actual = usuario_candidato
             else:
                 nombre_inv = request.POST.get('nombre_invitado', '').strip() or 'Participante'
-                email_inv = request.POST.get('email_invitado', '').strip()
-                import uuid
-                rut_temp = f"ENC-{uuid.uuid4().hex[:8].upper()}"
+                apellido_inv = request.POST.get('apellido_invitado', '').strip() or ''
+                email_inv = identificador_correo or request.POST.get('email_invitado', '').strip()
+                
+                if rut_limpio:
+                    rut_final = format_rut(rut_limpio)
+                else:
+                    import uuid
+                    rut_final = f"ENC-{uuid.uuid4().hex[:8].upper()}"
+
                 usuario_actual = Usuario.objects.create(
-                    rut=rut_temp,
-                    nombre=nombre_inv,
-                    apellido='',
-                    email=email_inv or f"anonimo_{uuid.uuid4().hex[:6]}@inacap.cl",
+                    rut=rut_final,
+                    nombre=nombre_inv.title(),
+                    apellido=apellido_inv.title(),
+                    email=email_inv or f"participante_{uuid.uuid4().hex[:6]}@inacap.cl",
                     rubro='externo',
                     institucion_empresa='Participante Evento'
                 )
@@ -826,11 +893,22 @@ def responder_encuesta_publica(request, reunion_id):
             ya_respondio = True
         else:
             puntos = max(1, min(5, int(puntuacion)))
+
+            # Recolectar respuestas a preguntas adicionales
+            respuestas_adicionales = {}
+            if encuesta.preguntas_adicionales:
+                for idx, preg in enumerate(encuesta.preguntas_adicionales):
+                    campo_extra = f'pregunta_extra_{idx}'
+                    respuesta_texto = request.POST.get(campo_extra, '').strip()
+                    if respuesta_texto:
+                        respuestas_adicionales[preg] = respuesta_texto
+
             RespuestaEncuesta.objects.create(
                 encuesta=encuesta,
                 usuario=usuario_actual,
                 puntuacion=puntos,
                 comentarios=comentarios,
+                respuestas_adicionales=respuestas_adicionales,
                 es_anonimo=es_anonimo
             )
             return render(request, 'encuesta_agradecimiento.html', {
