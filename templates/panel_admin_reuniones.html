@@ -285,27 +285,27 @@
                                         {% if reunion.direccion %}<small class="text-muted">{{ reunion.direccion }}</small>{% endif %}
                                     </td>
                                     <td class="text-end">
-                                        <div class="d-inline-flex gap-1">
+                                        <div class="d-inline-flex gap-2 align-items-center">
                                             <!-- Tomar Asistencia QR -->
-                                            <a href="{% url 'panel-admin:registrar_asistencia' reunion.id %}" class="btn btn-sm text-white" style="background-color: var(--inacap-red);" title="Acreditar / Tomar Asistencia QR">
+                                            <a href="{% url 'panel-admin:registrar_asistencia' reunion.id %}" class="btn btn-sm text-white d-inline-flex align-items-center justify-content-center" style="background-color: var(--inacap-red); width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Acreditar y Tomar Asistencia QR">
                                                 <i class="bi bi-qr-code-scan"></i>
                                             </a>
                                             <!-- Compartir link -->
-                                            <button type="button" onclick="copiarLinkReunion({{ reunion.id }})" class="btn btn-sm btn-outline-danger" title="Copiar Link Público">
+                                            <button type="button" onclick="copiarLinkReunion({{ reunion.id }})" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Copiar Enlace Público del Evento">
                                                 <i class="bi bi-share-fill"></i>
                                             </button>
                                             <!-- Ver Lista de Asistentes -->
-                                            <a href="{% url 'panel-admin:ver_asistentes_reunion' reunion.id %}" class="btn btn-sm btn-primary" title="Ver Lista de Asistentes">
+                                            <a href="{% url 'panel-admin:ver_asistentes_reunion' reunion.id %}" class="btn btn-sm btn-primary d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Nómina de Asistentes">
                                                 <i class="bi bi-people-fill"></i>
                                             </a>
                                             <!-- Editar -->
-                                            <a href="{% url 'panel-admin:editar_reunion' reunion.id %}" class="btn btn-sm btn-warning text-dark" title="Editar Evento">
+                                            <a href="{% url 'panel-admin:editar_reunion' reunion.id %}" class="btn btn-sm btn-warning text-dark d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar Detalles del Evento">
                                                 <i class="bi bi-pencil-fill"></i>
                                             </a>
                                             <!-- Eliminar -->
                                             <form action="{% url 'panel-admin:eliminar_reunion' reunion.id %}" method="POST" class="d-inline delete-form">
                                                 {% csrf_token %}
-                                                <button type="button" class="btn btn-sm btn-danger delete-btn" data-detalle="{{ reunion.detalle }}" title="Eliminar Evento">
+                                                <button type="button" class="btn btn-sm btn-danger delete-btn d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-detalle="{{ reunion.detalle }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar este Evento">
                                                     <i class="bi bi-trash3-fill"></i>
                                                 </button>
                                             </form>

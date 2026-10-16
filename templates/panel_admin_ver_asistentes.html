@@ -21,11 +21,11 @@
             </p>
         </div>
         <div class="d-flex gap-2">
-            <a href="{% url 'panel-admin:exportar_asistentes_reunion_excel' reunion.id %}" class="btn btn-success btn-sm fw-semibold text-white shadow-sm d-inline-flex align-items-center gap-1.5 px-3">
+            <a href="{% url 'panel-admin:exportar_asistentes_reunion_excel' reunion.id %}" class="btn btn-success btn-sm fw-semibold text-white shadow-sm d-inline-flex align-items-center gap-2 px-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar nómina de asistentes a Excel">
                 <i class="bi bi-file-earmark-excel-fill"></i>
                 <span>Exportar a Excel</span>
             </a>
-            <a href="{% url 'panel-admin:registrar_asistencia' reunion.id %}" class="btn btn-danger btn-sm fw-semibold text-white shadow-sm d-inline-flex align-items-center gap-1.5 px-3">
+            <a href="{% url 'panel-admin:registrar_asistencia' reunion.id %}" class="btn btn-danger btn-sm fw-semibold text-white shadow-sm d-inline-flex align-items-center gap-2 px-3" data-bs-toggle="tooltip" data-bs-placement="top" title="Abrir lector QR / Registro de asistencia en vivo">
                 <i class="bi bi-qr-code-scan"></i>
                 <span>Escanear / Acreditar</span>
             </a>
@@ -94,8 +94,8 @@
                                     <span class="badge rounded-pill text-white" style="background-color: var(--inacap-red);">{{ a.cantidad_asistencias }}</span>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <a href="{% url 'imprimir_etiqueta_reunion' reunion.id a.id %}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Imprimir Credencial">
-                                        <i class="bi bi-printer-fill me-1"></i> Imprimir
+                                    <a href="{% url 'imprimir_etiqueta_reunion' reunion.id a.id %}" target="_blank" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Imprimir credencial / etiqueta para este asistente">
+                                        <i class="bi bi-printer-fill"></i> Imprimir
                                     </a>
                                 </td>
                             </tr>

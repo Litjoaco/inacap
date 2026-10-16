@@ -69,23 +69,23 @@
                                     <span class="small fw-medium text-dark"><i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ r.ubicacion|default:"Sede INACAP" }}</span>
                                 </td>
                                 <td class="text-center">
-                                    <span class="badge rounded-pill text-white px-3 py-1.5 fs-6" style="background-color: var(--inacap-red);" title="{{ r.num_asistentes }} asistentes">
+                                    <span class="badge rounded-pill text-white px-3 py-1 fs-6" style="background-color: var(--inacap-red);" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ r.num_asistentes }} personas acreditadas">
                                         <i class="bi bi-person-check me-1"></i> {{ r.num_asistentes }}
                                     </span>
                                 </td>
                                 <td class="text-end pe-4">
-                                    <div class="d-inline-flex gap-1.5">
+                                    <div class="d-inline-flex gap-2 align-items-center">
                                         <!-- Ver Lista -->
-                                        <a href="{% url 'panel-admin:ver_asistentes_reunion' r.id %}" class="btn btn-sm btn-outline-danger fw-semibold" title="Ver Lista de Asistentes">
-                                            <i class="bi bi-eye-fill me-1"></i> Ver Lista
+                                        <a href="{% url 'panel-admin:ver_asistentes_reunion' r.id %}" class="btn btn-sm btn-outline-danger fw-semibold d-inline-flex align-items-center gap-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver nómina de asistentes registrados">
+                                            <i class="bi bi-eye-fill"></i> Ver Lista
                                         </a>
                                         <!-- Excel -->
-                                        <a href="{% url 'panel-admin:exportar_asistentes_reunion_excel' r.id %}" class="btn btn-sm btn-success text-white fw-semibold shadow-sm" title="Descargar Lista en Excel">
-                                            <i class="bi bi-file-earmark-excel-fill me-1"></i> Excel
+                                        <a href="{% url 'panel-admin:exportar_asistentes_reunion_excel' r.id %}" class="btn btn-sm btn-success text-white fw-semibold shadow-sm d-inline-flex align-items-center gap-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Descargar planilla Excel de asistentes">
+                                            <i class="bi bi-file-earmark-excel-fill"></i> Excel
                                         </a>
                                         <!-- Acreditar -->
-                                        <a href="{% url 'panel-admin:registrar_asistencia' r.id %}" class="btn btn-sm text-white fw-semibold shadow-sm" style="background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));" title="Escanear QR / Acreditar">
-                                            <i class="bi bi-qr-code-scan"></i>
+                                        <a href="{% url 'panel-admin:registrar_asistencia' r.id %}" class="btn btn-sm text-white fw-semibold shadow-sm d-inline-flex align-items-center gap-1" style="background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));" data-bs-toggle="tooltip" data-bs-placement="top" title="Escanear QR y tomar asistencia en vivo">
+                                            <i class="bi bi-qr-code-scan"></i> Escanear
                                         </a>
                                     </div>
                                 </td>

@@ -325,22 +325,22 @@
                             {% endif %}
                         </td>
                         <td class="text-center">
-                            <span class="badge-asistencia-pill" title="Asistencias registradas">{{ usuario.cantidad_asistencias }}</span>
+                            <span class="badge-asistencia-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ usuario.cantidad_asistencias }} asistencias registradas">{{ usuario.cantidad_asistencias }}</span>
                         </td>
                         <td class="text-end">
-                            <div class="d-inline-flex gap-1">
-                                <a href="{% url 'imprimir_etiqueta' usuario.id %}" target="_blank" class="btn btn-outline-secondary btn-sm" title="Ver / Imprimir Credencial QR">
+                            <div class="d-inline-flex gap-2 align-items-center">
+                                <a href="{% url 'imprimir_etiqueta' usuario.id %}" target="_blank" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver / Imprimir Credencial con QR">
                                     <i class="bi bi-qr-code"></i>
                                 </a>
                                 
-                                <a href="{% url 'panel-admin:editar_usuario_admin' usuario.id %}" class="btn btn-outline-primary btn-sm" title="Editar Perfil">
+                                <a href="{% url 'panel-admin:editar_usuario_admin' usuario.id %}" class="btn btn-outline-primary btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar Perfil del Usuario">
                                     <i class="bi bi-pencil-square"></i>
                                 </a>
                                 
                                 {% if usuario_actual.es_admin and usuario.id != request.session.usuario_id %}
                                     <form action="{% url 'panel-admin:eliminar_usuario' usuario.id %}" method="POST" class="d-inline delete-form">
                                         {% csrf_token %}
-                                        <button type="button" class="btn btn-outline-danger btn-sm delete-btn" data-nombre="{{ usuario.nombre }} {{ usuario.apellido }}" title="Eliminar Usuario">
+                                        <button type="button" class="btn btn-outline-danger btn-sm delete-btn d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-nombre="{{ usuario.nombre }} {{ usuario.apellido }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar Usuario">
                                             <i class="bi bi-trash3"></i>
                                         </button>
                                     </form>
@@ -366,7 +366,7 @@
                 <i class="bi bi-people me-1"></i> Total en vista: <strong class="text-dark">{{ usuarios.count|default:"0" }} usuarios</strong>
             </div>
             <div>
-                <a href="{% url 'panel-admin:exportar_usuarios_excel' %}?q={{ query|urlencode }}&rubro={{ rubro_filter|urlencode }}" class="btn btn-success btn-sm fw-semibold shadow-sm d-inline-flex align-items-center gap-1.5 px-3 py-2" id="btnExportarUsuariosBottom">
+                <a href="{% url 'panel-admin:exportar_usuarios_excel' %}?q={{ query|urlencode }}&rubro={{ rubro_filter|urlencode }}" class="btn btn-success btn-sm fw-semibold shadow-sm d-inline-flex align-items-center gap-2 px-3 py-2" id="btnExportarUsuariosBottom" data-bs-toggle="tooltip" data-bs-placement="top" title="Exportar nómina de usuarios completa a Excel">
                     <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i>
                     <span>Exportar Nómina a Excel</span>
                 </a>
