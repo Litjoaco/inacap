@@ -478,17 +478,8 @@
                     </button>
 
                     {% if usuario %}
-                    {% if usuario.es_admin or usuario.es_ayudante %}
-                    <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-nav-admin">
-                        <i class="bi bi-shield-lock me-1"></i> Panel Admin
-                    </a>
-                    {% endif %}
                     <a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm ms-1" title="Cerrar Sesión">
-                        <i class="bi bi-box-arrow-right"></i>
-                    </a>
-                    {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-nav-admin">
-                        <i class="bi bi-person-fill me-1"></i> Acceso Admin
+                        <i class="bi bi-box-arrow-right me-1"></i> Salir
                     </a>
                     {% endif %}
                 </nav>
@@ -732,19 +723,27 @@
     <footer>
         <div class="container">
             <div class="row align-items-center mb-3">
-                <div class="col-md-6 text-md-start mb-3 mb-md-0">
+                <div class="col-md-6 text-md-start mb-2 mb-md-0">
                     <h5 class="fw-bold text-white mb-1">INACAP</h5>
                     <p class="mb-0 small text-white opacity-80">Formando a los profesionales del mañana</p>
                 </div>
                 <div class="col-md-6 text-md-end">
-                    <a href="https://www.instagram.com/inacap_oficial" target="_blank" class="me-3">
-                        <i class="bi bi-instagram me-1"></i> Instagram
+                    <a href="https://www.instagram.com/inacap_oficial" target="_blank" class="text-white text-decoration-none small">
+                        <i class="bi bi-instagram me-1"></i> Instagram Oficial
                     </a>
-                    <a href="{% url 'login' %}">Acceso Administrativo</a>
                 </div>
             </div>
-            <div class="border-top border-white border-opacity-25 pt-3 mt-3 text-center">
+            <div class="border-top border-white border-opacity-25 pt-3 mt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <small class="opacity-75">&copy; 2026 INACAP. Todos los derechos reservados | Portal de Eventos.</small>
+                {% if usuario and usuario.es_admin or usuario and usuario.es_ayudante %}
+                <a href="{% url 'panel-admin:panel_admin' %}" class="text-white-50 text-decoration-none" style="font-size: 0.75rem; opacity: 0.65;" title="Panel de Administración">
+                    <i class="bi bi-shield-lock me-1"></i> Panel Admin
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}" class="text-white-50 text-decoration-none" style="font-size: 0.75rem; opacity: 0.5;" title="Acceso Administrativo">
+                    <i class="bi bi-lock me-1"></i> Acceso Admin
+                </a>
+                {% endif %}
             </div>
         </div>
     </footer>
