@@ -56,6 +56,7 @@
             line-height: 1.18;
             color: #111827;
             word-break: break-word;
+            text-transform: capitalize !important;
         }
 
         @media print {
@@ -81,7 +82,7 @@
     <div class="printable-tag">
         <img src="{% if plantilla.logo %}{{ plantilla.logo.url }}{% else %}{% static 'img/logo_etiqueta.jpg' %}{% endif %}" alt="Logo INACAP" class="tag-logo">
         <div class="tag-info">
-            <h1 class="tag-nombre">{{ usuario.nombre }}<br>{{ usuario.apellido }}</h1>
+            <h1 class="tag-nombre">{{ usuario.nombre|title }}<br>{{ usuario.apellido|title }}</h1>
         </div>
     </div>
 

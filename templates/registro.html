@@ -589,6 +589,27 @@
                 rutInput.value = formatRUTLive(rutInput.value);
             }
         }
+
+        const nombreInput = document.querySelector('#{{ form.nombre.id_for_label }}');
+        const apellidoInput = document.querySelector('#{{ form.apellido.id_for_label }}');
+
+        function autoCapitalizarTexto(val) {
+            if (!val) return '';
+            return val.toLowerCase().replace(/(^|\s|-)\S/g, l => l.toUpperCase());
+        }
+
+        if (nombreInput) {
+            nombreInput.style.textTransform = 'capitalize';
+            nombreInput.addEventListener('blur', function(e) {
+                e.target.value = autoCapitalizarTexto(e.target.value);
+            });
+        }
+        if (apellidoInput) {
+            apellidoInput.style.textTransform = 'capitalize';
+            apellidoInput.addEventListener('blur', function(e) {
+                e.target.value = autoCapitalizarTexto(e.target.value);
+            });
+        }
     });
 </script>
 

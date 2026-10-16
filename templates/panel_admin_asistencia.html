@@ -990,6 +990,11 @@ function toggleModalPerfil() {
     }
 }
 
+function autoCapitalizarTexto(val) {
+    if (!val) return '';
+    return String(val).toLowerCase().replace(/(^|\s|-)\S/g, l => l.toUpperCase());
+}
+
 function abrirModalConRut(rut, nombre = '', apellido = '') {
     try { Swal.close(); } catch(e) {}
     const modalEl = document.getElementById('modalRegistroRapidoAsistencia');
@@ -1003,8 +1008,8 @@ function abrirModalConRut(rut, nombre = '', apellido = '') {
     const badgeCarnetStatus = document.getElementById('badge_carnet_status');
 
     if (inputRut && rut) inputRut.value = formatRUTString(rut);
-    if (inputNombre && nombre) inputNombre.value = nombre;
-    if (inputApellido && apellido) inputApellido.value = apellido;
+    if (inputNombre && nombre) inputNombre.value = autoCapitalizarTexto(nombre);
+    if (inputApellido && apellido) inputApellido.value = autoCapitalizarTexto(apellido);
     if (inputEmail) inputEmail.value = '';
 
     const vieneDeCarnet = !!(nombre || apellido);
@@ -1041,6 +1046,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (inputRutModal) {
         inputRutModal.addEventListener('input', (e) => {
             e.target.value = formatRUTString(e.target.value);
+        });
+    }
+
+    const inputNombreModal = document.getElementById('modal_input_nombre');
+    const inputApellidoModal = document.getElementById('modal_input_apellido');
+    if (inputNombreModal) {
+        inputNombreModal.style.textTransform = 'capitalize';
+        inputNombreModal.addEventListener('blur', (e) => {
+            e.target.value = autoCapitalizarTexto(e.target.value);
+        });
+    }
+    if (inputApellidoModal) {
+        inputApellidoModal.style.textTransform = 'capitalize';
+        inputApellidoModal.addEventListener('blur', (e) => {
+            e.target.value = autoCapitalizarTexto(e.target.value);
         });
     }
 

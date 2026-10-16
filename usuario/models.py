@@ -200,6 +200,15 @@ class Usuario(AbstractBaseUser, PermissionsMixin):
             return self.carrera_otro or 'Otra Carrera'
         return self.get_carrera_display()
 
+    def save(self, *args, **kwargs):
+        if self.nombre:
+            partes = str(self.nombre).strip().split()
+            self.nombre = ' '.join('-'.join(sub.capitalize() for sub in p.split('-')) for p in partes)
+        if self.apellido:
+            partes = str(self.apellido).strip().split()
+            self.apellido = ' '.join('-'.join(sub.capitalize() for sub in p.split('-')) for p in partes)
+        super().save(*args, **kwargs)
+
 @receiver(post_save, sender=Usuario)
 def extras_post_creacion(sender, instance, created, **kwargs):
     import random
