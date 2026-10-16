@@ -106,6 +106,11 @@ def privileged_user_required(view_func):
     def wrapper(request, *args, **kwargs):
         usuario_id = request.session.get('usuario_id')
         if not usuario_id:
+            if request.content_type == 'application/json' or request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Tu sesión ha expirado o no has iniciado sesión. Por favor recarga e inicia sesión nuevamente.'
+                }, status=401)
             return redirect('login')
         try:
             usuario_actual = Usuario.objects.get(id=usuario_id)

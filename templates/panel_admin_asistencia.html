@@ -828,14 +828,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function actualizarUIAgregarAsistente(asistente) {
-        if (noAsistentesMsg) noAsistentesMsg.remove();
+        if (!asistente) return;
+        const noMsg = document.getElementById('no-asistentes');
+        if (noMsg) noMsg.remove();
+
+        const lista = document.getElementById('lista-asistentes');
+        const contador = document.getElementById('contador-asistentes');
 
         const existente = document.getElementById(`asistente-${asistente.id}`);
         if (existente) return;
 
         const nuevoAsistenteHTML = `
             <div class="d-flex align-items-center">
-                <img src="${asistente.foto_url}" alt="${asistente.nombre}" class="asistente-img">
+                <img src="${asistente.foto_url || '/static/img/persn.jpg'}" alt="${asistente.nombre}" class="asistente-img">
                 <div>
                     <span class="fw-bold d-block text-dark small">${asistente.nombre} ${asistente.apellido}</span>
                     <small class="text-muted font-monospace" style="font-size: 0.76rem;">${asistente.rut}</small>
@@ -857,13 +862,20 @@ document.addEventListener('DOMContentLoaded', () => {
         li.className = 'list-group-item asistente-item d-flex justify-content-between align-items-center p-2.5';
         li.id = `asistente-${asistente.id}`;
         li.innerHTML = nuevoAsistenteHTML;
-        listaAsistentes.prepend(li);
+        if (lista) lista.prepend(li);
 
-        contadorAsistentes.textContent = parseInt(contadorAsistentes.textContent || '0') + 1;
+        if (contador) {
+            contador.textContent = parseInt(contador.textContent || '0') + 1;
+        }
 
-        $(`#usuario_id option[value='${asistente.id}']`).remove();
-        $('#usuario_id').val(null).trigger('change');
+        try {
+            $(`#usuario_id option[value='${asistente.id}']`).remove();
+            $('#usuario_id').val(null).trigger('change');
+        } catch(e) {}
     }
+    window.actualizarUIAgregarAsistente = actualizarUIAgregarAsistente;
+    window.imprimirEtiquetaGarantizada = imprimirEtiquetaGarantizada;
+    window.actualizarMetricasAforo = actualizarMetricasAforo;
 
     $('#usuario_id').select2({
         theme: 'bootstrap-5',
@@ -1107,7 +1119,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify(payload)
             })
-            .then(res => res.json().then(data => ({ ok: res.ok, status: res.status, data })))
+            .then(res => {
+                return res.json().then(data => ({ ok: res.ok, status: res.status, data })).catch(() => {
+                    throw new Error('El servidor no respondió en formato válido (Código ' + res.status + ').');
+                });
+            })
             .then(({ ok, status, data }) => {
                 btnSubmit.disabled = false;
                 btnSubmit.innerHTML = originalBtnHtml;
@@ -1132,14 +1148,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             osc.stop(audioCtx.currentTime + 0.15);
                         } catch(e) {}
 
-                        actualizarUIAgregarAsistente(data.asistente);
+                        if (typeof actualizarUIAgregarAsistente === 'function') {
+                            actualizarUIAgregarAsistente(data.asistente);
+                        }
                     }
 
-                    if (data.aforo_info) {
+                    if (data.aforo_info && typeof actualizarMetricasAforo === 'function') {
                         actualizarMetricasAforo(data.aforo_info);
                     }
 
-                    if (imprimirCredencial && data.print_url) {
+                    if (imprimirCredencial && data.print_url && typeof imprimirEtiquetaGarantizada === 'function') {
                         imprimirEtiquetaGarantizada(data.print_url);
                     }
 
@@ -1151,7 +1169,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         showConfirmButton: false
                     });
                 } else if (status === 409 && data.status === 'aforo_completo') {
-                    if (data.aforo_info) actualizarMetricasAforo(data.aforo_info);
+                    if (data.aforo_info && typeof actualizarMetricasAforo === 'function') {
+                        actualizarMetricasAforo(data.aforo_info);
+                    }
                     Swal.fire({
                         icon: 'warning',
                         title: '¡Aforo Máximo Alcanzado!',
@@ -1181,9 +1201,15 @@ document.addEventListener('DOMContentLoaded', () => {
                                     const modalInstance = bootstrap.Modal.getInstance(modalEl);
                                     if (modalInstance) modalInstance.hide();
                                     formCrearRapido.reset();
-                                    actualizarUIAgregarAsistente(dataOver.asistente);
-                                    if (dataOver.aforo_info) actualizarMetricasAforo(dataOver.aforo_info);
-                                    if (imprimirCredencial && dataOver.print_url) imprimirEtiquetaGarantizada(dataOver.print_url);
+                                    if (typeof actualizarUIAgregarAsistente === 'function') {
+                                        actualizarUIAgregarAsistente(dataOver.asistente);
+                                    }
+                                    if (dataOver.aforo_info && typeof actualizarMetricasAforo === 'function') {
+                                        actualizarMetricasAforo(dataOver.aforo_info);
+                                    }
+                                    if (imprimirCredencial && dataOver.print_url && typeof imprimirEtiquetaGarantizada === 'function') {
+                                        imprimirEtiquetaGarantizada(dataOver.print_url);
+                                    }
                                     Swal.fire('¡Acreditado!', 'Participante acreditado con sobrecupo.', 'success');
                                 } else {
                                     Swal.fire('Error', dataOver.message, 'error');
@@ -1201,12 +1227,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             })
             .catch(err => {
+                console.error("Error al registrar participante:", err);
                 btnSubmit.disabled = false;
                 btnSubmit.innerHTML = originalBtnHtml;
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error de Conexión',
-                    text: 'Ocurrió un error al procesar el registro.',
+                    title: 'Atención',
+                    text: err && err.message ? err.message : 'Ocurrió un error al procesar el registro.',
                     confirmButtonColor: '#B70420'
                 });
             });
