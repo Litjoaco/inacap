@@ -1,0 +1,332 @@
+/* ==========================================================================
+   INACAP - HOJA DE ESTILOS RESPONSIVA PARA DISPOSITIVOS MÓVILES (SMARTPHONES Y TABLETS)
+   Mejora la visualización, botones, tablas, tarjetas y cabeceras en pantallas pequeñas
+   ========================================================================== */
+
+/* 1. PREVENCIÓN DE DESBORDAMIENTO HORIZONTAL GLOBAL */
+html, body {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+}
+
+/* 2. REGLAS RESPONSIVAS PARA PANTALLAS PEQUEÑAS (TABLETS Y MÓVILES: <= 768px) */
+@media (max-width: 768px) {
+    /* Evitar zoom molesto en iOS al hacer focus en inputs */
+    input, select, textarea, .form-control, .form-select {
+        font-size: 16px !important;
+    }
+
+    /* Reducción de botones gigantes */
+    .btn-lg,
+    .hero-btn-primary,
+    .hero-btn-secondary,
+    .btn-create-event,
+    .btn-submit-formal,
+    .btn-submit-inacap {
+        padding: 10px 18px !important;
+        font-size: 0.95rem !important;
+        min-height: 42px !important;
+    }
+
+    /* En móviles los botones w-100 no deben tener márgenes exagerados */
+    .btn.w-100 {
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+        font-size: 0.95rem !important;
+    }
+
+    /* Headers y Navbars Institucionales */
+    header.header-admin,
+    header.top-admin-header,
+    .top-header,
+    .hero-banner {
+        padding: 10px 14px !important;
+    }
+
+    .header-brand img,
+    .header-admin img,
+    .top-admin-header img {
+        height: 32px !important;
+        margin-right: 8px !important;
+    }
+
+    .header-brand .fs-5,
+    .brand-title,
+    .page-hero-title,
+    .card-title-main {
+        font-size: 1.05rem !important;
+    }
+
+    .header-brand small,
+    .brand-sub,
+    .page-hero-subtitle {
+        font-size: 0.72rem !important;
+        max-width: 220px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Tarjetas y Padding en Móvil */
+    .card-body,
+    .login-card-white,
+    .register-card-compact,
+    .content-card,
+    .creator-card .card-body,
+    .chart-box,
+    .events-card {
+        padding: 14px 14px !important;
+    }
+
+    .card-icon {
+        font-size: 2.2rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* Botones de acción en encabezados */
+    .header-admin .btn,
+    .top-admin-header .btn,
+    .hero-banner .btn {
+        padding: 6px 10px !important;
+        font-size: 0.8rem !important;
+    }
+
+    /* KPI Cards compactas */
+    .kpi-card, .kpi-mini-card, .metric-card {
+        padding: 12px 14px !important;
+    }
+
+    .kpi-card h2,
+    .kpi-card .h2 {
+        font-size: 1.45rem !important;
+    }
+
+    .kpi-card .fs-1,
+    .kpi-mini-card .kpi-icon,
+    .metric-icon-wrap {
+        font-size: 1.5rem !important;
+        width: 38px !important;
+        height: 38px !important;
+    }
+
+    /* Grupos de botones de filtro (evitar que desborden) */
+    .btn-group#filterGroup,
+    #filterGroup.btn-group {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        width: 100% !important;
+        gap: 4px !important;
+    }
+
+    .btn-group#filterGroup .btn,
+    #filterGroup .btn {
+        flex: 1 1 auto !important;
+        border-radius: 6px !important;
+        font-size: 0.78rem !important;
+        padding: 6px 8px !important;
+        margin: 0 !important;
+    }
+
+    /* Pestañas de navegación con scroll horizontal suave */
+    .nav-tabs-custom {
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+
+    .nav-tabs-custom .nav-link {
+        white-space: nowrap !important;
+        padding: 9px 14px !important;
+        font-size: 0.84rem !important;
+    }
+
+    /* Tablas con scroll horizontal suave */
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px;
+    }
+
+    .table th, .table td {
+        padding: 8px 10px !important;
+        font-size: 0.84rem !important;
+    }
+
+    /* Botones de acción pequeños en tablas */
+    .table .btn-sm,
+    .table .btn {
+        padding: 4px 7px !important;
+        font-size: 0.78rem !important;
+    }
+
+    /* Selector de tipo en registro */
+    .origin-tabs-container,
+    .subtipo-selector-container {
+        gap: 6px !important;
+    }
+
+    .origin-btn-hero {
+        padding: 8px 10px !important;
+        font-size: 0.82rem !important;
+    }
+
+    .subtipo-btn {
+        padding: 6px 8px !important;
+        font-size: 0.78rem !important;
+    }
+
+    /* Diálogos modales adaptados */
+    .modal-dialog {
+        margin: 0.6rem !important;
+    }
+
+    .modal-content {
+        border-radius: 14px !important;
+    }
+}
+
+/* 3. REGLAS ULTRA-MÓVILES (PANTALLAS EXTRA PEQUEÑAS: <= 576px) */
+@media (max-width: 576px) {
+    /* Contenedor principal con margen aireado pero aprovechado */
+    main.container,
+    main.container-fluid,
+    .container {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    /* Tarjetas de admin (Panel principal) */
+    .card-admin-link .card {
+        padding: 14px 10px !important;
+    }
+
+    .card-admin-link .card-title {
+        font-size: 0.95rem !important;
+        margin-bottom: 4px !important;
+    }
+
+    .card-admin-link .card-text {
+        font-size: 0.76rem !important;
+    }
+
+    /* Barra de búsqueda de ancho completo */
+    .search-input-custom {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Respuestas en tarjetas individuales */
+    .response-card {
+        padding: 12px !important;
+    }
+
+    .response-card .star-gold {
+        font-size: 1rem !important;
+    }
+
+    /* Botones en navbar de inicio */
+    .btn-nav-qr {
+        padding: 6px 10px !important;
+        font-size: 0.78rem !important;
+        white-space: nowrap !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    .btn-nav-inscribir-blanco {
+        padding: 6px 12px !important;
+        font-size: 0.8rem !important;
+        white-space: nowrap !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Hero en inicio */
+    .hero-fullscreen {
+        background-attachment: scroll !important;
+        min-height: 100dvh !important;
+    }
+
+    .hero-title {
+        font-size: 1.85rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .hero-subtitle {
+        font-size: 0.92rem !important;
+        line-height: 1.5 !important;
+        margin-bottom: 20px !important;
+    }
+
+    .hero-actions-wrapper {
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 360px !important;
+        margin: 0 auto !important;
+        gap: 10px !important;
+    }
+
+    .hero-btn-primary,
+    .hero-btn-secondary {
+        width: 100% !important;
+        text-align: center !important;
+        justify-content: center !important;
+        padding: 12px 16px !important;
+        font-size: 0.95rem !important;
+    }
+
+    .hero-stats-bottom .stat-card-glass {
+        flex-direction: column !important;
+        text-align: center !important;
+        justify-content: center !important;
+        padding: 10px 4px !important;
+        gap: 5px !important;
+        border-radius: 12px !important;
+    }
+
+    .stat-icon-wrapper {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 1.05rem !important;
+        margin: 0 auto !important;
+        border-radius: 8px !important;
+    }
+
+    .stat-number {
+        font-size: 1.15rem !important;
+        line-height: 1.1 !important;
+    }
+
+    .stat-label {
+        font-size: 0.68rem !important;
+        line-height: 1.15 !important;
+        letter-spacing: -0.2px !important;
+    }
+}
+
+/* ==========================================================================
+   FOOTER INACAP SENCILLO Y COMPACTO (ROJO CLÁSICO)
+   ========================================================================== */
+footer.inacap-footer-simple {
+    background: linear-gradient(to right, #B70420, #8B0014) !important;
+    color: #FFFFFF !important;
+    padding: 22px 0 16px !important;
+    font-size: 0.88rem !important;
+    box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08) !important;
+    margin-top: auto;
+}
+
+footer.inacap-footer-simple a {
+    color: rgba(255, 255, 255, 0.92) !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+}
+
+footer.inacap-footer-simple a:hover {
+    color: #FFFFFF !important;
+    text-decoration: underline !important;
+}
+
+

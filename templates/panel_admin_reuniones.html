@@ -4,196 +4,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Eventos - Panel INACAP</title>
+    <title>Gestión de Eventos y Reuniones - INACAP</title>
     
+    <!-- Google Fonts: Plus Jakarta Sans & Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/responsive-mobile.css' %}">
     
     <style>
         :root {
             --inacap-red: #B70420;
             --inacap-dark: #8B0014;
-            --inacap-border: #E2E8F0;
+            --inacap-darker: #66000E;
+            --inacap-light-red: #FEF2F2;
+            --border-soft: #E2E8F0;
+            --bg-page: #F8FAFC;
         }
 
         body {
-            font-family: 'Poppins', Arial, sans-serif;
-            background-color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-page);
+            color: #1E293B;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             margin: 0;
-            color: #1e293b;
+            -webkit-font-smoothing: antialiased;
         }
 
-        header.header-admin {
-            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
-            padding: 14px 24px;
-            color: white;
-            box-shadow: 0 2px 10px rgba(183, 4, 32, 0.15);
-        }
-
-        .header-brand {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: white;
-        }
-
-        .header-brand img {
-            height: 40px;
-            width: auto;
-            margin-right: 12px;
-        }
-
-        /* Hero / Metric Header */
-        .page-hero {
-            background: #FFFFFF;
-            border-bottom: 1px solid var(--inacap-border);
-            padding: 22px 0;
-            margin-bottom: 24px;
-        }
-
-        .page-hero-title {
+        h1, h2, h3, h4, h5, h6 {
             font-family: 'Poppins', sans-serif;
-            font-weight: 800;
-            font-size: 1.65rem;
-            color: #0F172A;
-            margin-bottom: 2px;
-            letter-spacing: -0.5px;
         }
 
-        .page-hero-subtitle {
-            font-size: 0.88rem;
-            color: #64748B;
-            margin: 0;
+        main {
+            flex-grow: 1;
         }
 
-        .metric-pill-chip {
-            background: #F8FAFC;
-            border: 1px solid var(--inacap-border);
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: #475569;
+        /* HERO BANNER PREMIUM */
+        .hero-banner {
+            background: linear-gradient(135deg, #7A0012 0%, #B70420 55%, #900318 100%);
+            position: relative;
+            color: white;
+            padding: 2.2rem 0 2rem;
+            box-shadow: 0 10px 30px rgba(183, 4, 32, 0.22);
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -8%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero-banner::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            left: 8%;
+            width: 340px;
+            height: 340px;
+            background: radial-gradient(circle, rgba(255,140,140,0.14) 0%, rgba(255,255,255,0) 65%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .hero-btn-white {
+            background: #FFFFFF;
+            color: var(--inacap-red) !important;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            padding: 9px 18px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            text-decoration: none;
+            font-size: 0.88rem;
         }
 
-        .metric-pill-chip strong {
-            color: #0F172A;
+        .hero-btn-white:hover {
+            background: #FFF5F5;
+            color: var(--inacap-dark) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.28);
         }
 
-        /* Card: Crear Nuevo Evento */
-        .creator-card {
-            border: 1.5px solid #CBD5E1;
-            border-radius: 14px;
-            overflow: hidden;
+        .hero-btn-glass {
+            background: rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(10px);
+            color: #FFFFFF !important;
+            font-weight: 600;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 12px;
+            padding: 9px 16px;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            font-size: 0.88rem;
+        }
+
+        .hero-btn-glass:hover {
+            background: rgba(255, 255, 255, 0.28);
+            border-color: #FFFFFF;
+            transform: translateY(-2px);
+            color: #FFFFFF !important;
+        }
+
+        /* KPI CARDS LUXURY */
+        .kpi-card-v2 {
             background: #FFFFFF;
-            box-shadow: 0 4px 20px rgba(183, 4, 32, 0.08);
-            transition: box-shadow 0.25s ease;
+            border: 1px solid #E2E8F0;
+            border-radius: 18px;
+            padding: 1.35rem;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        .creator-card:hover {
-            box-shadow: 0 8px 26px rgba(183, 4, 32, 0.14);
+        .kpi-card-v2:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+            border-color: #CBD5E1;
         }
 
-        .creator-card-header {
-            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
-            color: white;
-            padding: 16px 20px;
+        .kpi-card-v2::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
         }
 
-        .creator-icon-box {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.18);
-            backdrop-filter: blur(4px);
+        .kpi-accent-gold::before { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+        .kpi-accent-green::before { background: linear-gradient(90deg, #10B981, #34D399); }
+        .kpi-accent-slate::before { background: linear-gradient(90deg, #64748B, #94A3B8); }
+        .kpi-accent-indigo::before { background: linear-gradient(90deg, #6366F1, #818CF8); }
+
+        .kpi-icon-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
         }
 
-        .btn-create-event {
-            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
-            color: white;
+        .kpi-value {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.9rem;
             font-weight: 700;
-            border: none;
-            border-radius: 8px;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+            margin: 6px 0;
+        }
+
+        .pulse-dot-green {
+            width: 8px;
+            height: 8px;
+            background-color: #10B981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-green 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* CARD CREAR EVENTO MODERNA */
+        .creator-card-v2 {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
             transition: all 0.25s ease;
         }
 
-        .btn-create-event:hover {
-            background: linear-gradient(135deg, #9C031A, #700010);
+        .creator-card-v2:hover {
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            border-color: #CBD5E1;
+        }
+
+        .creator-card-header-v2 {
+            background: linear-gradient(135deg, #7A0012 0%, #B70420 60%, #900318 100%);
             color: white;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(183, 4, 32, 0.25);
-        }
-
-        /* Card: Lista de Eventos */
-        .events-card {
-            border: 1px solid var(--inacap-border);
-            border-radius: 14px;
-            overflow: hidden;
-            background: #FFFFFF;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-        }
-
-        .events-card-header {
-            background: #FFFFFF;
-            border-bottom: 1.5px solid #F1F5F9;
-            padding: 16px 22px;
-        }
-
-        .filter-tab-pill {
-            display: inline-flex;
+            padding: 1.25rem 1.5rem;
+            display: flex;
             align-items: center;
-            padding: 6px 14px;
+            justify-content: space-between;
+        }
+
+        .creator-icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-size: 1.2rem;
+        }
+
+        .form-label-custom {
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: #475569;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .form-control-custom, 
+        .creator-card-v2 .form-control,
+        .creator-card-v2 .form-select {
+            background-color: #F8FAFC;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 0.88rem;
+            color: #0F172A;
+            transition: all 0.2s ease;
+        }
+
+        .creator-card-v2 .form-control:focus,
+        .creator-card-v2 .form-select:focus {
+            background-color: #FFFFFF;
+            border-color: var(--inacap-red);
+            box-shadow: 0 0 0 3px rgba(183, 4, 32, 0.12);
+            outline: none;
+        }
+
+        .btn-create-submit {
+            background: linear-gradient(135deg, var(--inacap-red) 0%, var(--inacap-dark) 100%);
+            color: white;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            box-shadow: 0 4px 14px rgba(183, 4, 32, 0.25);
+        }
+
+        .btn-create-submit:hover {
+            background: linear-gradient(135deg, #9C031A 0%, #700010 100%);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(183, 4, 32, 0.35);
+        }
+
+        /* CARD LISTADO DE EVENTOS */
+        .events-panel-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
+        }
+
+        .events-panel-header {
+            background: #FFFFFF;
+            border-bottom: 1px solid #F1F5F9;
+            padding: 1.25rem 1.5rem;
+        }
+
+        /* SEGMENTED PILL FILTERS */
+        .filter-segmented-wrap {
+            background: #F1F5F9;
+            padding: 4px;
             border-radius: 50px;
-            font-size: 0.82rem;
-            font-weight: 600;
+            display: inline-flex;
+            gap: 4px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .filter-pill-item {
             text-decoration: none;
             color: #64748B;
-            background: #F8FAFC;
+            font-weight: 600;
+            font-size: 0.82rem;
+            padding: 6px 14px;
+            border-radius: 50px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .filter-pill-item:hover {
+            color: #0F172A;
+            background: rgba(255,255,255,0.7);
+        }
+
+        .filter-pill-item.active {
+            background: var(--inacap-red) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 2px 8px rgba(183, 4, 32, 0.3);
+        }
+
+        /* VISTA SWITCHER TOGGLE */
+        .view-mode-toggle {
+            background: #F1F5F9;
+            padding: 3px;
+            border-radius: 10px;
+            display: inline-flex;
             border: 1px solid #E2E8F0;
+        }
+
+        .view-btn {
+            border: none;
+            background: transparent;
+            color: #64748B;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
             transition: all 0.2s;
         }
 
-        .filter-tab-pill:hover {
-            background: #EEF2F6;
-            color: #1E293B;
-        }
-
-        .filter-tab-pill.active {
-            background: var(--inacap-red);
-            color: #FFFFFF;
-            border-color: var(--inacap-red);
-            box-shadow: 0 2px 8px rgba(183, 4, 32, 0.25);
-        }
-
-        /* Badges de Estado */
-        .badge-status-proximo,
-        .badge-status-pasado {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        .view-btn.active {
+            background: #FFFFFF;
+            color: #0F172A;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
             font-weight: 600;
-            font-size: 0.74rem;
-            padding: 4px 10px;
-            border-radius: 50px;
-            white-space: nowrap;
-            line-height: 1.2;
         }
 
+        /* SEARCH INPUT BAR */
+        .search-control-wrap {
+            position: relative;
+            flex-grow: 1;
+            min-width: 220px;
+        }
+
+        .search-control-wrap i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94A3B8;
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .search-control-wrap input {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 50px;
+            padding: 7px 14px 7px 34px;
+            font-size: 0.85rem;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .search-control-wrap input:focus {
+            background: #FFFFFF;
+            border-color: var(--inacap-red);
+            box-shadow: 0 0 0 3px rgba(183, 4, 32, 0.12);
+            outline: none;
+        }
+
+        /* TABLA DE EVENTOS ELEGANTE */
+        .reunion-table th {
+            background: #F8FAFC;
+            font-size: 0.74rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748B;
+            border-bottom: 1.5px solid #E2E8F0;
+            padding: 12px 16px;
+        }
+
+        .reunion-table td {
+            padding: 14px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #F1F5F9;
+            font-size: 0.88rem;
+        }
+
+        .reunion-table tr:hover td {
+            background-color: #F8FAFC;
+        }
+
+        .event-thumbnail {
+            width: 62px;
+            height: 48px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .event-thumbnail-placeholder {
+            width: 62px;
+            height: 48px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #7A0012, #B70420);
+            color: #FFFFFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(183, 4, 32, 0.2);
+        }
+
+        /* STATUS BADGES */
         .badge-status-proximo {
             background-color: #ECFDF5;
             color: #059669;
             border: 1px solid #A7F3D0;
+            font-weight: 700;
+            font-size: 0.72rem;
+            padding: 3px 9px;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
         .badge-status-proximo::before {
@@ -202,136 +465,308 @@
             height: 6px;
             border-radius: 50%;
             background-color: #10B981;
-            display: inline-block;
-            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
         }
 
         .badge-status-pasado {
-            background-color: #F8FAFC;
+            background-color: #F1F5F9;
             color: #64748B;
             border: 1px solid #CBD5E1;
-        }
-
-        .badge-status-pasado::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: #94A3B8;
-            display: inline-block;
-        }
-
-        .reunion-img {
-            width: 68px;
-            height: 46px;
-            object-fit: cover;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-            border: 1px solid #E2E8F0;
-        }
-
-        .btn-landing-top {
-            border: 1.5px solid var(--inacap-red);
-            color: var(--inacap-red);
             font-weight: 600;
-            background-color: white;
-            border-radius: 8px;
-            transition: all 0.2s ease-in-out;
-            text-decoration: none;
+            font-size: 0.72rem;
+            padding: 3px 9px;
+            border-radius: 50px;
             display: inline-flex;
             align-items: center;
+            gap: 5px;
+        }
+
+        /* BOTONES DE ACCIÓN UNIFICADOS */
+        .action-icon-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            border: 1px solid transparent;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            background: #F8FAFC;
+            color: #475569;
+        }
+
+        .action-icon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        .btn-act-qr {
+            background: var(--inacap-red);
+            color: white;
+            box-shadow: 0 2px 8px rgba(183, 4, 32, 0.25);
+        }
+
+        .btn-act-qr:hover {
+            background: var(--inacap-dark);
+            color: white;
+            box-shadow: 0 4px 12px rgba(183, 4, 32, 0.35);
+        }
+
+        .btn-act-share:hover { background: #EEF2FF; color: #4F46E5; border-color: #C7D2FE; }
+        .btn-act-people:hover { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
+        .btn-act-edit:hover { background: #FFFBEB; color: #D97706; border-color: #FDE68A; }
+        .btn-act-del:hover { background: #FEF2F2; color: #DC2626; border-color: #FECACA; }
+
+        /* VISTA DE CUADRÍCULA (GRID VIEW) */
+        .event-grid-card {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 18px;
+            overflow: hidden;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .event-grid-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+            border-color: #CBD5E1;
+        }
+
+        .event-grid-img-wrap {
+            height: 150px;
+            position: relative;
+            background: linear-gradient(135deg, #7A0012, #B70420);
+            overflow: hidden;
+        }
+
+        .event-grid-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .event-grid-card:hover .event-grid-img {
+            transform: scale(1.05);
+        }
+
+        .event-grid-date-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            border-radius: 10px;
+            padding: 4px 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #0F172A;
+        }
+
+        .event-grid-status-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+        }
+
+        /* TOAST FLOTANTE */
+        .copy-toast-notification {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #0F172A;
+            color: #FFFFFF;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        .copy-toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        footer {
+            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
+            color: #ffffff;
+            padding: 20px 0;
             font-size: 0.85rem;
-        }
-
-        .btn-landing-top:hover {
-            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
-            color: white;
-        }
-
-        footer.bottom-footer {
-            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
-            color: white;
-            padding: 18px 0;
-            text-align: center;
-            font-size: 0.84rem;
             margin-top: auto;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-<header class="header-admin d-flex justify-content-between align-items-center flex-wrap gap-2">
-    <a href="{% url 'panel-admin:panel_admin' %}" class="header-brand">
-        <img src="{% static 'img/inacap-logo.png' %}" alt="Logo INACAP">
-        <div>
-            <span class="fw-bold fs-5 d-block">Gestión de Eventos</span>
-            <small class="opacity-80">Programación y Administración Institucional</small>
+<!-- TOAST FLOTANTE MODERNO -->
+<div id="copyToast" class="copy-toast-notification">
+    <i class="bi bi-check-circle-fill text-success fs-5"></i>
+    <span>¡Enlace del evento copiado al portapapeles!</span>
+</div>
+
+<!-- HERO HEADER INSTITUCIONAL -->
+<header class="hero-banner mb-4">
+    <div class="container-fluid px-lg-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-2 text-white-50 small">
+                        <li class="breadcrumb-item"><a href="{% url 'panel-admin:panel_admin' %}" class="text-white-50 text-decoration-none"><i class="bi bi-speedometer2 me-1"></i>Panel Admin</a></li>
+                        <li class="breadcrumb-item active text-white fw-medium" aria-current="page">Gestión de Eventos</li>
+                    </ol>
+                </nav>
+                <h2 class="fw-bold mb-2 text-white"><i class="bi bi-calendar-event-fill me-2 opacity-90"></i>Gestión de Eventos y Reuniones</h2>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge bg-white text-dark shadow-xs"><i class="bi bi-building me-1 text-danger"></i>Sede Central INACAP</span>
+                    <span class="badge bg-white text-dark bg-opacity-25 text-white border border-white border-opacity-25">
+                        <span class="pulse-dot-green me-1.5"></span>Sistema de Acreditación Activo
+                    </span>
+                    <span class="badge bg-white text-dark bg-opacity-25 text-white border border-white border-opacity-25">
+                        <i class="bi bi-calendar3 me-1"></i>Período 2026
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="#crearEventoCard" class="hero-btn-white" onclick="document.getElementById('detalle_evento_input')?.focus();">
+                    <i class="bi bi-plus-circle-fill me-1.5"></i>Nuevo Evento
+                </a>
+                <a href="{% url 'landing_reuniones' %}" target="_blank" class="hero-btn-glass">
+                    <i class="bi bi-display me-1.5"></i>Cartelera Pública
+                </a>
+                <a href="{% url 'panel-admin:panel_admin' %}" class="hero-btn-glass">
+                    <i class="bi bi-arrow-left me-1.5"></i>Volver
+                </a>
+            </div>
         </div>
-    </a>
-    <div>
-        <a href="{% url 'panel-admin:panel_admin' %}" class="btn btn-outline-light btn-sm fw-semibold" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Regresar al panel principal">
-            <i class="bi bi-arrow-left me-1"></i> Volver al Panel
-        </a>
     </div>
 </header>
 
-<!-- BARRA HERO CON RESUMEN Y BOTÓN CARTELERA PÚBLICA -->
-<div class="page-hero shadow-sm">
-    <div class="container-fluid px-lg-5 d-flex justify-content-between align-items-center flex-wrap gap-3">
-        <div>
-            <h2 class="page-hero-title">Programación de Eventos y Reuniones</h2>
-            <p class="page-hero-subtitle">Crea nuevas actividades, administra capacidades de aforo y consulta la nómina de eventos institucionales.</p>
-        </div>
-        <div class="d-flex align-items-center gap-2 flex-wrap">
-            <div class="metric-pill-chip" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total de eventos registrados">
-                <i class="bi bi-calendar3 text-danger"></i> Total: <strong>{{ total_reuniones }}</strong>
-            </div>
-            <div class="metric-pill-chip" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Eventos agendados a futuro">
-                <i class="bi bi-clock-history text-success"></i> Próximos: <strong>{{ total_proximas }}</strong>
-            </div>
-            <div class="metric-pill-chip" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Eventos ya concluidos">
-                <i class="bi bi-check2-all text-secondary"></i> Finalizados: <strong>{{ total_pasadas }}</strong>
-            </div>
-            <a href="{% url 'landing_reuniones' %}" target="_blank" class="btn btn-landing-top px-3 py-1.5 shadow-sm ms-lg-2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Abrir cartelera pública accesible para estudiantes y externos">
-                <i class="bi bi-box-arrow-up-right me-1.5"></i> Cartelera Pública
-            </a>
-        </div>
-    </div>
-</div>
-
-<main class="container-fluid px-lg-5 mb-5 flex-grow-1">
-
+<main class="container-fluid px-lg-5 pb-5">
     <!-- MENSAJES DE ALERTA -->
     {% if messages %}
-        <div class="mb-4">
+    <div class="row mb-3">
+        <div class="col-12">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm" role="alert">
-                    <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 12px;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-info-circle-fill fs-5"></i>
+                    <span>{{ message }}</span>
                 </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             {% endfor %}
         </div>
+    </div>
     {% endif %}
 
+    <!-- 4 KPI CARDS LUXURY -->
+    <div class="row g-3 g-md-4 mb-4">
+        <!-- 1. Total Eventos -->
+        <div class="col-6 col-md-3">
+            <div class="kpi-card-v2 kpi-accent-gold">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Total Eventos</span>
+                        <div class="kpi-value text-dark">{{ total_reuniones }}</div>
+                    </div>
+                    <div class="kpi-icon-badge" style="background: #FEF3C7; color: #D97706;">
+                        <i class="bi bi-calendar3"></i>
+                    </div>
+                </div>
+                <div class="text-muted small mt-2" style="font-size: 0.78rem;">
+                    <i class="bi bi-database me-1 text-warning"></i>Registros históricos
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Próximos Agendados -->
+        <div class="col-6 col-md-3">
+            <div class="kpi-card-v2 kpi-accent-green">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Próximos</span>
+                        <div class="kpi-value text-success">{{ total_proximas }}</div>
+                    </div>
+                    <div class="kpi-icon-badge" style="background: #ECFDF5; color: #059669;">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                </div>
+                <div class="text-success small mt-2 fw-medium" style="font-size: 0.78rem;">
+                    <span class="pulse-dot-green me-1"></span>En cartelera y vigentes
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Finalizados -->
+        <div class="col-6 col-md-3">
+            <div class="kpi-card-v2 kpi-accent-slate">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Concluidos</span>
+                        <div class="kpi-value text-secondary">{{ total_pasadas }}</div>
+                    </div>
+                    <div class="kpi-icon-badge" style="background: #F1F5F9; color: #475569;">
+                        <i class="bi bi-check2-all"></i>
+                    </div>
+                </div>
+                <div class="text-muted small mt-2" style="font-size: 0.78rem;">
+                    <i class="bi bi-archive me-1"></i>Con asistencia registrada
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Acceso Rápido Cartelera -->
+        <div class="col-6 col-md-3">
+            <div class="kpi-card-v2 kpi-accent-indigo">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">Público</span>
+                        <div class="kpi-value text-primary fs-4 mt-2">Cartelera</div>
+                    </div>
+                    <div class="kpi-icon-badge" style="background: #EEF2FF; color: #4F46E5;">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <a href="{% url 'landing_reuniones' %}" target="_blank" class="text-primary text-decoration-none fw-semibold small" style="font-size: 0.78rem;">
+                        Ver vista de estudiantes <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CUERPO PRINCIPAL: FORMULARIO + LISTADO -->
     <div class="row g-4">
-        
-        <!-- ============================================================== -->
-        <!-- COLUMNA IZQUIERDA: CREAR NUEVO EVENTO (CON ALTO PROTAGONISMO) -->
-        <!-- ============================================================== -->
+        <!-- COLUMNA IZQUIERDA: CREAR EVENTO -->
         <div class="col-xl-4 col-lg-5">
-            <div class="creator-card h-100">
-                
-                <div class="creator-card-header d-flex align-items-center justify-content-between">
+            <div class="creator-card-v2 h-100" id="crearEventoCard">
+                <div class="creator-card-header-v2">
                     <div class="d-flex align-items-center gap-2.5">
                         <div class="creator-icon-box">
-                            <i class="bi bi-calendar-plus-fill fs-5"></i>
+                            <i class="bi bi-calendar-plus-fill"></i>
                         </div>
                         <div>
                             <h5 class="mb-0 fw-bold">Crear Nuevo Evento</h5>
-                            <small class="opacity-90" style="font-size: 0.78rem;">Publica una nueva actividad en el sistema</small>
+                            <small class="opacity-90" style="font-size: 0.78rem;">Publica una nueva actividad institucional</small>
                         </div>
                     </div>
-                    <span class="badge bg-white text-danger fw-bold px-2.5 py-1 rounded-pill shadow-sm" style="font-size: 0.75rem;">
+                    <span class="badge bg-white text-danger fw-bold rounded-pill px-2.5 py-1 shadow-xs" style="font-size: 0.72rem;">
                         <i class="bi bi-sparkles me-1"></i>Nuevo
                     </span>
                 </div>
@@ -342,52 +777,52 @@
 
                         <!-- Nombre del Evento -->
                         <div class="mb-3">
-                            <label for="{{ form.detalle.id_for_label }}" class="form-label fw-bold text-dark small text-uppercase mb-1">
-                                <i class="bi bi-tag-fill text-danger me-1"></i>Nombre del Evento *
+                            <label for="{{ form.detalle.id_for_label }}" class="form-label-custom">
+                                <i class="bi bi-tag-fill text-danger"></i> Nombre del Evento *
                             </label>
-                            {{ form.detalle }}
+                            <input type="text" name="detalle" id="detalle_evento_input" class="form-control form-control-custom" placeholder="Ej: Seminario de Innovación Tecnológica" value="{{ form.detalle.value|default:'' }}" required>
                             {% for error in form.detalle.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                         </div>
 
                         <!-- Descripción -->
                         <div class="mb-3">
-                            <label for="{{ form.descripcion.id_for_label }}" class="form-label fw-bold text-dark small text-uppercase mb-1">
-                                <i class="bi bi-text-paragraph text-danger me-1"></i>Descripción del Evento
+                            <label for="{{ form.descripcion.id_for_label }}" class="form-label-custom">
+                                <i class="bi bi-text-paragraph text-danger"></i> Descripción del Evento
                             </label>
                             {{ form.descripcion }}
                             {% for error in form.descripcion.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                         </div>
 
-                        <!-- Fecha y Aforo (2 Columnas) -->
+                        <!-- Fecha y Aforo -->
                         <div class="row g-2 mb-3">
                             <div class="col-sm-7 col-12">
-                                <label for="{{ form.fecha.id_for_label }}" class="form-label fw-bold text-dark small text-uppercase mb-1">
-                                    <i class="bi bi-calendar-event text-danger me-1"></i>Fecha y Hora *
+                                <label for="{{ form.fecha.id_for_label }}" class="form-label-custom">
+                                    <i class="bi bi-calendar-event text-danger"></i> Fecha y Hora *
                                 </label>
                                 {{ form.fecha }}
                                 {% for error in form.fecha.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                             </div>
                             <div class="col-sm-5 col-12">
-                                <label for="{{ form.aforo_maximo.id_for_label }}" class="form-label fw-bold text-dark small text-uppercase mb-1">
-                                    <i class="bi bi-speedometer2 text-danger me-1"></i>Aforo Máx.
+                                <label for="{{ form.aforo_maximo.id_for_label }}" class="form-label-custom">
+                                    <i class="bi bi-speedometer2 text-danger"></i> Aforo Máx.
                                 </label>
                                 {{ form.aforo_maximo }}
                                 {% for error in form.aforo_maximo.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                             </div>
                         </div>
 
-                        <!-- Ubicación y Dirección (2 Columnas) -->
+                        <!-- Ubicación y Dirección -->
                         <div class="row g-2 mb-3">
                             <div class="col-sm-6 col-12">
-                                <label for="{{ form.ubicacion.id_for_label }}" class="form-label fw-bold text-dark small text-uppercase mb-1">
-                                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>Sede / Lugar *
+                                <label for="{{ form.ubicacion.id_for_label }}" class="form-label-custom">
+                                    <i class="bi bi-geo-alt-fill text-danger"></i> Sede / Lugar *
                                 </label>
                                 {{ form.ubicacion }}
                                 {% for error in form.ubicacion.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                             </div>
                             <div class="col-sm-6 col-12">
-                                <label for="{{ form.direccion.id_for_label }}" class="form-label fw-bold text-dark small text-uppercase mb-1">
-                                    <i class="bi bi-signpost-2 text-danger me-1"></i>Dirección
+                                <label for="{{ form.direccion.id_for_label }}" class="form-label-custom">
+                                    <i class="bi bi-signpost-2 text-danger"></i> Dirección
                                 </label>
                                 {{ form.direccion }}
                                 {% for error in form.direccion.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
@@ -396,8 +831,8 @@
 
                         <!-- Imagen Portada -->
                         <div class="mb-3">
-                            <label for="{{ form.imagen.id_for_label }}" class="form-label fw-bold text-dark small text-uppercase mb-1">
-                                <i class="bi bi-image text-danger me-1"></i>Imagen de Portada (Opcional)
+                            <label for="{{ form.imagen.id_for_label }}" class="form-label-custom">
+                                <i class="bi bi-image text-danger"></i> Imagen de Portada (Opcional)
                             </label>
                             {{ form.imagen }}
                             {% for error in form.imagen.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
@@ -405,8 +840,8 @@
 
                         <!-- Plantilla Credencial -->
                         <div class="mb-3">
-                            <label for="{{ form.plantilla_etiqueta.id_for_label }}" class="form-label fw-bold text-dark small text-uppercase mb-1">
-                                <i class="bi bi-badge-ad text-danger me-1"></i>Diseño de Credencial / Etiqueta
+                            <label for="{{ form.plantilla_etiqueta.id_for_label }}" class="form-label-custom">
+                                <i class="bi bi-badge-ad text-danger"></i> Diseño de Credencial / Etiqueta
                             </label>
                             {{ form.plantilla_etiqueta }}
                             {% for error in form.plantilla_etiqueta.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
@@ -429,10 +864,10 @@
                             {% for error in form.imprimir_etiqueta_al_asistir.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
                         </div>
 
-                        <!-- Botón Crear Evento (Prominente) -->
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-create-event btn-lg py-2.5 shadow-sm">
-                                <i class="bi bi-calendar-plus-fill me-2"></i> Guardar y Publicar Evento
+                        <!-- Botón Crear Evento -->
+                        <div>
+                            <button type="submit" class="btn-create-submit">
+                                <i class="bi bi-calendar-plus-fill"></i> Guardar y Publicar Evento
                             </button>
                         </div>
                     </form>
@@ -440,98 +875,104 @@
             </div>
         </div>
 
-        <!-- ============================================================== -->
-        <!-- COLUMNA DERECHA: LISTA DE EVENTOS Y REUNIONES (LIMPIA Y AIREADA) -->
-        <!-- ============================================================== -->
+        <!-- COLUMNA DERECHA: LISTADO Y FILTROS -->
         <div class="col-xl-8 col-lg-7">
-            <div class="events-card h-100">
-                
-                <!-- Encabezado Blanco Moderno -->
-                <div class="events-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-calendar-check-fill text-danger fs-5"></i>
-                        <div>
-                            <h5 class="mb-0 fw-bold text-dark">Eventos y Reuniones</h5>
-                            <small class="text-muted" style="font-size: 0.78rem;">Consulta, filtra y gestiona todas las reuniones activas o finalizadas</small>
-                        </div>
-                    </div>
-                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1.5 fw-semibold rounded-pill" style="font-size: 0.78rem;">
-                        Mostrando {{ reuniones.count }} de {{ total_reuniones }}
-                    </span>
-                </div>
-
-                <!-- BARRA DE FILTROS STREAMLINED -->
-                <div class="p-3 bg-light border-bottom">
-                    <form method="GET" class="d-flex flex-column gap-2.5">
-                        
-                        <!-- Pestañas Rápidas de Estado -->
-                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <div class="d-inline-flex gap-1.5 flex-wrap">
-                                <a href="?estado=todas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}{% if filtro_fecha %}&fecha={{ filtro_fecha }}{% endif %}" class="filter-tab-pill {% if filtro_estado == 'todas' %}active{% endif %}">
-                                    Todas ({{ total_reuniones }})
-                                </a>
-                                <a href="?estado=proximas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}{% if filtro_fecha %}&fecha={{ filtro_fecha }}{% endif %}" class="filter-tab-pill {% if filtro_estado == 'proximas' %}active{% endif %}">
-                                    <i class="bi bi-clock-history me-1"></i> Próximas ({{ total_proximas }})
-                                </a>
-                                <a href="?estado=pasadas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}{% if filtro_fecha %}&fecha={{ filtro_fecha }}{% endif %}" class="filter-tab-pill {% if filtro_estado == 'pasadas' %}active{% endif %}">
-                                    <i class="bi bi-check2-all me-1"></i> Ya Pasaron ({{ total_pasadas }})
-                                </a>
+            <div class="events-panel-card h-100">
+                <!-- CABECERA DE PANEL DE EVENTOS -->
+                <div class="events-panel-header">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="rounded-circle p-2 bg-danger-subtle text-danger d-inline-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                                <i class="bi bi-calendar-check-fill fs-6"></i>
+                            </span>
+                            <div>
+                                <h5 class="fw-bold mb-0 text-dark">Nómina de Eventos</h5>
+                                <small class="text-muted">Consulta, filtra y gestiona todas las reuniones institucionales</small>
                             </div>
-
-                            {% if filtro_q or filtro_mes or filtro_fecha or filtro_estado != 'todas' %}
-                                <a href="?estado=todas" class="btn btn-sm btn-link text-danger text-decoration-none py-0">
-                                    <i class="bi bi-x-circle me-1"></i> Restablecer filtros
-                                </a>
-                            {% endif %}
                         </div>
 
-                        <!-- Buscador por Texto y Filtro por Mes -->
-                        <div class="d-flex gap-2 align-items-center flex-wrap">
-                            <input type="hidden" name="estado" value="{{ filtro_estado|default:'todas' }}">
-                            <div class="input-group input-group-sm flex-grow-1" style="min-width: 220px;">
-                                <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                                <input type="text" name="q" value="{{ filtro_q|default:'' }}" class="form-control border-start-0" placeholder="Buscar por ID (#1), nombre, sede...">
-                                {% if filtro_q %}
-                                    <a href="?estado={{ filtro_estado|default:'todas' }}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}" class="btn btn-outline-secondary" title="Limpiar búsqueda">
-                                        <i class="bi bi-x-lg"></i>
-                                    </a>
-                                {% endif %}
-                            </div>
-
-                            <div class="d-flex align-items-center gap-1">
-                                <input type="month" name="mes" value="{{ filtro_mes|default:'' }}" class="form-control form-control-sm" style="width: 145px;" onchange="this.form.submit()" data-bs-toggle="tooltip" data-bs-placement="top" title="Filtrar por mes y año">
-                                <button type="submit" class="btn btn-sm btn-danger px-3 fw-semibold">
-                                    <i class="bi bi-search me-1"></i> Buscar
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-1.5 fw-bold rounded-pill" style="font-size: 0.78rem;">
+                                Mostrando {{ reuniones.count }} de {{ total_reuniones }}
+                            </span>
+                            <!-- Switcher de Vista: Tabla o Cuadrícula -->
+                            <div class="view-mode-toggle" id="viewModeToggle">
+                                <button type="button" class="view-btn active" id="btnViewTable" onclick="setVistaEventos('table')" title="Vista Tabla">
+                                    <i class="bi bi-list-ul"></i>
+                                </button>
+                                <button type="button" class="view-btn" id="btnViewGrid" onclick="setVistaEventos('grid')" title="Vista Cuadrícula">
+                                    <i class="bi bi-grid-fill"></i>
                                 </button>
                             </div>
                         </div>
+                    </div>
 
-                    </form>
+                    <!-- BARRA DE FILTROS STREAMLINED -->
+                    <div class="pt-3 mt-3 border-top">
+                        <form method="GET" class="d-flex flex-column gap-2.5">
+                            <input type="hidden" name="estado" value="{{ filtro_estado|default:'todas' }}">
+                            
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                <!-- Pestañas de Estado -->
+                                <div class="filter-segmented-wrap">
+                                    <a href="?estado=todas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}" class="filter-pill-item {% if filtro_estado == 'todas' %}active{% endif %}">
+                                        Todas <span class="badge bg-white text-dark rounded-pill ms-1" style="font-size: 0.68rem;">{{ total_reuniones }}</span>
+                                    </a>
+                                    <a href="?estado=proximas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}" class="filter-pill-item {% if filtro_estado == 'proximas' %}active{% endif %}">
+                                        <i class="bi bi-clock-history"></i> Próximas ({{ total_proximas }})
+                                    </a>
+                                    <a href="?estado=pasadas{% if filtro_q %}&q={{ filtro_q }}{% endif %}{% if filtro_mes %}&mes={{ filtro_mes }}{% endif %}" class="filter-pill-item {% if filtro_estado == 'pasadas' %}active{% endif %}">
+                                        <i class="bi bi-check2-all"></i> Finalizadas ({{ total_pasadas }})
+                                    </a>
+                                </div>
+
+                                {% if filtro_q or filtro_mes or filtro_estado != 'todas' %}
+                                <a href="?estado=todas" class="btn btn-sm btn-link text-danger text-decoration-none py-0 fw-semibold">
+                                    <i class="bi bi-x-circle me-1"></i> Restablecer filtros
+                                </a>
+                                {% endif %}
+                            </div>
+
+                            <!-- Buscador en Vivo y Selector de Mes -->
+                            <div class="d-flex gap-2 align-items-center flex-wrap pt-1">
+                                <div class="search-control-wrap">
+                                    <i class="bi bi-search"></i>
+                                    <input type="text" name="q" id="inputSearchReuniones" value="{{ filtro_q|default:'' }}" placeholder="Buscar por nombre, ID (#1), sede o detalle...">
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <input type="month" name="mes" value="{{ filtro_mes|default:'' }}" class="form-control form-control-sm" style="border-radius: 50px; font-size: 0.82rem; padding: 6px 12px;" onchange="this.form.submit()" title="Filtrar por mes y año">
+                                    <button type="submit" class="btn btn-sm btn-danger rounded-pill px-3 fw-semibold">
+                                        <i class="bi bi-search me-1"></i> Filtrar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                <!-- TABLA LIMPIA Y EXPANDIDA -->
-                <div class="card-body p-0">
-                    <div class="table-responsive" style="max-height: 640px; overflow-y: auto;">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light text-muted small text-uppercase">
+                <!-- CONTENIDO: VISTA TABLA (DEFAULT) -->
+                <div id="containerVistaTabla" class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 680px; overflow-y: auto;">
+                        <table class="table reunion-table align-middle mb-0">
+                            <thead>
                                 <tr>
-                                    <th class="ps-3" style="width: 80px;">Portada</th>
+                                    <th class="ps-3" style="width: 76px;">Portada</th>
                                     <th>Detalle del Evento</th>
                                     <th>Fecha y Hora</th>
                                     <th>Ubicación</th>
-                                    <th class="text-end pe-3" style="min-width: 190px;">Acciones</th>
+                                    <th class="text-end pe-3" style="min-width: 170px;">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="reunionesTableBody">
                                 {% for reunion in reuniones %}
-                                <tr>
+                                <tr class="reunion-row" data-search="{{ reunion.id }} {{ reunion.detalle|lower }} {{ reunion.ubicacion|lower }} {{ reunion.direccion|lower }} {{ reunion.descripcion|lower }}">
                                     <!-- Portada -->
                                     <td class="ps-3">
                                         {% if reunion.imagen %}
-                                            <img src="{{ reunion.imagen.url }}" alt="{{ reunion.detalle }}" class="reunion-img">
+                                            <img src="{{ reunion.imagen.url }}" alt="{{ reunion.detalle }}" class="event-thumbnail">
                                         {% else %}
-                                            <div class="reunion-img text-white d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));">
-                                                <i class="bi bi-calendar-event fs-5"></i>
+                                            <div class="event-thumbnail-placeholder">
+                                                <i class="bi bi-calendar-event"></i>
                                             </div>
                                         {% endif %}
                                     </td>
@@ -539,7 +980,7 @@
                                     <!-- Detalle -->
                                     <td>
                                         <div class="d-flex align-items-center gap-1.5 mb-1 flex-wrap">
-                                            <span class="text-muted font-monospace small fw-semibold">#{{ reunion.id }}</span>
+                                            <span class="badge bg-light text-muted border font-monospace" style="font-size: 0.7rem;">#{{ reunion.id }}</span>
                                             
                                             {% if reunion.fecha >= now %}
                                                 <span class="badge-status-proximo">Próximo</span>
@@ -547,17 +988,17 @@
                                                 <span class="badge-status-pasado">Finalizado</span>
                                             {% endif %}
                                             
-                                            <span class="badge bg-light text-secondary border" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ reunion.interesados.count }} personas pre-inscritas">
+                                            <span class="badge bg-light text-secondary border" title="{{ reunion.interesados.count }} personas pre-inscritas">
                                                 <i class="bi bi-person-heart text-danger me-1"></i>{{ reunion.interesados.count }}
                                             </span>
                                             
                                             {% if reunion.tiene_aforo_limitado %}
-                                                <span class="badge {% if reunion.aforo_completo %}bg-danger text-white{% elif reunion.porcentaje_aforo >= 85 %}bg-warning text-dark{% else %}bg-info-subtle text-primary border border-info-subtle{% endif %}" data-bs-toggle="tooltip" data-bs-placement="top" title="Aforo ocupado: {{ reunion.asistentes.count }} de {{ reunion.aforo_maximo }}">
+                                                <span class="badge {% if reunion.aforo_completo %}bg-danger text-white{% elif reunion.porcentaje_aforo >= 85 %}bg-warning text-dark{% else %}bg-info-subtle text-primary border border-info-subtle{% endif %}" title="Aforo ocupado: {{ reunion.asistentes.count }} de {{ reunion.aforo_maximo }}">
                                                     <i class="bi bi-speedometer2 me-1"></i>{{ reunion.asistentes.count }}/{{ reunion.aforo_maximo }}
                                                 </span>
                                             {% endif %}
                                         </div>
-                                        <strong class="text-dark d-block" style="font-size: 0.95rem; line-height: 1.3;">{{ reunion.detalle }}</strong>
+                                        <strong class="text-dark d-block" style="font-size: 0.94rem; line-height: 1.35;">{{ reunion.detalle }}</strong>
                                         {% if reunion.descripcion %}
                                             <small class="text-muted d-block text-truncate" style="max-width: 320px; font-size: 0.78rem;">{{ reunion.descripcion }}</small>
                                         {% endif %}
@@ -565,41 +1006,41 @@
 
                                     <!-- Fecha y Hora -->
                                     <td class="text-nowrap small">
-                                        <i class="bi bi-calendar3 me-1 text-danger"></i> {{ reunion.fecha|date:"d/m/Y" }}<br>
+                                        <div class="fw-semibold text-dark"><i class="bi bi-calendar3 me-1 text-danger"></i> {{ reunion.fecha|date:"d/m/Y" }}</div>
                                         <small class="text-muted"><i class="bi bi-clock me-1"></i> {{ reunion.fecha|date:"H:i" }} hrs</small>
                                     </td>
 
                                     <!-- Ubicación -->
                                     <td>
-                                        <span class="d-block small fw-medium text-dark">
+                                        <span class="d-block small fw-semibold text-dark">
                                             <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ reunion.ubicacion|default:"Sede INACAP" }}
                                         </span>
-                                        {% if reunion.direccion %}<small class="text-muted d-block text-truncate" style="max-width: 170px;">{{ reunion.direccion }}</small>{% endif %}
+                                        {% if reunion.direccion %}<small class="text-muted d-block text-truncate" style="max-width: 160px; font-size: 0.76rem;">{{ reunion.direccion }}</small>{% endif %}
                                     </td>
 
-                                    <!-- Acciones con Tooltips y Espaciado -->
+                                    <!-- Acciones con Tooltips y Botones Elegantes -->
                                     <td class="text-end pe-3">
-                                        <div class="d-inline-flex gap-2 align-items-center justify-content-end">
+                                        <div class="d-inline-flex gap-1.5 align-items-center justify-content-end">
                                             <!-- Tomar Asistencia QR -->
-                                            <a href="{% url 'panel-admin:registrar_asistencia' reunion.id %}" class="btn btn-sm text-white d-inline-flex align-items-center justify-content-center" style="background-color: var(--inacap-red); width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Acreditar y Tomar Asistencia QR">
+                                            <a href="{% url 'panel-admin:registrar_asistencia' reunion.id %}" class="action-icon-btn btn-act-qr" data-bs-toggle="tooltip" title="Acreditar y Tomar Asistencia QR">
                                                 <i class="bi bi-qr-code-scan"></i>
                                             </a>
-                                            <!-- Compartir link -->
-                                            <button type="button" onclick="copiarLinkReunion({{ reunion.id }})" class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Copiar Enlace Público del Evento">
+                                            <!-- Compartir enlace -->
+                                            <button type="button" onclick="copiarLinkReunion({{ reunion.id }})" class="action-icon-btn btn-act-share" data-bs-toggle="tooltip" title="Copiar Enlace Público">
                                                 <i class="bi bi-share-fill"></i>
                                             </button>
                                             <!-- Ver Lista de Asistentes -->
-                                            <a href="{% url 'panel-admin:ver_asistentes_reunion' reunion.id %}" class="btn btn-sm btn-primary d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver Nómina de Asistentes">
+                                            <a href="{% url 'panel-admin:ver_asistentes_reunion' reunion.id %}" class="action-icon-btn btn-act-people" data-bs-toggle="tooltip" title="Ver Asistentes">
                                                 <i class="bi bi-people-fill"></i>
                                             </a>
                                             <!-- Editar -->
-                                            <a href="{% url 'panel-admin:editar_reunion' reunion.id %}" class="btn btn-sm btn-warning text-dark d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar Detalles del Evento">
+                                            <a href="{% url 'panel-admin:editar_reunion' reunion.id %}" class="action-icon-btn btn-act-edit" data-bs-toggle="tooltip" title="Editar Evento">
                                                 <i class="bi bi-pencil-fill"></i>
                                             </a>
                                             <!-- Eliminar -->
                                             <form action="{% url 'panel-admin:eliminar_reunion' reunion.id %}" method="POST" class="d-inline delete-form">
                                                 {% csrf_token %}
-                                                <button type="button" class="btn btn-sm btn-danger delete-btn d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; border-radius: 6px;" data-detalle="{{ reunion.detalle }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar este Evento">
+                                                <button type="button" class="action-icon-btn btn-act-del delete-btn" data-detalle="{{ reunion.detalle }}" data-bs-toggle="tooltip" title="Eliminar Evento">
                                                     <i class="bi bi-trash3-fill"></i>
                                                 </button>
                                             </form>
@@ -610,7 +1051,7 @@
                                 <tr>
                                     <td colspan="5" class="text-center text-muted py-5">
                                         <i class="bi bi-calendar-x display-4 d-block mb-2 text-danger opacity-50"></i>
-                                        <strong class="d-block text-dark">No se encontraron eventos con los filtros aplicados.</strong>
+                                        <strong class="d-block text-dark fs-6">No se encontraron eventos con los filtros aplicados.</strong>
                                         <small class="text-muted">Prueba cambiando el término de búsqueda o seleccionando "Todas".</small>
                                     </td>
                                 </tr>
@@ -620,14 +1061,76 @@
                     </div>
                 </div>
 
+                <!-- CONTENIDO: VISTA CUADRÍCULA (GRID VIEW ALTERNATIVO) -->
+                <div id="containerVistaGrid" class="card-body p-4 d-none">
+                    <div class="row g-3" id="reunionesGridContainer">
+                        {% for reunion in reuniones %}
+                        <div class="col-md-6 col-12 reunion-grid-item" data-search="{{ reunion.id }} {{ reunion.detalle|lower }} {{ reunion.ubicacion|lower }} {{ reunion.direccion|lower }} {{ reunion.descripcion|lower }}">
+                            <div class="event-grid-card">
+                                <div class="event-grid-img-wrap">
+                                    {% if reunion.imagen %}
+                                        <img src="{{ reunion.imagen.url }}" alt="{{ reunion.detalle }}" class="event-grid-img">
+                                    {% else %}
+                                        <div class="w-100 h-100 d-flex align-items-center justify-content-center text-white display-4 opacity-50">
+                                            <i class="bi bi-calendar-event"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span class="event-grid-date-badge">
+                                        <i class="bi bi-calendar3 me-1 text-danger"></i>{{ reunion.fecha|date:"d M, Y" }}
+                                    </span>
+                                    <div class="event-grid-status-badge">
+                                        {% if reunion.fecha >= now %}
+                                            <span class="badge-status-proximo">Próximo</span>
+                                        {% else %}
+                                            <span class="badge-status-pasado">Finalizado</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="p-3 d-flex flex-column flex-grow-1">
+                                    <div class="d-flex align-items-center gap-1.5 mb-1.5">
+                                        <span class="badge bg-light text-muted border font-monospace" style="font-size: 0.68rem;">#{{ reunion.id }}</span>
+                                        <span class="badge bg-light text-secondary border" style="font-size: 0.68rem;">
+                                            <i class="bi bi-person-heart text-danger me-1"></i>{{ reunion.interesados.count }} pre-inscritos
+                                        </span>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1" style="line-height: 1.35;">{{ reunion.detalle }}</h6>
+                                    <p class="text-muted small mb-2 text-truncate">{{ reunion.descripcion|default:"Sin descripción detallada" }}</p>
+                                    
+                                    <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">
+                                            <i class="bi bi-geo-alt-fill text-danger me-1"></i>{{ reunion.ubicacion|default:"INACAP" }}
+                                        </small>
+                                        <div class="d-flex gap-1.5">
+                                            <a href="{% url 'panel-admin:registrar_asistencia' reunion.id %}" class="action-icon-btn btn-act-qr btn-sm" title="Acreditar QR">
+                                                <i class="bi bi-qr-code-scan"></i>
+                                            </a>
+                                            <button type="button" onclick="copiarLinkReunion({{ reunion.id }})" class="action-icon-btn btn-act-share btn-sm" title="Copiar Enlace">
+                                                <i class="bi bi-share-fill"></i>
+                                            </button>
+                                            <a href="{% url 'panel-admin:editar_reunion' reunion.id %}" class="action-icon-btn btn-act-edit btn-sm" title="Editar">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12 text-center text-muted py-5">
+                            <i class="bi bi-calendar-x display-4 d-block mb-2 text-danger opacity-50"></i>
+                            <strong class="d-block text-dark">No hay eventos para mostrar.</strong>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
             </div>
         </div>
-
     </div>
 </main>
 
-<footer class="bottom-footer">
-    <div class="container">
+<footer>
+    <div class="container text-center">
         &copy; 2026 INACAP. Todos los derechos reservados | Gestión de Eventos Institucionales.
     </div>
 </footer>
@@ -635,57 +1138,85 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-function copiarLinkReunion(reunionId) {
-    const url = window.location.protocol + '//' + window.location.host + 
-                '/panel-admin/reunion/' + reunionId + '/publica/';
-    
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).then(() => {
-            Swal.fire({
-                icon: 'success',
-                title: '¡Link copiado!',
-                text: 'El enlace del evento ha sido copiado al portapapeles.',
-                timer: 2500,
-                confirmButtonColor: '#B70420',
-                showConfirmButton: false
-            });
-        }).catch(err => {
-            mostrarLinkModal(url);
-        });
+// Switcher de Vista: Tabla vs Cuadrícula
+function setVistaEventos(tipo) {
+    const tableContainer = document.getElementById('containerVistaTabla');
+    const gridContainer = document.getElementById('containerVistaGrid');
+    const btnTable = document.getElementById('btnViewTable');
+    const btnGrid = document.getElementById('btnViewGrid');
+
+    if (tipo === 'grid') {
+        tableContainer.classList.add('d-none');
+        gridContainer.classList.remove('d-none');
+        btnTable.classList.remove('active');
+        btnGrid.classList.add('active');
+        localStorage.setItem('reuniones_vista', 'grid');
     } else {
-        mostrarLinkModal(url);
+        gridContainer.classList.add('d-none');
+        tableContainer.classList.remove('d-none');
+        btnGrid.classList.remove('active');
+        btnTable.classList.add('active');
+        localStorage.setItem('reuniones_vista', 'table');
     }
 }
 
-function mostrarLinkModal(url) {
+// Copiar enlace público con toast moderno
+function copiarLinkReunion(reunionId) {
+    const url = window.location.protocol + '//' + window.location.host + 
+                '/panel-admin/reunion/' + reunionId + '/publica/';
+    const toast = document.getElementById('copyToast');
+
+    function mostrarFeedback() {
+        if (toast) {
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Enlace copiado!',
+                text: 'El enlace del evento ha sido copiado al portapapeles.',
+                timer: 2000,
+                confirmButtonColor: '#B70420',
+                showConfirmButton: false
+            });
+        }
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(mostrarFeedback).catch(() => promptModal(url));
+    } else {
+        promptModal(url);
+    }
+}
+
+function promptModal(url) {
     Swal.fire({
         icon: 'info',
-        title: 'Link del evento',
+        title: 'Enlace del Evento',
         input: 'text',
         inputValue: url,
-        inputAttributes: {
-            readonly: true
-        },
+        inputAttributes: { readonly: true },
         text: 'Copia este enlace para compartir el evento:',
         confirmButtonColor: '#B70420',
-        confirmButtonText: 'Cerrar'
+        confirmButtonText: 'Entendido'
     });
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    // Popovers de Bootstrap
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
-    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-        return new bootstrap.Popover(popoverTriggerEl);
-    });
+    // Restaurar preferencia de vista guardada
+    const vistaGuardada = localStorage.getItem('reuniones_vista');
+    if (vistaGuardada === 'grid') {
+        setVistaEventos('grid');
+    }
 
-    // Tooltips de Bootstrap
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl, { trigger: 'hover' });
-    });
+    // Inicializar Tooltips y Popovers
+    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    popoverTriggerList.map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl));
 
-    // Confirmación al eliminar evento
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl, { trigger: 'hover' }));
+
+    // Confirmación al eliminar evento con SweetAlert2
     const deleteButtons = document.querySelectorAll('.delete-btn');
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(event) {
@@ -695,13 +1226,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             Swal.fire({
                 title: `¿Eliminar "${reunionDetalle}"?`,
-                text: "¡Esta acción eliminará el evento y sus registros de asistencia!",
+                text: "Esta acción borrará el evento, su configuración y todos los registros asociados.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#B70420',
-                cancelButtonColor: '#6c757d',
+                cancelButtonColor: '#64748B',
                 confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
+                cancelButtonText: 'Cancelar',
+                reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
                     form.submit();
@@ -710,19 +1242,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Filtro reactivo en vivo al teclear en el buscador
-    const inputQReuniones = document.querySelector('input[name="q"]');
-    if (inputQReuniones) {
-        inputQReuniones.addEventListener('input', () => {
-            const val = inputQReuniones.value.toLowerCase().trim();
-            const rows = document.querySelectorAll('tbody tr');
+    // Búsqueda reactiva en vivo en tabla y cuadrícula
+    const inputSearch = document.getElementById('inputSearchReuniones');
+    if (inputSearch) {
+        inputSearch.addEventListener('input', () => {
+            const val = inputSearch.value.toLowerCase().trim();
+            
+            // Filtrar filas de tabla
+            const rows = document.querySelectorAll('#reunionesTableBody .reunion-row');
             rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (!val || text.includes(val)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                const searchData = (row.getAttribute('data-search') || row.textContent).toLowerCase();
+                row.style.display = (!val || searchData.includes(val)) ? '' : 'none';
+            });
+
+            // Filtrar tarjetas de cuadrícula
+            const cards = document.querySelectorAll('#reunionesGridContainer .reunion-grid-item');
+            cards.forEach(card => {
+                const searchData = (card.getAttribute('data-search') || card.textContent).toLowerCase();
+                card.style.display = (!val || searchData.includes(val)) ? '' : 'none';
             });
         });
     }

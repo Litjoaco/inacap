@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/responsive-mobile.css' %}">
 
     <style>
         :root {
@@ -250,23 +251,24 @@
             color: #64748B;
         }
 
-        .login-link-box a {
+        .login-link-box a,
+        .login-link-box button {
             color: var(--inacap-red);
             font-weight: 600;
             text-decoration: none;
         }
 
-        .login-link-box a:hover {
+        .login-link-box a:hover,
+        .login-link-box button:hover {
             text-decoration: underline;
         }
 
-        footer.bottom-footer {
-            background: linear-gradient(to right, #B70420, #8B0014);
-            color: #FFFFFF;
-            padding: 18px 0;
-            text-align: center;
-            font-size: 0.84rem;
-            margin-top: auto;
+        .qr-result-box {
+            background: #FFFFFF;
+            border: 2px dashed var(--inacap-red);
+            border-radius: 12px;
+            padding: 20px;
+            display: inline-block;
         }
     
         @media (max-width: 480px) {
@@ -424,7 +426,10 @@
             </div>
 
             <div class="login-link-box">
-                ¿Ya estás registrado? <a href="{% url 'login' %}">Inicia sesión</a>
+                <span class="text-muted">¿Ya estás registrado?</span>
+                <button type="button" class="btn btn-link text-danger fw-bold text-decoration-none p-0 ms-1 align-baseline" data-bs-toggle="modal" data-bs-target="#modalConsultarQR">
+                    <i class="bi bi-qr-code me-1"></i>Verifica tu QR aquí
+                </button>
             </div>
         </form>
     </div>
@@ -511,9 +516,79 @@
     </div>
 </div>
 
-<footer class="bottom-footer">
+<div class="modal fade" id="modalConsultarQR" tabindex="-1" aria-labelledby="modalConsultarQRLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header text-white py-3" style="background: linear-gradient(135deg, #B70420, #8B0014);">
+                <h5 class="modal-title fw-bold" id="modalConsultarQRLabel">
+                    <i class="bi bi-qr-code-scan me-2"></i> Consultar mi Código QR
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div id="qrSearchSection">
+                    <p class="text-muted small mb-3">
+                        Ingresa tu RUT para consultar tu credencial y pase QR oficial de acceso a los eventos.
+                    </p>
+                    <div class="input-group mb-3">
+                        <input type="text" id="inputRutConsulta" class="form-control form-control-lg text-center font-monospace" placeholder="12.345.678-9" autofocus>
+                    </div>
+                    <div id="qrSearchError" class="alert alert-danger py-2 small d-none"></div>
+                    <button type="button" class="btn w-100 py-2 fw-bold fs-5 text-white" style="background: linear-gradient(135deg, #B70420, #8B0014); border: none; box-shadow: 0 4px 12px rgba(183,4,32,0.3);" id="btnBuscarQR" onclick="buscarMiQR()">
+                        <i class="bi bi-search me-1"></i> Consultar Código
+                    </button>
+                </div>
+
+                <!-- Resultado QR -->
+                <div id="qrResultSection" class="d-none">
+                    <div class="qr-result-box mb-3 shadow-sm">
+                        <img src="" id="imgQRResultado" alt="Código QR" class="img-fluid mb-2" style="max-width: 210px;">
+                        <h5 class="fw-bold text-dark mb-0" id="nombreQRResultado"></h5>
+                        <small class="text-muted d-block font-monospace" id="rutQRResultado"></small>
+                        <small class="text-danger fw-semibold" id="infoQRResultado"></small>
+                    </div>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" id="btnDescargarQR" download="mi_qr_inacap.png" class="btn text-white fw-semibold" style="background: linear-gradient(135deg, #B70420, #8B0014); border: none;">
+                            <i class="bi bi-download me-1"></i> Descargar QR
+                        </a>
+                        <button type="button" class="btn btn-secondary" onclick="resetConsultaQR()">
+                            Consultar otro RUT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="inacap-footer-simple">
     <div class="container">
-        &copy; 2026 INACAP &bull; Sistema Oficial de Eventos y Encuentros &bull; Protección de Datos Garantizada.
+        <div class="row align-items-center gy-2">
+            <div class="col-md-5 text-center text-md-start">
+                <h5 class="fw-bold text-white mb-0 fs-6">INACAP</h5>
+                <p class="mb-0 small text-white-50">Portal Oficial de Eventos y Encuentros</p>
+            </div>
+            <div class="col-md-7 text-center text-md-end d-flex flex-wrap justify-content-center justify-content-md-end gap-3 small">
+                <a href="https://www.inacap.cl" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-globe me-1"></i> www.inacap.cl
+                </a>
+                <a href="https://www.instagram.com/inacap_oficial" target="_blank" rel="noopener noreferrer">
+                    <i class="bi bi-instagram me-1"></i> Instagram
+                </a>
+                {% if usuario and usuario.es_admin or usuario and usuario.es_ayudante %}
+                <a href="{% url 'panel-admin:panel_admin' %}">
+                    <i class="bi bi-speedometer2 me-1"></i> Panel Admin
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}">
+                    <i class="bi bi-shield-lock me-1"></i> Acceso Administrativo
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="border-top border-white border-opacity-25 pt-2 mt-2 text-center text-white-50 small">
+            &copy; 2026 INACAP. Todos los derechos reservados.
+        </div>
     </div>
 </footer>
 
@@ -611,6 +686,98 @@
             });
         }
     });
+</script>
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function buscarMiQR() {
+        const rutInput = document.getElementById('inputRutConsulta').value.trim();
+        const errorDiv = document.getElementById('qrSearchError');
+        const btn = document.getElementById('btnBuscarQR');
+
+        if (!rutInput) {
+            errorDiv.textContent = "Por favor ingresa tu RUT.";
+            errorDiv.classList.remove('d-none');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Buscando...';
+        errorDiv.classList.add('d-none');
+
+        fetch('/consultar-qr-rut/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ rut: rutInput })
+        })
+        .then(r => r.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search me-1"></i> Consultar Código';
+
+            if (data.status === 'ok') {
+                document.getElementById('qrSearchSection').classList.add('d-none');
+                document.getElementById('qrResultSection').classList.remove('d-none');
+
+                document.getElementById('nombreQRResultado').textContent = data.nombre;
+                document.getElementById('rutQRResultado').textContent = data.rut;
+                document.getElementById('infoQRResultado').textContent = data.empresa || data.rol || '';
+
+                if (data.qr_url) {
+                    document.getElementById('imgQRResultado').src = data.qr_url;
+                    document.getElementById('btnDescargarQR').href = data.qr_url;
+                    document.getElementById('btnDescargarQR').classList.remove('d-none');
+                } else {
+                    document.getElementById('btnDescargarQR').classList.add('d-none');
+                }
+            } else if (data.status === 'not_found') {
+                errorDiv.innerHTML = `<div class="p-2">
+                    <strong>RUT no registrado.</strong> Completa el formulario de esta página para registrarte y obtener tu credencial QR de inmediato.
+                </div>`;
+                errorDiv.classList.remove('d-none');
+                
+                const formRutInput = document.querySelector('#{{ form.rut.id_for_label }}');
+                if (formRutInput && !formRutInput.value) {
+                    formRutInput.value = rutInput;
+                    formRutInput.dispatchEvent(new Event('input'));
+                }
+            } else {
+                errorDiv.textContent = data.mensaje || "Formato de RUT no válido.";
+                errorDiv.classList.remove('d-none');
+            }
+        })
+        .catch(err => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search me-1"></i> Consultar Código';
+            errorDiv.textContent = "Error al consultar. Inténtalo de nuevo.";
+            errorDiv.classList.remove('d-none');
+        });
+    }
+
+    function resetConsultaQR() {
+        document.getElementById('qrSearchSection').classList.remove('d-none');
+        document.getElementById('qrResultSection').classList.add('d-none');
+        document.getElementById('inputRutConsulta').value = '';
+        const errorDiv = document.getElementById('qrSearchError');
+        if (errorDiv) errorDiv.classList.add('d-none');
+    }
 </script>
 
 {% if messages %}

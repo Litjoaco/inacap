@@ -13,6 +13,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;600;700;800&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/responsive-mobile.css' %}">
 
     <style>
         :root {
@@ -110,6 +111,10 @@
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.35);
             transition: all 0.2s ease;
+            white-space: nowrap !important;
+            display: inline-flex;
+            align-items: center;
+            flex-shrink: 0;
         }
 
         .btn-nav-qr:hover {
@@ -131,6 +136,8 @@
             align-items: center;
             transition: all 0.2s ease;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            white-space: nowrap !important;
+            flex-shrink: 0;
         }
 
         .btn-nav-inscribir-blanco:hover {
@@ -436,47 +443,129 @@
             display: inline-block;
         }
 
-        footer {
-            background: linear-gradient(to right, #B70420, #8B0014);
-            color: #FFFFFF;
-            padding: 40px 0 25px;
-            font-size: 0.88rem;
-            box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08);
-        }
+        /* Footer styling is provided globally in responsive-mobile.css */
 
-        footer a {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            transition: all 0.2s;
-        }
+        @media (max-width: 768px) {
+            .hero-fullscreen {
+                background-attachment: scroll !important;
+                min-height: 100dvh;
+            }
 
-        footer a:hover {
-            color: #FFFFFF;
-            text-decoration: underline;
-        }
+            .top-navbar {
+                padding: 10px 0;
+            }
 
-        @media (max-width: 576px) {
+            .header-brand img {
+                height: 36px;
+                margin-right: 8px;
+            }
+
+            .brand-text-title {
+                font-size: 1.1rem;
+            }
+
+            .btn-nav-qr {
+                padding: 7px 11px !important;
+                font-size: 0.8rem !important;
+            }
+
+            .btn-nav-inscribir-blanco {
+                padding: 7px 13px !important;
+                font-size: 0.82rem !important;
+            }
+
             .hero-center-content {
-                padding: 30px 10px;
+                padding: 24px 12px 16px;
+            }
+
+            .hero-badge {
+                padding: 5px 14px;
+                font-size: 0.75rem;
+                margin-bottom: 14px;
+            }
+
+            .hero-title {
+                font-size: clamp(1.75rem, 5.5vw, 2.2rem) !important;
+                margin-bottom: 12px;
+                line-height: 1.2;
+            }
+
+            .hero-subtitle {
+                font-size: 0.92rem !important;
+                line-height: 1.5;
+                margin-bottom: 20px !important;
+                padding: 0 4px;
+            }
+
+            .hero-actions-wrapper {
+                flex-direction: column !important;
+                width: 100%;
+                max-width: 360px;
+                margin: 0 auto;
+                gap: 10px !important;
             }
 
             .hero-btn-primary,
             .hero-btn-secondary {
-                width: 100%;
-                justify-content: center;
-                text-align: center;
+                width: 100% !important;
+                justify-content: center !important;
+                text-align: center !important;
+                padding: 12px 18px !important;
+                font-size: 0.95rem !important;
             }
 
-            .brand-text-title {
-                font-size: 1.05rem;
-            }
-
-            .brand-text-sub {
-                font-size: 0.68rem;
+            .hero-stats-bottom {
+                padding-bottom: 16px;
             }
 
             .stat-card-glass {
-                padding: 14px 16px;
+                flex-direction: column !important;
+                text-align: center !important;
+                justify-content: center !important;
+                padding: 10px 4px !important;
+                gap: 5px !important;
+                border-radius: 12px !important;
+            }
+
+            .stat-icon-wrapper {
+                width: 34px !important;
+                height: 34px !important;
+                font-size: 1.05rem !important;
+                margin: 0 auto !important;
+                border-radius: 8px !important;
+            }
+
+            .stat-number {
+                font-size: 1.15rem !important;
+                line-height: 1.1 !important;
+            }
+
+            .stat-label {
+                font-size: 0.68rem !important;
+                line-height: 1.15 !important;
+                letter-spacing: -0.2px;
+            }
+
+            .scroll-down-hint {
+                margin-top: 10px;
+                font-size: 0.75rem;
+            }
+
+            .content-section {
+                padding: 40px 0 35px;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .section-subtitle {
+                font-size: 0.88rem;
+            }
+
+            .event-card-img,
+            .event-card-img-placeholder {
+                height: 175px !important;
             }
         }
     </style>
@@ -491,24 +580,28 @@
             <div class="container d-flex justify-content-between align-items-center">
                 <a href="{% url 'inicio' %}" class="header-brand">
                     <img src="{% static 'img/Logo_60anos.png' %}" alt="Logo INACAP">
-                    <div>
-                        <h1 class="brand-text-title">INACAP</h1>
-                        <p class="brand-text-sub">Portal Oficial de Eventos y Encuentros</p>
+                    <div class="d-flex flex-column justify-content-center">
+                        <h1 class="brand-text-title mb-0">INACAP</h1>
+                        <p class="brand-text-sub mb-0 d-none d-md-block">Portal Oficial de Eventos y Encuentros</p>
                     </div>
                 </a>
 
-                <nav class="d-flex align-items-center gap-2">
-                    <a href="{% url 'landing_reuniones' %}" class="nav-link-item d-none d-md-inline-block">
+                <nav class="d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">
+                    <a href="{% url 'landing_reuniones' %}" class="nav-link-item d-none d-lg-inline-block">
                         <i class="bi bi-calendar-event me-1"></i> Agenda Completa
                     </a>
 
                     <button type="button" class="btn btn-nav-qr" data-bs-toggle="modal"
-                        data-bs-target="#modalConsultarQR">
-                        <i class="bi bi-qr-code me-1"></i> ¿Ya estás registrado? Consulta tu QR
+                        data-bs-target="#modalConsultarQR" title="Consultar mi Código QR">
+                        <i class="bi bi-qr-code me-1"></i>
+                        <span class="d-none d-lg-inline">¿Ya registrado? </span>
+                        <span class="d-none d-sm-inline">Consulta tu QR</span>
+                        <span class="d-inline d-sm-none">Mi QR</span>
                     </button>
 
-                    <a href="{% url 'registro' %}" class="btn-nav-inscribir-blanco">
-                        <i class="bi bi-person-plus-fill me-1"></i> Regístrate
+                    <a href="{% url 'registro' %}" class="btn-nav-inscribir-blanco" title="Registrarse">
+                        <i class="bi bi-person-plus-fill me-1"></i>
+                        <span>Regístrate</span>
                     </a>
 
                     {% if usuario %}
@@ -532,13 +625,13 @@
                 Regístrate en la plataforma para obtener tu <strong>Credencial QR Oficial</strong> y confirma tu asistencia a las actividades de INACAP en 1 solo clic.
             </p>
 
-            <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <div class="hero-actions-wrapper d-flex justify-content-center gap-2 gap-sm-3 flex-wrap">
                 <a href="{% url 'registro' %}" class="hero-btn-primary">
                     <i class="bi bi-person-plus-fill"></i> Regístrate Aquí
                 </a>
                 <button type="button" class="hero-btn-secondary" data-bs-toggle="modal"
                     data-bs-target="#modalConsultarQR">
-                    <i class="bi bi-qr-code"></i> ¿Ya estás registrado? Consulta tu QR
+                    <i class="bi bi-qr-code"></i> Consulta tu QR Oficial
                 </button>
             </div>
         </div>
@@ -546,48 +639,50 @@
 
         <div class="hero-stats-bottom">
             <div class="container">
-                <div class="row g-3 justify-content-center">
-                    <div class="col-md-4 col-sm-6">
+                <div class="row g-2 g-md-3 justify-content-center">
+                    <div class="col-4 col-md-4">
                         <div class="stat-card-glass">
                             <div class="stat-icon-wrapper">
                                 <i class="bi bi-calendar-check-fill"></i>
                             </div>
                             <div>
                                 <h3 class="stat-number">{{ total_reuniones|default:"1" }}</h3>
-                                <p class="stat-label">Eventos Programados</p>
+                                <p class="stat-label">Eventos<span class="d-none d-md-inline"> Programados</span></p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-4 col-md-4">
                         <div class="stat-card-glass">
                             <div class="stat-icon-wrapper">
                                 <i class="bi bi-people-fill"></i>
                             </div>
                             <div>
                                 <h3 class="stat-number">{{ total_usuarios|default:"0" }}</h3>
-                                <p class="stat-label">Asistentes Registrados</p>
+                                <p class="stat-label">Asistentes<span class="d-none d-md-inline"> Registrados</span></p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-md-4 col-sm-6">
+                    <div class="col-4 col-md-4">
                         <div class="stat-card-glass">
                             <div class="stat-icon-wrapper">
                                 <i class="bi bi-mortarboard-fill"></i>
                             </div>
                             <div>
                                 <h3 class="stat-number">INACAP</h3>
-                                <p class="stat-label">Comunidad y Red</p>
+                                <p class="stat-label">Comunidad<span class="d-none d-md-inline"> y Red</span></p>
                             </div>
                         </div>
                     </div>
                 </div>
 
 
-                <div class="scroll-down-hint">
-                    <span>Desliza para ver la cartelera</span>
-                    <i class="bi bi-chevron-down mt-1"></i>
+                <div class="text-center mt-3">
+                    <a href="#eventos-agenda" class="scroll-down-hint text-decoration-none d-inline-block">
+                        <span>Desliza para ver la cartelera</span>
+                        <i class="bi bi-chevron-down mt-1"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -744,26 +839,33 @@
         </div>
     </div>
 
-    <footer>
+    <footer class="inacap-footer-simple">
         <div class="container">
-            <div class="row align-items-center mb-3">
-                <div class="col-md-6 text-md-start mb-3 mb-md-0">
-                    <h5 class="fw-bold text-white mb-1">INACAP</h5>
-                    <p class="mb-0 small text-white opacity-80">Formando a los profesionales del mañana</p>
+            <div class="row align-items-center gy-2">
+                <div class="col-md-5 text-center text-md-start">
+                    <h5 class="fw-bold text-white mb-0 fs-6">INACAP</h5>
+                    <p class="mb-0 small text-white-50">Portal Oficial de Eventos y Encuentros</p>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="https://www.instagram.com/inacap_oficial" target="_blank" class="me-3">
+                <div class="col-md-7 text-center text-md-end d-flex flex-wrap justify-content-center justify-content-md-end gap-3 small">
+                    <a href="https://www.inacap.cl" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-globe me-1"></i> www.inacap.cl
+                    </a>
+                    <a href="https://www.instagram.com/inacap_oficial" target="_blank" rel="noopener noreferrer">
                         <i class="bi bi-instagram me-1"></i> Instagram
                     </a>
                     {% if usuario and usuario.es_admin or usuario and usuario.es_ayudante %}
-                    <a href="{% url 'panel-admin:panel_admin' %}">Panel de Administración</a>
+                    <a href="{% url 'panel-admin:panel_admin' %}">
+                        <i class="bi bi-speedometer2 me-1"></i> Panel Admin
+                    </a>
                     {% else %}
-                    <a href="{% url 'login' %}">Acceso Administrativo</a>
+                    <a href="{% url 'login' %}">
+                        <i class="bi bi-shield-lock me-1"></i> Acceso Administrativo
+                    </a>
                     {% endif %}
                 </div>
             </div>
-            <div class="border-top border-white border-opacity-25 pt-3 mt-3 text-center">
-                <small class="opacity-75">&copy; 2026 INACAP. Todos los derechos reservados | Portal de Eventos.</small>
+            <div class="border-top border-white border-opacity-25 pt-2 mt-2 text-center text-white-50 small">
+                &copy; 2026 INACAP. Todos los derechos reservados.
             </div>
         </div>
     </footer>

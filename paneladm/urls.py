@@ -41,6 +41,7 @@ urlpatterns = [
     path('encuestas/', views.gestion_encuestas, name='gestion_encuestas'),
     path('encuestas/<int:encuesta_id>/editar/', views.editar_encuesta, name='editar_encuesta'),
     path('encuestas/<int:encuesta_id>/toggle-activa/', views.toggle_activa_encuesta, name='toggle_activa_encuesta'),
+    path('encuestas/<int:encuesta_id>/enviar-correo/', views.enviar_encuesta_correo_asistentes, name='enviar_encuesta_correo_asistentes'),
     path('encuestas/<int:encuesta_id>/respuestas/', views.ver_respuestas_encuesta, name='ver_respuestas_encuesta'),
     path('encuestas/<int:encuesta_id>/proyectar-qr/', views.proyectar_qr_encuesta, name='proyectar_qr_encuesta'),
     path('encuestas/eliminar/<int:encuesta_id>/', views.eliminar_encuesta, name='eliminar_encuesta'),

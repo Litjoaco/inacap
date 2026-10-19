@@ -6,208 +6,371 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - INACAP</title>
     
+    <!-- Google Fonts: Poppins & Plus Jakarta Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/responsive-mobile.css' %}">
     <style>
         :root {
             --inacap-red: #B70420;
             --inacap-dark: #8B0014;
+            --inacap-darker: #66000E;
+            --bg-page: #F8FAFC;
         }
 
         body {
-            font-family: 'Poppins', Arial, sans-serif;
-            background-color: #f4f7f6;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-page);
+            color: #1E293B;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             margin: 0;
+            -webkit-font-smoothing: antialiased;
         }
 
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* HEADER INSTITUCIONAL ELEGANTE */
         .header-admin {
-            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
+            background: linear-gradient(135deg, #7A0012 0%, #B70420 55%, #900318 100%);
             color: white;
+            box-shadow: 0 4px 20px rgba(183, 4, 32, 0.18);
         }
 
-        .card-icon {
-            font-size: 3rem;
-            color: var(--inacap-red);
-            transition: transform 0.3s ease;
+        .btn-header-glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            color: #FFFFFF !important;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 7px 14px;
+            transition: all 0.2s ease;
         }
 
+        .btn-header-glass:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: #FFFFFF;
+            transform: translateY(-1px);
+        }
+
+        .btn-header-logout {
+            background: #FFFFFF;
+            color: var(--inacap-red) !important;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 7px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            transition: all 0.2s ease;
+        }
+
+        .btn-header-logout:hover {
+            background: #FFF5F5;
+            color: var(--inacap-dark) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+        }
+
+        /* BIENVENIDA HERO COMPACTO */
+        .admin-hero-intro {
+            background: #FFFFFF;
+            border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            padding: 1.6rem 2rem;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.03);
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-hero-intro::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: linear-gradient(180deg, var(--inacap-red), #E11D48);
+        }
+
+        /* TARJETAS DE MÓDULOS DE ADMINISTRACIÓN */
         .card-admin-link {
             text-decoration: none;
             color: inherit;
+            display: block;
+            height: 100%;
         }
 
-        .card-admin-link .card {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            border-radius: 12px;
+        .module-card {
+            background: #FFFFFF;
             border: 1px solid #E2E8F0;
+            border-radius: 20px;
+            padding: 1.6rem 1.4rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
         }
 
-        .card-admin-link:hover .card {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+        .card-admin-link:hover .module-card {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
+            border-color: #CBD5E1;
         }
 
-        .card-admin-link:hover .card-icon {
+        .module-icon-circle {
+            width: 68px;
+            height: 68px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.2rem;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+        }
+
+        .card-admin-link:hover .module-icon-circle {
             transform: scale(1.1);
         }
 
-        footer.bottom-footer {
-            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
-            color: #FFFFFF;
-            padding: 18px 0;
-            text-align: center;
+        .module-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0F172A;
+            margin-bottom: 0.4rem;
+            letter-spacing: -0.2px;
+        }
+
+        .module-desc {
+            color: #64748B;
             font-size: 0.84rem;
+            line-height: 1.45;
+            margin-bottom: 0.8rem;
+            flex-grow: 1;
+        }
+
+        .module-arrow {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--inacap-red);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.85;
+            transition: all 0.2s;
+        }
+
+        .card-admin-link:hover .module-arrow {
+            transform: translateX(4px);
+            opacity: 1;
+        }
+
+        /* PALETAS DE COLOR POR MÓDULO */
+        .mod-blue .module-icon-circle { background: #EFF6FF; color: #2563EB; }
+        .mod-indigo .module-icon-circle { background: #EEF2FF; color: #4F46E5; }
+        .mod-cyan .module-icon-circle { background: #ECFEFF; color: #0891B2; }
+        .mod-amber .module-icon-circle { background: #FFFBEB; color: #D97706; }
+        .mod-rose .module-icon-circle { background: #FEF2F2; color: #E11D48; }
+        .mod-emerald .module-icon-circle { background: #ECFDF5; color: #059669; }
+        .mod-violet .module-icon-circle { background: #F5F3FF; color: #7C3AED; }
+        .mod-sky .module-icon-circle { background: #F0F9FF; color: #0284C7; }
+        .mod-gold .module-icon-circle { background: #FEF3C7; color: #CA8A04; }
+
+        footer.bottom-footer {
+            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
+            color: #FFFFFF;
+            padding: 20px 0;
+            text-align: center;
+            font-size: 0.85rem;
             margin-top: auto;
         }
     </style>
 </head>
 <body>
 
-<header class="header-admin p-3 shadow-sm d-flex justify-content-between align-items-center">
+<header class="header-admin p-3 shadow-sm d-flex justify-content-between align-items-center flex-wrap gap-2">
     <div class="d-flex align-items-center">
-        <img src="{% static 'img/Logo_60anos.png' %}" class="img-fluid rounded me-3" alt="Logo INACAP" style="height:45px;">
+        <img src="{% static 'img/Logo_60anos.png' %}" class="img-fluid rounded me-2 me-md-3" alt="Logo INACAP" style="height:42px;">
         <div>
             <span class="fw-bold fs-5 d-block">Panel de Administración</span>
-            <small class="opacity-80">Hola, {{ usuario.nombre }} {{ usuario.apellido }}</small>
+            <small class="opacity-90"><i class="bi bi-person-badge-fill me-1"></i>{{ usuario.nombre }} {{ usuario.apellido }} &bull; <span class="badge bg-white text-dark rounded-pill py-0.5 px-2" style="font-size:0.68rem;">Administrador</span></small>
         </div>
     </div>
     <div class="d-flex align-items-center gap-2">
-        <a href="{% url 'inicio' %}" class="btn btn-outline-light btn-sm fw-medium">
+        <a href="{% url 'inicio' %}" class="btn-header-glass text-decoration-none">
             <i class="bi bi-house-door-fill me-1"></i> Inicio
         </a>
-        <a href="{% url 'logout' %}" class="btn btn-light btn-sm fw-bold text-danger">
+        <a href="{% url 'logout' %}" class="btn-header-logout text-decoration-none">
             <i class="bi bi-box-arrow-right me-1"></i> Cerrar Sesión
         </a>
     </div>
 </header>
 
-<main class="container my-5 flex-grow-1">
-    <div class="row g-4">
+<main class="container my-4 flex-grow-1">
+    <!-- HERO INTRODUCION -->
+    <div class="admin-hero-intro">
+        <div>
+            <h4 class="fw-bold text-dark mb-1">Bienvenido, {{ usuario.nombre }} 👋</h4>
+            <p class="text-muted small mb-0">Selecciona uno de los módulos institucionales para gestionar eventos, acreditaciones, métricas y usuarios.</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3 py-2 fw-semibold">
+                <i class="bi bi-shield-lock-fill me-1"></i>Gestión Segura
+            </span>
+            <span class="badge bg-light text-muted border rounded-pill px-3 py-2 fw-medium">
+                <i class="bi bi-calendar3 me-1"></i>Período 2026
+            </span>
+        </div>
+    </div>
 
-        
-        <div class="col-md-6 col-lg-4">
-            <a href="{% url 'panel-admin:control_asistencia' %}" class="card-admin-link">
-                <div class="card text-center h-100 shadow-sm p-4">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                        <i class="bi bi-qr-code-scan card-icon mb-3"></i>
-                        <h5 class="card-title fw-bold text-dark">Tomar Asistencia</h5>
-                        <p class="card-text text-muted small">Registra la asistencia de los participantes en los eventos.</p>
+    <!-- GRID DE MÓDULOS -->
+    <div class="row g-3 g-md-4">
+        <!-- 1. Tomar Asistencia -->
+        <div class="col-6 col-md-6 col-lg-4">
+            <a href="{% url 'panel-admin:control_asistencia' %}" class="card-admin-link mod-blue">
+                <div class="module-card">
+                    <div class="module-icon-circle">
+                        <i class="bi bi-qr-code-scan"></i>
                     </div>
+                    <h5 class="module-title">Tomar Asistencia</h5>
+                    <p class="module-desc">Registra la asistencia en tiempo real mediante QR o código.</p>
+                    <span class="module-arrow">Ingresar <i class="bi bi-arrow-right"></i></span>
                 </div>
             </a>
         </div>
 
-        
-        <div class="col-md-6 col-lg-4">
-            <a href="{% url 'panel-admin:gestion_usuarios' %}" class="card-admin-link">
-                <div class="card text-center h-100 shadow-sm p-4">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                        <i class="bi bi-people-fill card-icon mb-3"></i>
-                        <h5 class="card-title fw-bold text-dark">Gestión de Usuarios</h5>
-                        <p class="card-text text-muted small">Edita, elimina, importa con Excel y gestiona usuarios.</p>
+        <!-- 2. Gestión de Usuarios -->
+        <div class="col-6 col-md-6 col-lg-4">
+            <a href="{% url 'panel-admin:gestion_usuarios' %}" class="card-admin-link mod-indigo">
+                <div class="module-card">
+                    <div class="module-icon-circle">
+                        <i class="bi bi-people-fill"></i>
                     </div>
+                    <h5 class="module-title">Gestión de Usuarios</h5>
+                    <p class="module-desc">Administra usuarios, permisos y carga masiva desde Excel.</p>
+                    <span class="module-arrow">Ingresar <i class="bi bi-arrow-right"></i></span>
                 </div>
             </a>
         </div>
 
-        
-        <div class="col-md-6 col-lg-4">
-            <a href="{% url 'panel-admin:gestion_soporte' %}" class="card-admin-link">
-                <div class="card text-center h-100 shadow-sm p-4">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                        <i class="bi bi-headset card-icon mb-3"></i>
-                        <h5 class="card-title fw-bold text-dark">Gestión de Soporte</h5>
-                        <p class="card-text text-muted small">Responde y gestiona los tickets de ayuda y soporte.</p>
+        <!-- 3. Gestión de Soporte -->
+        <div class="col-6 col-md-6 col-lg-4">
+            <a href="{% url 'panel-admin:gestion_soporte' %}" class="card-admin-link mod-cyan">
+                <div class="module-card">
+                    <div class="module-icon-circle">
+                        <i class="bi bi-headset"></i>
                     </div>
+                    <h5 class="module-title">Gestión de Soporte</h5>
+                    <p class="module-desc">Revisa y responde tickets de asistencia de los usuarios.</p>
+                    <span class="module-arrow">Ingresar <i class="bi bi-arrow-right"></i></span>
                 </div>
             </a>
         </div>
 
-        
-        <div class="col-md-6 col-lg-4">
-            <a href="{% url 'panel-admin:estadisticas_admin' %}" class="card-admin-link">
-                <div class="card text-center h-100 shadow-sm p-4">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                        <i class="bi bi-bar-chart-line-fill card-icon mb-3"></i>
-                        <h5 class="card-title fw-bold text-dark">Estadísticas</h5>
-                        <p class="card-text text-muted small">Visualiza datos y métricas de asistencia y participación.</p>
+        <!-- 4. Estadísticas -->
+        <div class="col-6 col-md-6 col-lg-4">
+            <a href="{% url 'panel-admin:estadisticas_admin' %}" class="card-admin-link mod-amber">
+                <div class="module-card">
+                    <div class="module-icon-circle">
+                        <i class="bi bi-bar-chart-line-fill"></i>
                     </div>
+                    <h5 class="module-title">Estadísticas</h5>
+                    <p class="module-desc">Gráficos de asistencia, participación y rendimiento global.</p>
+                    <span class="module-arrow">Ingresar <i class="bi bi-arrow-right"></i></span>
                 </div>
             </a>
         </div>
 
-        
-
-        
         {% if usuario.es_admin %}
-        <div class="col-md-6 col-lg-4">
-            <a href="{% url 'panel-admin:gestion_reuniones' %}" class="card-admin-link">
-                <div class="card text-center h-100 shadow-sm p-4">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                        <i class="bi bi-calendar-plus-fill card-icon mb-3"></i>
-                        <h5 class="card-title fw-bold text-dark">Gestión de Eventos</h5>
-                        <p class="card-text text-muted small">Crea, edita y administra los eventos y actividades.</p>
+        <!-- 5. Gestión de Eventos -->
+        <div class="col-6 col-md-6 col-lg-4">
+            <a href="{% url 'panel-admin:gestion_reuniones' %}" class="card-admin-link mod-rose">
+                <div class="module-card">
+                    <div class="module-icon-circle">
+                        <i class="bi bi-calendar-plus-fill"></i>
                     </div>
+                    <h5 class="module-title">Gestión de Eventos</h5>
+                    <p class="module-desc">Crea, edita y programa conferencias y actividades.</p>
+                    <span class="module-arrow">Ingresar <i class="bi bi-arrow-right"></i></span>
                 </div>
             </a>
         </div>
 
-        <div class="col-md-6 col-lg-4">
-            <a href="{% url 'panel-admin:gestion_asistentes' %}" class="card-admin-link">
-                <div class="card text-center h-100 shadow-sm p-4">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                        <i class="bi bi-clipboard-check-fill card-icon mb-3"></i>
-                        <h5 class="card-title fw-bold text-dark">Listas de Asistentes</h5>
-                        <p class="card-text text-muted small">Consulta nóminas de asistencia y exporta a Excel.</p>
+        <!-- 6. Listas de Asistentes -->
+        <div class="col-6 col-md-6 col-lg-4">
+            <a href="{% url 'panel-admin:gestion_asistentes' %}" class="card-admin-link mod-emerald">
+                <div class="module-card">
+                    <div class="module-icon-circle">
+                        <i class="bi bi-clipboard-check-fill"></i>
                     </div>
+                    <h5 class="module-title">Listas de Asistentes</h5>
+                    <p class="module-desc">Consulta nóminas, estados de acreditación y descarga Excel.</p>
+                    <span class="module-arrow">Ingresar <i class="bi bi-arrow-right"></i></span>
                 </div>
             </a>
         </div>
 
-        <div class="col-md-6 col-lg-4">
-            <a href="{% url 'panel-admin:gestion_encuestas' %}" class="card-admin-link">
-                <div class="card text-center h-100 shadow-sm p-4">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                        <i class="bi bi-patch-question-fill card-icon mb-3"></i>
-                        <h5 class="card-title fw-bold text-dark">Gestión de Encuestas</h5>
-                        <p class="card-text text-muted small">Crea preguntas y revisa las encuestas de satisfacción.</p>
+        <!-- 7. Gestión de Encuestas -->
+        <div class="col-6 col-md-6 col-lg-4">
+            <a href="{% url 'panel-admin:gestion_encuestas' %}" class="card-admin-link mod-violet">
+                <div class="module-card">
+                    <div class="module-icon-circle">
+                        <i class="bi bi-patch-question-fill"></i>
                     </div>
+                    <h5 class="module-title">Gestión de Encuestas</h5>
+                    <p class="module-desc">Diseña preguntas y analiza métricas de satisfacción en vivo.</p>
+                    <span class="module-arrow">Ingresar <i class="bi bi-arrow-right"></i></span>
                 </div>
             </a>
         </div>
 
-        <div class="col-md-6 col-lg-4">
-            <a href="{% url 'panel-admin:gestion_interesados' %}" class="card-admin-link">
-                <div class="card text-center h-100 shadow-sm p-4">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                        <i class="bi bi-person-lines-fill card-icon mb-3"></i>
-                        <h5 class="card-title fw-bold text-dark">Gestión de Interesados</h5>
-                        <p class="card-text text-muted small">Revisa los pre-inscritos a cada uno de los eventos.</p>
+        <!-- 8. Gestión de Interesados -->
+        <div class="col-6 col-md-6 col-lg-4">
+            <a href="{% url 'panel-admin:gestion_interesados' %}" class="card-admin-link mod-sky">
+                <div class="module-card">
+                    <div class="module-icon-circle">
+                        <i class="bi bi-person-lines-fill"></i>
                     </div>
+                    <h5 class="module-title">Gestión de Interesados</h5>
+                    <p class="module-desc">Revisa el listado de pre-inscritos a cada actividad.</p>
+                    <span class="module-arrow">Ingresar <i class="bi bi-arrow-right"></i></span>
                 </div>
             </a>
         </div>
 
-        
-        <div class="col-md-6 col-lg-4">
-            <a href="{% url 'panel-admin:ruleta_ganador' %}" class="card-admin-link">
-                <div class="card text-center h-100 shadow-sm p-4">
-                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
-                        <i class="bi bi-trophy-fill card-icon mb-3"></i>
-                        <h5 class="card-title fw-bold text-dark">Ruleta de Ganadores</h5>
-                        <p class="card-text text-muted small">Realiza sorteos interactivos entre los asistentes.</p>
+        <!-- 9. Ruleta de Ganadores -->
+        <div class="col-6 col-md-6 col-lg-4">
+            <a href="{% url 'panel-admin:ruleta_ganador' %}" class="card-admin-link mod-gold">
+                <div class="module-card">
+                    <div class="module-icon-circle">
+                        <i class="bi bi-trophy-fill"></i>
                     </div>
+                    <h5 class="module-title">Ruleta de Ganadores</h5>
+                    <p class="module-desc">Sorteos interactivos en sala entre los asistentes acreditados.</p>
+                    <span class="module-arrow">Ingresar <i class="bi bi-arrow-right"></i></span>
                 </div>
             </a>
         </div>
         {% endif %}
-
     </div>
 </main>
 

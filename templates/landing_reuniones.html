@@ -12,6 +12,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/responsive-mobile.css' %}">
 
     <style>
         :root {
@@ -189,14 +190,7 @@
             opacity: 0.9;
         }
 
-        footer.bottom-footer {
-            background: linear-gradient(to right, var(--inacap-red), var(--inacap-dark));
-            color: #FFFFFF;
-            padding: 24px 0;
-            text-align: center;
-            font-size: 0.85rem;
-            margin-top: auto;
-        }
+        /* Footer styles provided in responsive-mobile.css */
     </style>
 </head>
 
@@ -364,9 +358,34 @@
 
     </main>
 
-    <footer class="bottom-footer">
+    <footer class="inacap-footer-simple">
         <div class="container">
-            &copy; 2026 INACAP. Todos los derechos reservados | Portal Oficial de Eventos.
+            <div class="row align-items-center gy-2">
+                <div class="col-md-5 text-center text-md-start">
+                    <h5 class="fw-bold text-white mb-0 fs-6">INACAP</h5>
+                    <p class="mb-0 small text-white-50">Portal Oficial de Eventos y Encuentros</p>
+                </div>
+                <div class="col-md-7 text-center text-md-end d-flex flex-wrap justify-content-center justify-content-md-end gap-3 small">
+                    <a href="https://www.inacap.cl" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-globe me-1"></i> www.inacap.cl
+                    </a>
+                    <a href="https://www.instagram.com/inacap_oficial" target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-instagram me-1"></i> Instagram
+                    </a>
+                    {% if usuario and usuario.es_admin or usuario and usuario.es_ayudante %}
+                    <a href="{% url 'panel-admin:panel_admin' %}">
+                        <i class="bi bi-speedometer2 me-1"></i> Panel Admin
+                    </a>
+                    {% else %}
+                    <a href="{% url 'login' %}">
+                        <i class="bi bi-shield-lock me-1"></i> Acceso Administrativo
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="border-top border-white border-opacity-25 pt-2 mt-2 text-center text-white-50 small">
+                &copy; 2026 INACAP. Todos los derechos reservados.
+            </div>
         </div>
     </footer>
 

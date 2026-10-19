@@ -15,8 +15,8 @@
         }
 
         body {
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
-            color: #f8fafc;
+            background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 50%, #f1f5f9 100%);
+            color: #0f172a;
             min-height: 100vh;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             display: flex;
@@ -29,9 +29,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
+            color: white;
+            box-shadow: 0 4px 16px rgba(183, 4, 32, 0.22);
         }
 
         .brand-badge {
@@ -41,57 +41,59 @@
         }
 
         .brand-badge img {
-            height: 38px;
-            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+            height: 42px;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
         }
 
         .live-pulse-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            color: #fca5a5;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: #ffffff;
             padding: 6px 16px;
             border-radius: 999px;
             font-size: 0.9rem;
             font-weight: 600;
             letter-spacing: 0.5px;
+            backdrop-filter: blur(8px);
         }
 
         .live-dot {
             width: 10px;
             height: 10px;
-            background-color: #ef4444;
+            background-color: #22c55e;
             border-radius: 50%;
             animation: pulse-ring 1.8s infinite;
         }
 
         @keyframes pulse-ring {
-            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
         }
 
         .qr-card-container {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
             border-radius: 28px;
             padding: 36px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
-            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
         }
 
         .qr-frame {
-            background: white;
+            background: #ffffff;
+            border: 2px solid #fee2e2;
             padding: 22px;
             border-radius: 22px;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 10px 30px rgba(183, 4, 32, 0.12);
             display: inline-block;
             transition: transform 0.3s ease;
         }
         .qr-frame:hover {
             transform: scale(1.02);
+            border-color: var(--inacap-red);
         }
 
         .qr-frame img {
@@ -112,24 +114,26 @@
             display: flex;
             align-items: center;
             gap: 16px;
-            padding: 14px 20px;
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 16px;
+            padding: 16px 22px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
             margin-bottom: 14px;
-            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+            transition: all 0.25s ease;
         }
         .step-pill:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(255, 255, 255, 0.25);
+            background: #ffffff;
+            border-color: rgba(183, 4, 32, 0.4);
+            box-shadow: 0 8px 22px rgba(183, 4, 32, 0.09);
             transform: translateX(4px);
         }
 
         .step-number {
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
-            color: white;
+            color: #ffffff;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -137,7 +141,11 @@
             font-size: 1.25rem;
             font-weight: 800;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(183, 4, 32, 0.4);
+            box-shadow: 0 4px 12px rgba(183, 4, 32, 0.35);
+        }
+
+        .border-slate-200 {
+            border-color: #e2e8f0 !important;
         }
 
         .floating-controls {
@@ -150,19 +158,29 @@
         }
 
         .btn-fullscreen {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(8px);
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
             border-radius: 12px;
             padding: 10px 18px;
             font-weight: 600;
             transition: all 0.2s;
         }
         .btn-fullscreen:hover {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-            border-color: white;
+            background: var(--inacap-red);
+            color: #ffffff;
+            border-color: var(--inacap-red);
+            box-shadow: 0 6px 18px rgba(183, 4, 32, 0.3);
+        }
+
+        footer.screen-footer {
+            background: linear-gradient(135deg, var(--inacap-red), var(--inacap-dark));
+            border-top: none;
+            padding: 16px 0;
+            font-size: 0.85rem;
+            color: #ffffff;
+            margin-top: auto;
         }
     </style>
 </head>
@@ -183,67 +201,67 @@
                 <div class="live-dot"></div>
                 <span>ENCUESTA EN SALA</span>
             </div>
-            <a href="{% url 'panel-admin:gestion_encuestas' %}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+            <a href="{% url 'panel-admin:gestion_encuestas' %}" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-semibold">
                 <i class="bi bi-x-lg me-1"></i> Salir de Proyección
             </a>
         </div>
     </header>
 
     <!-- MAIN HERO CONTENT -->
-    <main class="container my-auto py-4">
+    <main class="container my-auto py-5">
         <div class="row align-items-center g-5">
             
             <!-- LEFT COLUMN: TITLES & INSTRUCTIONS -->
             <div class="col-lg-6">
                 <div class="pe-lg-3">
-                    <span class="badge bg-danger text-uppercase px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm">
+                    <span class="badge bg-danger text-white text-uppercase px-3 py-2 rounded-pill fw-bold mb-3 shadow-sm">
                         <i class="bi bi-star-fill text-warning me-1"></i> Tu opinión nos hace crecer
                     </span>
-                    <h1 class="display-4 fw-black text-white mb-2" style="font-weight: 800; letter-spacing: -0.5px;">
+                    <h1 class="display-4 fw-black text-dark mb-2" style="font-weight: 800; letter-spacing: -0.5px;">
                         {{ encuesta.titulo }}
                     </h1>
-                    <p class="fs-4 text-white-50 mb-4">
-                        Reunión: <span class="text-white fw-semibold">{{ reunion.detalle }}</span>
+                    <p class="fs-4 text-muted mb-4">
+                        Reunión: <span class="text-danger fw-bold">{{ reunion.detalle }}</span>
                     </p>
 
                     <div class="mb-4">
                         <div class="step-pill">
                             <div class="step-number">1</div>
                             <div>
-                                <strong class="fs-5 d-block text-white">Escanea el Código QR</strong>
-                                <span class="text-white-50">Apunta con la cámara de tu teléfono móvil o lector QR.</span>
+                                <strong class="fs-5 d-block text-dark">Escanea el Código QR</strong>
+                                <span class="text-muted">Apunta con la cámara de tu teléfono móvil o lector QR.</span>
                             </div>
                         </div>
 
                         <div class="step-pill">
                             <div class="step-number">2</div>
                             <div>
-                                <strong class="fs-5 d-block text-white">Ingresa tu RUT</strong>
-                                <span class="text-white-50">Para validar tu asistencia y evitar votos duplicados.</span>
+                                <strong class="fs-5 d-block text-dark">Ingresa tu RUT</strong>
+                                <span class="text-muted">Para validar tu asistencia y evitar votos duplicados.</span>
                             </div>
                         </div>
 
                         <div class="step-pill">
                             <div class="step-number">3</div>
                             <div>
-                                <strong class="fs-5 d-block text-white">Califícanos en 1 Minuto</strong>
-                                <span class="text-white-50">Selecciona tus estrellas y cuéntanos tus opiniones o sugerencias.</span>
+                                <strong class="fs-5 d-block text-dark">Califícanos en 1 Minuto</strong>
+                                <span class="text-muted">Selecciona tus estrellas y cuéntanos tus opiniones o sugerencias.</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- LIVE COUNTER -->
-                    <div class="d-flex align-items-center gap-4 pt-2 border-top border-white-10">
+                    <div class="d-flex align-items-center gap-4 pt-3 border-top border-slate-200">
                         <div>
-                            <span class="text-white-50 small d-block">Respuestas Recibidas</span>
-                            <h3 class="fw-bold text-white mb-0" id="contadorRespuestas">
+                            <span class="text-muted small d-block fw-medium">Respuestas Recibidas</span>
+                            <h3 class="fw-bold text-danger mb-0" id="contadorRespuestas">
                                 <i class="bi bi-chat-heart-fill text-danger me-1"></i> {{ total_respuestas }}
                             </h3>
                         </div>
-                        <div class="border-start border-white-10 ps-4">
-                            <span class="text-white-50 small d-block">Calificación Promedio</span>
-                            <h3 class="fw-bold text-warning mb-0">
-                                <i class="bi bi-star-fill me-1"></i> {{ promedio|default:"5.0" }} <small class="text-white-50 fs-6">/ 5</small>
+                        <div class="border-start border-slate-200 ps-4">
+                            <span class="text-muted small d-block fw-medium">Calificación Promedio</span>
+                            <h3 class="fw-bold text-dark mb-0">
+                                <i class="bi bi-star-fill text-warning me-1"></i> {{ promedio|default:"5.0" }} <small class="text-muted fs-6">/ 5</small>
                             </h3>
                         </div>
                     </div>
@@ -258,11 +276,11 @@
                     </div>
 
                     <div class="text-center">
-                        <span class="badge bg-white text-dark px-3 py-2 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-2 mb-2">
-                            <i class="bi bi-camera-fill text-danger fs-6"></i> Escanea directamente desde tu asiento
+                        <span class="badge bg-danger text-white px-3 py-2 rounded-pill fw-bold shadow-sm d-inline-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-camera-fill text-warning fs-6"></i> Escanea directamente desde tu asiento
                         </span>
-                        <div class="text-white-50 small font-monospace mt-1">
-                            Enlace: {{ url_encuesta }}
+                        <div class="text-muted small font-monospace mt-1">
+                            Enlace: <span class="text-danger fw-semibold">{{ url_encuesta }}</span>
                         </div>
                     </div>
                 </div>
@@ -270,6 +288,13 @@
 
         </div>
     </main>
+
+    <!-- FOOTER -->
+    <footer class="screen-footer text-center">
+        <div class="container">
+            &copy; 2026 INACAP - Sistema Oficial de Evaluación de Eventos y Encuestas
+        </div>
+    </footer>
 
     <!-- FLOATING ACTIONS -->
     <div class="floating-controls">
