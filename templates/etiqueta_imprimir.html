@@ -19,25 +19,37 @@
         }
 
         .printable-tag {
-            width: 10cm;
-            height: 5cm;
-            padding: 0.22in;
+            width: 106mm;
+            height: 62mm;
+            padding: 4mm 6mm;
             box-sizing: border-box;
-            background-color: #fff;
+            background-color: #ffffff;
             border: 1px solid #ccc;
-            border-radius: 10px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            gap: 18px;
+            gap: 14px;
             box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            overflow: hidden;
         }
 
-        .tag-logo {
-            height: 1.35in;
-            width: 1.35in;
+        .tag-logo-svg {
+            height: 34mm;
+            width: 34mm;
+            flex-shrink: 0;
+            shape-rendering: crispEdges;
+        }
+
+        .tag-logo-img {
+            height: 34mm;
+            width: 34mm;
+            max-height: 100%;
             object-fit: contain;
             flex-shrink: 0;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+            image-rendering: pixelated;
         }
 
         .tag-info {
@@ -47,47 +59,76 @@
             flex-direction: column;
             justify-content: center;
             overflow: hidden;
+            min-width: 0;
+            width: 100%;
         }
 
         .tag-nombre {
-            font-size: 19pt;
-            font-weight: 700;
+            font-size: 26pt;
+            font-weight: 800;
             margin: 0;
-            line-height: 1.18;
-            color: #111827;
-            word-break: break-word;
+            line-height: 1.15;
+            color: #000000;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: -0.02em;
             text-transform: capitalize !important;
         }
 
         @media print {
             @page {
-                size: 10cm 5cm;
+                size: 106mm 62mm landscape;
                 margin: 0;
             }
             body {
-                background-color: #fff;
+                background-color: #ffffff;
                 min-height: auto;
+                margin: 0;
+                padding: 0;
             }
             .printable-tag {
                 box-shadow: none;
                 border: none;
+                border-radius: 0;
                 margin: 0;
-                width: 10cm;
-                height: 5cm;
+                width: 106mm;
+                height: 62mm;
+                background-color: #ffffff;
             }
         }
     </style>
 </head>
 <body>
     <div class="printable-tag">
-        <img src="{% if plantilla.logo %}{{ plantilla.logo.url }}{% else %}{% static 'img/logo_etiqueta.jpg' %}{% endif %}" alt="Logo INACAP" class="tag-logo">
+        {% if plantilla.logo %}
+            <img src="{{ plantilla.logo.url }}" alt="Logo" class="tag-logo-img">
+        {% else %}
+            <svg class="tag-logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+                <!-- Logo INACAP Vectorial Puro: Rojo puro #FF0000 sin suavizado ni artefactos de compresión -->
+                <path d="M 0,0 L 100,0 L 100,100 L 83.33,100 L 83.33,36.5 L 66.67,36.5 L 66.67,100 L 0,100 Z" fill="#FF0000" />
+            </svg>
+        {% endif %}
         <div class="tag-info">
-            <h1 class="tag-nombre">{{ usuario.nombre|title }}<br>{{ usuario.apellido|title }}</h1>
+            <h1 class="tag-nombre">{{ usuario.nombre|title }} {{ usuario.apellido|title }}</h1>
         </div>
     </div>
 
     <script>
+        function ajustarTamanoNombre() {
+            const el = document.querySelector('.tag-nombre');
+            const container = document.querySelector('.tag-info');
+            if (!el || !container) return;
+            let size = 26;
+            el.style.fontSize = size + 'pt';
+            while (el.scrollWidth > container.clientWidth && size > 12) {
+                size -= 0.5;
+                el.style.fontSize = size + 'pt';
+            }
+        }
+
         window.onload = function() {
+            ajustarTamanoNombre();
             window.print();
             window.onafterprint = function() {
                 window.close();
