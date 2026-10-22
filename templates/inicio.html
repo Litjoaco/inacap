@@ -947,17 +947,18 @@
                             document.getElementById('btnDescargarQR').classList.add('d-none');
                         }
                     } else if (data.status === 'not_found') {
+                        const targetUrl = data.registro_url || `/registro/?rut=${encodeURIComponent(rutInput)}`;
                         errorDiv.innerHTML = `<div class="p-2">
                 <strong>RUT no registrado.</strong> Redirigiendo al formulario de registro en 2 segundos...
                 <div class="mt-2">
-                    <a href="/registro/?rut=${encodeURIComponent(rutInput)}" class="btn btn-sm fw-bold text-white" style="background: #B70420;">
+                    <a href="${targetUrl}" class="btn btn-sm fw-bold text-white" style="background: #B70420;">
                         Ir al Registro Ahora <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>`;
                         errorDiv.classList.remove('d-none');
                         setTimeout(() => {
-                            window.location.href = `/registro/?rut=${encodeURIComponent(rutInput)}`;
+                            window.location.href = targetUrl;
                         }, 1800);
                     } else {
                         errorDiv.textContent = data.mensaje || "Formato de RUT no válido.";

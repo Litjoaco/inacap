@@ -458,6 +458,9 @@
                             </div>
                         </div>
 
+                        <div class="w-100 text-center mt-2">
+                            <small class="text-muted">¿Deseas completar el formulario extendido? <a href="/registro/" id="modal_link_registro_completo" target="_blank" class="text-danger fw-semibold text-decoration-none">Abrir Registro Completo <i class="bi bi-box-arrow-up-right small"></i></a></small>
+                        </div>
                     </div>
                     <div class="modal-footer bg-light px-4 py-3">
                         <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Cancelar</button>
@@ -1016,6 +1019,15 @@ function abrirModalConRut(rut, nombre = '', apellido = '') {
     const vieneDeCarnet = !!(nombre || apellido);
     if (carnetBadge) carnetBadge.style.display = vieneDeCarnet ? 'flex' : 'none';
     if (badgeCarnetStatus) badgeCarnetStatus.style.display = vieneDeCarnet ? 'inline-block' : 'none';
+
+    const linkCompleto = document.getElementById('modal_link_registro_completo');
+    if (linkCompleto) {
+        const p = new URLSearchParams();
+        if (rut) p.append('rut', rut);
+        if (nombre) p.append('nombre', nombre);
+        if (apellido) p.append('apellido', apellido);
+        linkCompleto.href = `/registro/?${p.toString()}`;
+    }
 
     modal.show();
     setTimeout(() => {

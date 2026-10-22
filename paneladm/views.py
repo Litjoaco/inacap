@@ -1602,18 +1602,27 @@ def inscribirse_reunion(request, reunion_id):
         # PASO 1: VALIDACIÓN DE RUT
         if accion == 'verificar_rut':
             rut_input = request.POST.get('rut', '').strip()
-            es_valido, rut_o_error = validate_rut(rut_input)
+            user_id, rut_carnet, carnet_nombre, carnet_apellido = extraer_datos_carnet_o_qr(rut_input)
+            if rut_carnet:
+                rut_limpio = rut_carnet
+                es_valido = True
+            else:
+                es_valido, rut_o_error = validate_rut(rut_input)
+                rut_limpio = rut_o_error if es_valido else None
+                carnet_nombre, carnet_apellido = '', ''
 
             if not es_valido:
                 return render(request, 'inscripcion_reunion.html', {
                     'reunion': reunion,
                     'paso': 'ingresar_rut',
-                    'error': rut_o_error,
+                    'error': rut_o_error or "RUT no válido",
                     'rut_ingresado': rut_input
                 })
 
-            rut_limpio = rut_o_error
-            usuario = Usuario.objects.filter(rut=rut_limpio).first()
+            usuario = Usuario.objects.filter(
+                Q(rut__iexact=rut_limpio) |
+                Q(rut__iexact=rut_limpio.replace('.', '').replace('-', ''))
+            ).first()
 
             if usuario:
                 # El usuario ya existe en la base de datos (o carga masiva)
@@ -1633,7 +1642,12 @@ def inscribirse_reunion(request, reunion_id):
                     })
             else:
                 # Usuario nuevo: formulario rápido sin contraseña
-                form_rapido = RegistroRapidoForm()
+                initial_form = {}
+                if carnet_nombre:
+                    initial_form['nombre'] = carnet_nombre
+                if carnet_apellido:
+                    initial_form['apellido'] = carnet_apellido
+                form_rapido = RegistroRapidoForm(initial=initial_form)
                 return render(request, 'inscripcion_reunion.html', {
                     'reunion': reunion,
                     'paso': 'registro_rapido',
@@ -2285,10 +2299,14 @@ def extraer_datos_carnet_o_qr(texto):
     if not texto:
         return None, None, '', ''
     
-    texto = str(texto).strip()
+    # Normalización para escáneres físicos / códigos QR leídos con teclado en español
+    # (Por defecto, muchos escáneres USB envían teclas con layout US: ':' -> 'Ñ' y '/' -> '-')
+    texto_normalizado = texto
+    if 'httpÑ--' in texto_normalizado or 'httpsÑ--' in texto_normalizado or 'Ñ8000' in texto_normalizado:
+        texto_normalizado = texto_normalizado.replace('Ñ', ':').replace('-', '/')
 
     # 1. URL de credencial INACAP: .../etiqueta/15/ o .../usuario/15/
-    url_id_match = re.search(r'/(?:etiqueta|perfil|imprimir-etiqueta|usuario)/(\d+)/?', texto)
+    url_id_match = re.search(r'[/-](?:etiqueta|perfil|imprimir-etiqueta|usuario)[/-](\d+)[/-]?', texto_normalizado) or re.search(r'[/-](?:etiqueta|perfil|imprimir-etiqueta|usuario)[/-](\d+)[/-]?', texto)
     if url_id_match:
         return int(url_id_match.group(1)), None, '', ''
 
@@ -2307,7 +2325,43 @@ def extraer_datos_carnet_o_qr(texto):
         if rut:
             return None, rut, nombre, apellido
 
-    # 3. Formato PDF417 chileno tradicional con campos delimitados (RUN=...,APELLIDO1,APELLIDO2,NOMBRES...)
+    # 3. Código QR de Cédula de Identidad chilena (Portal SIDIV del Registro Civil)
+    # Formato estándar: https://portal.sidiv.registrocivil.cl/docstatus?RUN=21774379-6&...&name=JOAQU%CDN%20ALONSO%20%20PAERNIO%20CARU
+    # Formato con lector en teclado español: httpsÑ--portal.sidiv.registrocivil.cl-docstatus_RUN¿21774379'6/.../name¿...
+    texto_combinado = f"{texto} {texto_normalizado}"
+    if 'sidiv' in texto_combinado.lower() or 'docstatus' in texto_combinado.lower() or 'name=' in texto.lower() or 'name¿' in texto.lower():
+        m_sidiv_run = re.search(r'RUN[=¿:]\s*([0-9]{7,8})[\'\-‐‑]?([0-9kK])', texto_combinado, re.IGNORECASE)
+        if m_sidiv_run:
+            rut = f"{m_sidiv_run.group(1)}-{m_sidiv_run.group(2).upper()}"
+            nombre = ''
+            apellido = ''
+            m_sidiv_name = re.search(r'name[=¿:]\s*([^&/\r\n]+)', texto, re.IGNORECASE) or re.search(r'name[=¿:]\s*([^&/\r\n]+)', texto_normalizado, re.IGNORECASE)
+            if m_sidiv_name:
+                raw_name = m_sidiv_name.group(1).strip()
+                import urllib.parse
+                try:
+                    decoded_name = urllib.parse.unquote(raw_name, encoding='latin-1')
+                except Exception:
+                    decoded_name = urllib.parse.unquote(raw_name)
+                
+                parts = [p.strip() for p in re.split(r'\s{2,}', decoded_name) if p.strip()]
+                if len(parts) >= 2:
+                    nombre = parts[0].title()
+                    apellido = " ".join(parts[1:]).title()
+                else:
+                    words = decoded_name.split()
+                    if len(words) >= 3:
+                        nombre = " ".join(words[:-2]).title()
+                        apellido = " ".join(words[-2:]).title()
+                    elif len(words) == 2:
+                        nombre = words[0].title()
+                        apellido = words[1].title()
+                    elif len(words) == 1:
+                        nombre = words[0].title()
+
+            return None, rut, nombre, apellido
+
+    # 4. Formato PDF417 chileno tradicional con campos delimitados (RUN=...,APELLIDO1,APELLIDO2,NOMBRES...)
     m_run = re.search(r'(?:RUN|RUT)[=:]\s*([0-9]{1,2}(?:\.[0-9]{3}){2}[-‐‑]?[0-9kK]|[0-9]{7,8}[-‐‑]?[0-9kK])', texto, re.IGNORECASE)
     if m_run:
         clean = re.sub(r'[^0-9K]', '', m_run.group(1).upper())
@@ -2322,8 +2376,8 @@ def extraer_datos_carnet_o_qr(texto):
                 nombre = parts[run_idx + 3].title()
         return None, rut, nombre, apellido
 
-    # 4. Parámetro en URL: RUN=... o rut=... (Ej: Portal SIDIV del Registro Civil)
-    m_param = re.search(r'[?&](?:RUN|RUT)=([0-9]{7,8}[-‐‑]?[0-9kK])', texto, re.IGNORECASE)
+    # 4.1 Parámetro genérico en URL: RUN=... o rut=...
+    m_param = re.search(r'[?&](?:RUN|RUT)[=¿:]\s*([0-9]{7,8}[\'\-‐‑]?[0-9kK])', texto, re.IGNORECASE)
     if m_param:
         clean = re.sub(r'[^0-9K]', '', m_param.group(1).upper())
         return None, f"{clean[:-1]}-{clean[-1]}", '', ''
@@ -2387,13 +2441,24 @@ def marcar_asistencia_escaner_universal(request, reunion_id):
 
         if not usuario:
             rut_sugerido = rut_limpio or raw_input or ''
+            import urllib.parse
+            params = {}
+            if rut_sugerido:
+                params['rut'] = rut_sugerido
+            if carnet_nombre:
+                params['nombre'] = carnet_nombre
+            if carnet_apellido:
+                params['apellido'] = carnet_apellido
+            query_str = urllib.parse.urlencode(params)
+            registro_url = f"/registro/?{query_str}" if query_str else "/registro/"
+
             return JsonResponse({
                 'status': 'not_found',
                 'message': f'La persona con RUT {rut_sugerido} no se encuentra registrada en el sistema.',
                 'rut_sugerido': rut_sugerido,
                 'nombre_sugerido': carnet_nombre,
                 'apellido_sugerido': carnet_apellido,
-                'registro_url': f'/registro/?rut={rut_sugerido}' if rut_sugerido else '/registro/'
+                'registro_url': registro_url
             }, status=404)
 
         # Generar URL de impresión de etiqueta

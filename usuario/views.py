@@ -68,9 +68,29 @@ def registro(request):
             return redirect('inicio')
     else:
         initial_data = {}
-        rut_param = request.GET.get('rut')
+        rut_param = request.GET.get('rut', '').strip()
+        nombre_param = request.GET.get('nombre', '').strip()
+        apellido_param = request.GET.get('apellido', '').strip()
+
+        # Si el parámetro rut contiene un escaneo completo de carnet (URL SIDIV, PDF417, MRZ)
+        # o si faltan nombre y apellido, extraerlos con el analizador inteligente
         if rut_param:
-            initial_data['rut'] = rut_param
+            from paneladm.views import extraer_datos_carnet_o_qr
+            uid, rut_carnet, carnet_nom, carnet_ape = extraer_datos_carnet_o_qr(rut_param)
+            if rut_carnet:
+                initial_data['rut'] = rut_carnet
+                if not nombre_param and carnet_nom:
+                    nombre_param = carnet_nom
+                if not apellido_param and carnet_ape:
+                    apellido_param = carnet_ape
+            else:
+                initial_data['rut'] = rut_param
+
+        if nombre_param:
+            initial_data['nombre'] = nombre_param
+        if apellido_param:
+            initial_data['apellido'] = apellido_param
+
         form = UsuarioForm(initial=initial_data)
     return render(request, 'registro.html', {'form': form})
 
@@ -373,12 +393,22 @@ def consultar_qr_rut(request):
         except:
             rut_input = request.POST.get('rut', '').strip()
 
-        es_valido, rut_o_error = validate_rut(rut_input)
-        if not es_valido:
-            return JsonResponse({'status': 'error', 'mensaje': rut_o_error})
+        from paneladm.views import extraer_datos_carnet_o_qr
+        uid, rut_carnet, carnet_nombre, carnet_apellido = extraer_datos_carnet_o_qr(rut_input)
+        if rut_carnet:
+            rut_limpio = rut_carnet
+            es_valido = True
+        else:
+            es_valido, rut_o_error = validate_rut(rut_input)
+            if not es_valido:
+                return JsonResponse({'status': 'error', 'mensaje': rut_o_error})
+            rut_limpio = rut_o_error
+            carnet_nombre, carnet_apellido = '', ''
 
-        rut_limpio = rut_o_error
-        usuario = Usuario.objects.filter(rut=rut_limpio).first()
+        usuario = Usuario.objects.filter(
+            Q(rut__iexact=rut_limpio) |
+            Q(rut__iexact=rut_limpio.replace('.', '').replace('-', ''))
+        ).first()
 
         if usuario:
             qr_url = usuario.qr_code.url if usuario.qr_code else None
@@ -392,9 +422,24 @@ def consultar_qr_rut(request):
                 'qr_url': qr_url
             })
         else:
+            import urllib.parse
+            params = {}
+            if rut_limpio:
+                params['rut'] = rut_limpio
+            if carnet_nombre:
+                params['nombre'] = carnet_nombre
+            if carnet_apellido:
+                params['apellido'] = carnet_apellido
+            query_str = urllib.parse.urlencode(params)
+            registro_url = f"/registro/?{query_str}" if query_str else "/registro/"
+
             return JsonResponse({
                 'status': 'not_found',
-                'mensaje': 'No se encontraron registros con este RUT. Puedes inscribirte en cualquier evento para generar tu código.'
+                'mensaje': 'No se encontraron registros con este RUT. Puedes inscribirte en cualquier evento para generar tu código.',
+                'rut_sugerido': rut_limpio,
+                'nombre_sugerido': carnet_nombre,
+                'apellido_sugerido': carnet_apellido,
+                'registro_url': registro_url
             })
 
     return JsonResponse({'status': 'error', 'mensaje': 'Método no permitido'}, status=405)

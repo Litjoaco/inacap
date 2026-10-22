@@ -642,45 +642,129 @@
         togglePerfil();
 
         const rutInput = document.querySelector('#{{ form.rut.id_for_label }}');
-        if (rutInput) {
-            function formatRUTLive(val) {
-                let valor = val.replace(/[^0-9kK]/g, '').toUpperCase();
-                if (valor.length <= 1) return valor;
-                let cuerpo = valor.slice(0, -1);
-                let dv = valor.slice(-1);
-                let cuerpoFormateado = '';
-                while (cuerpo.length > 3) {
-                    cuerpoFormateado = '.' + cuerpo.slice(-3) + cuerpoFormateado;
-                    cuerpo = cuerpo.slice(0, -3);
-                }
-                return cuerpo + cuerpoFormateado + '-' + dv;
-            }
-
-            rutInput.addEventListener('input', function(e) {
-                e.target.value = formatRUTLive(e.target.value);
-            });
-
-            if (rutInput.value) {
-                rutInput.value = formatRUTLive(rutInput.value);
-            }
-        }
-
         const nombreInput = document.querySelector('#{{ form.nombre.id_for_label }}');
         const apellidoInput = document.querySelector('#{{ form.apellido.id_for_label }}');
+
+        function formatRUTLive(val) {
+            let valor = val.replace(/[^0-9kK]/g, '').toUpperCase();
+            if (valor.length <= 1) return valor;
+            let cuerpo = valor.slice(0, -1);
+            let dv = valor.slice(-1);
+            let cuerpoFormateado = '';
+            while (cuerpo.length > 3) {
+                cuerpoFormateado = '.' + cuerpo.slice(-3) + cuerpoFormateado;
+                cuerpo = cuerpo.slice(0, -3);
+            }
+            return cuerpo + cuerpoFormateado + '-' + dv;
+        }
 
         function autoCapitalizarTexto(val) {
             if (!val) return '';
             return val.toLowerCase().replace(/(^|\s|-)\S/g, l => l.toUpperCase());
         }
 
+        function procesarEscaneoCarnet(texto) {
+            if (!texto || texto.length < 8) return false;
+            let rut = '', nombre = '', apellido = '';
+
+            // 1. Código QR SIDIV del Registro Civil
+            if (/sidiv|docstatus|RUN[=¿:]/i.test(texto)) {
+                let mRun = texto.match(/RUN[=¿:]\s*([0-9]{7,8})['\-‐‑]?([0-9kK])/i);
+                if (mRun) rut = mRun[1] + '-' + mRun[2].toUpperCase();
+                let mName = texto.match(/name[=¿:]\s*([^&/\r\n]+)/i);
+                if (mName) {
+                    try {
+                        let raw = decodeURIComponent(mName[1].replace(/\+/g, ' '));
+                        let parts = raw.split(/\s{2,}/).filter(Boolean);
+                        if (parts.length >= 2) {
+                            nombre = parts[0];
+                            apellido = parts.slice(1).join(' ');
+                        } else {
+                            let words = raw.split(/\s+/).filter(Boolean);
+                            if (words.length >= 3) {
+                                nombre = words.slice(0, -2).join(' ');
+                                apellido = words.slice(-2).join(' ');
+                            } else if (words.length === 2) {
+                                nombre = words[0];
+                                apellido = words[1];
+                            } else if (words.length === 1) {
+                                nombre = words[0];
+                            }
+                        }
+                    } catch (e) {}
+                }
+            } else if (/IDCHL|<<</i.test(texto)) {
+                // 2. Formato MRZ (3 líneas al reverso del carnet)
+                let mRun = texto.match(/IDCHL([0-9]{7,8})([0-9Kk])/);
+                if (mRun) rut = mRun[1] + '-' + mRun[2].toUpperCase();
+                let mNames = texto.match(/([A-ZÁÉÍÓÚÑ]+)<([A-ZÁÉÍÓÚÑ]+)<<([A-ZÁÉÍÓÚÑ<]+)/i);
+                if (mNames) {
+                    apellido = (mNames[1] + ' ' + mNames[2]).trim();
+                    nombre = mNames[3].replace(/</g, ' ').trim();
+                }
+            } else if (/(?:RUN|RUT)[=:]/i.test(texto)) {
+                // 3. Formato PDF417 chileno tradicional
+                let mRun = texto.match(/(?:RUN|RUT)[=:]\s*([0-9]{1,2}(?:\.[0-9]{3}){2}[-‐‑]?[0-9kK]|[0-9]{7,8}[-‐‑]?[0-9kK])/i);
+                if (mRun) {
+                    let clean = mRun[1].replace(/[^0-9Kk]/g, '').toUpperCase();
+                    rut = clean.slice(0, -1) + '-' + clean.slice(-1);
+                }
+                let parts = texto.split(/[,;\t\r\n]+/).map(p => p.trim()).filter(Boolean);
+                if (parts.length >= 4 && parts.slice(0, 2).some(p => p.toUpperCase().includes('RUN'))) {
+                    let runIdx = parts[0].toUpperCase().includes('RUN') ? 0 : 1;
+                    if (parts.length >= runIdx + 4) {
+                        apellido = parts[runIdx + 1] + ' ' + parts[runIdx + 2];
+                        nombre = parts[runIdx + 3];
+                    }
+                }
+            }
+
+            if (rut || nombre || apellido) {
+                if (rut && rutInput) {
+                    rutInput.value = formatRUTLive(rut);
+                }
+                if (nombre && nombreInput) {
+                    nombreInput.value = autoCapitalizarTexto(nombre);
+                }
+                if (apellido && apellidoInput) {
+                    apellidoInput.value = autoCapitalizarTexto(apellido);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        if (rutInput) {
+            rutInput.addEventListener('input', function(e) {
+                if (e.target.value && (e.target.value.includes('http') || e.target.value.includes('RUN') || e.target.value.includes('sidiv') || e.target.value.includes('IDCHL') || e.target.value.includes(','))) {
+                    if (procesarEscaneoCarnet(e.target.value)) {
+                        return;
+                    }
+                }
+                e.target.value = formatRUTLive(e.target.value);
+            });
+
+            if (rutInput.value) {
+                if (!procesarEscaneoCarnet(rutInput.value)) {
+                    rutInput.value = formatRUTLive(rutInput.value);
+                }
+            }
+        }
+
         if (nombreInput) {
             nombreInput.style.textTransform = 'capitalize';
+            if (nombreInput.value) {
+                nombreInput.value = autoCapitalizarTexto(nombreInput.value);
+            }
             nombreInput.addEventListener('blur', function(e) {
                 e.target.value = autoCapitalizarTexto(e.target.value);
             });
         }
         if (apellidoInput) {
             apellidoInput.style.textTransform = 'capitalize';
+            if (apellidoInput.value) {
+                apellidoInput.value = autoCapitalizarTexto(apellidoInput.value);
+            }
             apellidoInput.addEventListener('blur', function(e) {
                 e.target.value = autoCapitalizarTexto(e.target.value);
             });
@@ -754,9 +838,20 @@
                 errorDiv.classList.remove('d-none');
                 
                 const formRutInput = document.querySelector('#{{ form.rut.id_for_label }}');
-                if (formRutInput && !formRutInput.value) {
-                    formRutInput.value = rutInput;
+                const formNombreInput = document.querySelector('#{{ form.nombre.id_for_label }}');
+                const formApellidoInput = document.querySelector('#{{ form.apellido.id_for_label }}');
+
+                if (formRutInput && (data.rut_sugerido || rutInput)) {
+                    formRutInput.value = data.rut_sugerido || rutInput;
                     formRutInput.dispatchEvent(new Event('input'));
+                }
+                if (formNombreInput && data.nombre_sugerido && !formNombreInput.value) {
+                    formNombreInput.value = data.nombre_sugerido;
+                    formNombreInput.dispatchEvent(new Event('input'));
+                }
+                if (formApellidoInput && data.apellido_sugerido && !formApellidoInput.value) {
+                    formApellidoInput.value = data.apellido_sugerido;
+                    formApellidoInput.dispatchEvent(new Event('input'));
                 }
             } else {
                 errorDiv.textContent = data.mensaje || "Formato de RUT no válido.";
