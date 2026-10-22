@@ -27,7 +27,7 @@
         .printable-tag {
             width: 106mm;
             height: 62mm;
-            padding: 5mm 8mm;
+            padding: 5mm 6mm;
             box-sizing: border-box;
             background-color: #ffffff;
             border: 1px solid #ccc;
@@ -35,7 +35,7 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
-            gap: 16px;
+            gap: 14px;
             box-shadow: 0 4px 14px rgba(0,0,0,0.08);
             overflow: hidden;
         }
@@ -59,18 +59,17 @@
         }
 
         .tag-info {
-            flex-grow: 1;
+            flex: 1;
+            min-width: 0;
             text-align: left;
             display: flex;
             flex-direction: column;
             justify-content: center;
             overflow: hidden;
-            min-width: 0;
-            max-width: calc(100% - 25mm - 16px);
         }
 
         .tag-nombre {
-            font-size: 22pt;
+            font-size: 16pt;
             font-weight: 700;
             margin: 0;
             line-height: 1.2;
@@ -99,7 +98,7 @@
                 width: 106mm;
                 height: 62mm;
                 background-color: #ffffff;
-                padding: 5mm 8mm;
+                padding: 5mm 6mm;
             }
         }
     </style>
@@ -125,19 +124,21 @@
             const container = document.querySelector('.tag-info');
             if (!el || !container) return;
             
-            let size = 22;
+            let size = 17;
             el.style.fontSize = size + 'pt';
+            el.style.whiteSpace = 'nowrap';
             
-            // Reducir hasta que el texto quepa en una sola línea en el contenedor
-            while (el.scrollWidth > container.clientWidth && size > 13) {
+            // Reducir hasta que el texto quepa en el ancho disponible
+            while (el.scrollWidth > container.clientWidth && size > 11) {
                 size -= 0.5;
                 el.style.fontSize = size + 'pt';
             }
             
-            // Si el nombre aún excede después del mínimo, permitir salto de línea limpio
+            // Si aun con tamaño mínimo desborda, permitir salto de línea
             if (el.scrollWidth > container.clientWidth) {
                 el.style.whiteSpace = 'normal';
                 el.style.lineHeight = '1.15';
+                el.style.fontSize = '12pt';
             }
         }
 
