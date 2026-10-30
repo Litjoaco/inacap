@@ -10,15 +10,17 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
-BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:8000') 
+BASE_URL = os.environ.get('BASE_URL', 'https://meetingvcm.fablablosangeles.xyz') 
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-it)h7wo8um6o+%f+p8qduxi0p9)u7x(#zvh5k)_bj*n6wb!=p)')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 ALLOWED_HOSTS = [
-    '192.168.0.25',
     'localhost',
     '127.0.0.1',
+    '192.168.0.25',
+    'meetingvcm.fablablosangeles.xyz',
+    '.fablablosangeles.xyz',
     '.meetingup.cl',
     'meetingup.cl',
 ]
@@ -30,10 +32,14 @@ if extra_hosts:
     ALLOWED_HOSTS.extend([h.strip() for h in extra_hosts.split(',') if h.strip()])
 
 CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1",
     "http://127.0.0.1:8000",
+    "http://localhost",
     "http://localhost:8000",
     "http://192.168.0.25:8000",
     "http://192.168.0.25",
+    "https://meetingvcm.fablablosangeles.xyz",
+    "https://*.fablablosangeles.xyz",
     "https://meetingup.cl",
     "https://www.meetingup.cl",
     "https://*.meetingup.cl",
@@ -143,7 +149,7 @@ TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [STATIC_DIR]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 

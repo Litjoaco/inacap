@@ -28,6 +28,7 @@ staticfiles/
 media/**/*
 !media/**/
 !media/**/.gitkeep
+!media/logos_etiquetas/*
 
 # IDEs y Editores
 .vscode/
