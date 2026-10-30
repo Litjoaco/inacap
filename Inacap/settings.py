@@ -10,18 +10,33 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 MEDIA_DIR = os.path.join(BASE_DIR, 'media')
 
-BASE_URL = 'http://127.0.0.1:8000' 
+BASE_URL = os.environ.get('BASE_URL', 'http://127.0.0.1:8000') 
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-it)h7wo8um6o+%f+p8qduxi0p9)u7x(#zvh5k)_bj*n6wb!=p)')
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = ['*'] if DEBUG else os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost,meetingup.cl,www.meetingup.cl').split(',')
+ALLOWED_HOSTS = [
+    '192.168.0.25',
+    'localhost',
+    '127.0.0.1',
+    '.meetingup.cl',
+    'meetingup.cl',
+]
+if DEBUG:
+    ALLOWED_HOSTS.append('*')
+
+extra_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS')
+if extra_hosts:
+    ALLOWED_HOSTS.extend([h.strip() for h in extra_hosts.split(',') if h.strip()])
 
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://localhost:8000",
+    "http://192.168.0.25:8000",
+    "http://192.168.0.25",
     "https://meetingup.cl",
     "https://www.meetingup.cl",
+    "https://*.meetingup.cl",
 ]
 
 # Configuración de Seguridad y Cabeceras HTTP
