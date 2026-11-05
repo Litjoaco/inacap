@@ -20,30 +20,18 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '192.168.0.25',
     'meetingvcm.fablablosangeles.xyz',
-    '.fablablosangeles.xyz',
-    '.meetingup.cl',
-    'meetingup.cl',
 ]
-if DEBUG:
-    ALLOWED_HOSTS.append('*')
-
-extra_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS')
-if extra_hosts:
-    ALLOWED_HOSTS.extend([h.strip() for h in extra_hosts.split(',') if h.strip()])
 
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1",
-    "http://127.0.0.1:8000",
     "http://localhost",
-    "http://localhost:8000",
-    "http://192.168.0.25:8000",
     "http://192.168.0.25",
     "https://meetingvcm.fablablosangeles.xyz",
-    "https://*.fablablosangeles.xyz",
-    "https://meetingup.cl",
-    "https://www.meetingup.cl",
-    "https://*.meetingup.cl",
 ]
+
+# Soporte para proxy inverso y Cloudflare Tunnel (HTTPS)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
 # Configuración de Seguridad y Cabeceras HTTP
 SESSION_COOKIE_HTTPONLY = True
