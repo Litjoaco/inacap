@@ -191,25 +191,29 @@
         }
 
         /* Footer styles provided in responsive-mobile.css */
+        @media (max-width: 576px) {
+            .top-header { padding: 10px 0; }
+            .header-brand img { height: 28px; margin-right: 0; }
+        }
     </style>
 </head>
 
 <body>
 
     <header class="top-header">
-        <div class="container d-flex justify-content-between align-items-center">
-            <a href="{% url 'inicio' %}" class="header-brand">
+        <div class="container d-flex justify-content-between align-items-center px-3">
+            <a href="{% url 'inicio' %}" class="header-brand flex-shrink-0">
                 <img src="{% static 'img/Logo_60anos.png' %}" alt="Logo INACAP">
-                <div>
+                <div class="d-none d-sm-block">
                     <h1 class="brand-title">INACAP</h1>
                     <p class="brand-sub">Portal Oficial de Eventos y Encuentros</p>
                 </div>
             </a>
-            <div class="d-flex gap-2">
-                <a href="{% url 'inicio' %}" class="btn btn-outline-light btn-sm fw-medium">
+            <div class="d-flex gap-2 flex-shrink-0">
+                <a href="{% url 'inicio' %}" class="btn btn-outline-light btn-sm fw-medium d-inline-flex align-items-center text-nowrap" style="border-radius: 7px; padding: 6px 10px;">
                     <i class="bi bi-house-door-fill me-1"></i> Inicio
                 </a>
-                <a href="{% url 'login' %}" class="btn btn-light btn-sm fw-semibold text-danger">
+                <a href="{% url 'login' %}" class="btn btn-light btn-sm fw-semibold text-danger d-inline-flex align-items-center text-nowrap" style="border-radius: 7px; padding: 6px 12px;">
                     Ingresar
                 </a>
             </div>
