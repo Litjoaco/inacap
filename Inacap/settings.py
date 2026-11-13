@@ -147,6 +147,12 @@ MEDIA_ROOT = MEDIA_DIR
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'usuario.Usuario'
 
-# Configuración de Correo Electrónico
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'no-responder@inacap.cl'
+# Configuración de Correo Electrónico (Gmail SMTP Oficial)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'notificacionesvcm.la@gmail.com')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'dvbrbhbuhvgqqtxp')
+DEFAULT_FROM_EMAIL = 'Eventos INACAP <notificacionesvcm.la@gmail.com>'
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
