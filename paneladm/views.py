@@ -202,10 +202,81 @@ def buscar_usuarios_ajax(request):
 
     return JsonResponse({'usuarios': data})
 
+def enviar_correo_activacion_admin(request, usuario, remitente=None):
+    """
+    Envía un correo formal institucional con la firma oficial de INACAP y un enlace
+    seguro de un solo uso para que el nuevo administrador/ayudante defina su contraseña.
+    """
+    from django.contrib.auth.tokens import default_token_generator
+    from django.utils.http import urlsafe_base64_encode
+    from django.utils.encoding import force_bytes
+    from django.template.loader import render_to_string
+    from django.core.mail import send_mail
+
+    token = default_token_generator.make_token(usuario)
+    uid = urlsafe_base64_encode(force_bytes(usuario.pk))
+    base_url = getattr(settings, 'BASE_URL', 'http://127.0.0.1:8000').rstrip('/')
+    reset_path = reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+    reset_url = f"{base_url}{reset_path}"
+    logo_url = f"{base_url}/static/img/Logo_60anos.png"
+
+    remitente_nombre = f"{remitente.nombre} {remitente.apellido}" if remitente else "Dirección de Vinculación con el Medio"
+    remitente_cargo = "Administrador de Eventos y Encuentros" if (remitente and remitente.es_admin) else "Coordinación de Eventos"
+    remitente_sede = remitente.get_sede_real_display() if (remitente and hasattr(remitente, 'get_sede_real_display') and remitente.sede) else (remitente.sede if (remitente and remitente.sede) else "Sede Central")
+    remitente_telefono = remitente.telefono if (remitente and remitente.telefono) else "(56) 2 2429 8000"
+
+    rol_asignado = "Administrador" if usuario.es_admin else ("Ayudante" if usuario.es_ayudante else "Tótem")
+
+    context = {
+        'usuario': usuario,
+        'rol_asignado': rol_asignado,
+        'reset_url': reset_url,
+        'logo_url': logo_url,
+        'remitente_nombre': remitente_nombre,
+        'remitente_cargo': remitente_cargo,
+        'remitente_sede': remitente_sede,
+        'remitente_telefono': remitente_telefono,
+        'base_url': base_url,
+    }
+
+    subject = f"Acceso Concedido como {rol_asignado} - Eventos INACAP"
+    html_content = render_to_string('emails/activacion_admin.html', context)
+    plain_message = (
+        f"Estimado(a) {usuario.nombre} {usuario.apellido}:\n\n"
+        f"Se te ha concedido acceso como {rol_asignado} en la plataforma de Eventos INACAP.\n\n"
+        f"Usuario / Email: {usuario.email}\n"
+        f"RUT: {usuario.rut}\n\n"
+        f"Para definir tu contraseña personal y activar tu acceso, ingresa al siguiente enlace:\n"
+        f"{reset_url}\n\n"
+        f"Este enlace es de uso único y expira en 48 horas.\n\n"
+        f"Saludos cordiales,\n"
+        f"{remitente_nombre}\n"
+        f"INACAP Sede {remitente_sede}"
+    )
+
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'no-responder@inacap.cl')
+    send_mail(
+        subject,
+        plain_message,
+        from_email,
+        [usuario.email],
+        html_message=html_content,
+        fail_silently=False
+    )
+
 @admin_required
 def editar_usuario_admin(request, usuario_id):
     usuario_actual = get_object_or_404(Usuario, id=request.session.get('usuario_id'))
     usuario_a_editar = get_object_or_404(Usuario, id=usuario_id)
+
+    # Si se solicitó enviar el enlace de activación directamente desde el botón
+    if request.method == 'POST' and request.POST.get('accion') == 'enviar_enlace_activacion':
+        try:
+            enviar_correo_activacion_admin(request, usuario_a_editar, usuario_actual)
+            messages.success(request, f'¡Enlace institucional de activación enviado con éxito a {usuario_a_editar.email}!')
+        except Exception as e:
+            messages.error(request, f'Error al enviar el correo de activación: {e}')
+        return redirect('panel-admin:editar_usuario_admin', usuario_id=usuario_id)
 
     if usuario_actual.es_admin:
         Formulario = AdminUsuarioForm
@@ -213,10 +284,44 @@ def editar_usuario_admin(request, usuario_id):
         Formulario = AyudanteUsuarioForm
 
     if request.method == 'POST':
+        era_privilegiado = usuario_a_editar.es_admin or usuario_a_editar.es_ayudante
         form = Formulario(request.POST, request.FILES, instance=usuario_a_editar)
         if form.is_valid():
-            form.save()
-            messages.success(request, f'¡Perfil de {usuario_a_editar.nombre} actualizado con éxito!')
+            usuario_guardado = form.save()
+            ahora_es_privilegiado = usuario_guardado.es_admin or usuario_guardado.es_ayudante
+
+            if ahora_es_privilegiado:
+                if usuario_guardado.es_admin:
+                    usuario_guardado.is_staff = True
+
+                # Asignar contraseña por defecto (RUT limpio) si aún no tiene ninguna
+                clave_por_defecto_asignada = False
+                if not usuario_guardado.has_usable_password() or not usuario_guardado.password:
+                    rut_limpio = re.sub(r'[^0-9kK]', '', str(usuario_guardado.rut)).upper()
+                    if rut_limpio:
+                        usuario_guardado.set_password(rut_limpio)
+                        usuario_guardado.save()
+                        clave_por_defecto_asignada = True
+
+                # Enviar correo si se solicitó o si fue promovido por primera vez
+                debe_enviar_correo = (
+                    request.POST.get('enviar_email_activacion') == '1' or 
+                    (not era_privilegiado and ahora_es_privilegiado)
+                )
+                if debe_enviar_correo:
+                    try:
+                        enviar_correo_activacion_admin(request, usuario_guardado, usuario_actual)
+                        messages.info(request, f'Se envió un correo institucional a {usuario_guardado.email} con el enlace para definir su contraseña.')
+                    except Exception as e:
+                        messages.warning(request, f'Perfil actualizado, pero no se pudo enviar el correo de activación: {e}')
+
+                if clave_por_defecto_asignada:
+                    messages.success(request, f'¡Rol asignado a {usuario_guardado.nombre}! Su contraseña inicial provisional es su RUT ({rut_limpio}).')
+                else:
+                    messages.success(request, f'¡Perfil de {usuario_guardado.nombre} actualizado con éxito!')
+            else:
+                messages.success(request, f'¡Perfil de {usuario_guardado.nombre} actualizado con éxito!')
+
             return redirect('panel-admin:gestion_usuarios')
     else:
         form = Formulario(instance=usuario_a_editar)

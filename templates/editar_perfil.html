@@ -177,19 +177,59 @@
                 {% if form.es_admin %}
                 <div class="col-12">
                     <hr>
-                    <h5 class="mb-3">Permisos de Administrador</h5>
-                    <div class="d-flex justify-content-around">
-                        <div class="form-check form-switch">
-                            {{ form.es_admin }}
-                            <label class="form-check-label" for="{{ form.es_admin.id_for_label }}">Administrador</label>
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                        <h5 class="mb-0 text-dark fw-bold">
+                            <i class="bi bi-shield-lock-fill text-danger me-1"></i> Permisos y Acceso
+                        </h5>
+                        {% if usuario.es_admin or usuario.es_ayudante or usuario.es_totem %}
+                        <button type="submit" name="accion" value="enviar_enlace_activacion" class="btn btn-outline-danger btn-sm shadow-sm" title="Enviar enlace institucional para que el usuario defina o restablezca su contraseña">
+                            <i class="bi bi-envelope-fill me-1"></i> Enviar Enlace de Activación por Correo
+                        </button>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="p-3 bg-light rounded border mb-3">
+                        <div class="d-flex justify-content-around flex-wrap gap-2">
+                            <div class="form-check form-switch">
+                                {{ form.es_admin }}
+                                <label class="form-check-label fw-semibold" for="{{ form.es_admin.id_for_label }}">Administrador</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                {{ form.es_ayudante }}
+                                <label class="form-check-label fw-semibold" for="{{ form.es_ayudante.id_for_label }}">Ayudante</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                {{ form.es_totem }}
+                                <label class="form-check-label fw-semibold" for="{{ form.es_totem.id_for_label }}">Tótem</label>
+                            </div>
                         </div>
-                        <div class="form-check form-switch">
-                            {{ form.es_ayudante }}
-                            <label class="form-check-label" for="{{ form.es_ayudante.id_for_label }}">Ayudante</label>
-                        </div>
-                        <div class="form-check form-switch">
-                            {{ form.es_totem }}
-                            <label class="form-check-label" for="{{ form.es_totem.id_for_label }}">Tótem</label>
+                    </div>
+
+                    <!-- GESTIÓN DE CONTRASEÑA -->
+                    <div class="card border-0 shadow-sm bg-white p-3 mb-2" style="border-left: 4px solid #B70420 !important;">
+                        <h6 class="fw-bold mb-2 text-dark">
+                            <i class="bi bi-key-fill text-danger me-1"></i> Contraseña de Acceso
+                        </h6>
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-7">
+                                <div class="input-group">
+                                    {{ form.password }}
+                                    <button class="btn btn-outline-secondary" type="button" id="btnGenerarPassword" title="Generar contraseña aleatoria">
+                                        <i class="bi bi-dice-5-fill me-1"></i> Generar
+                                    </button>
+                                </div>
+                                <small class="form-text text-muted d-block mt-1">
+                                    Si lo dejas en blanco, se le asignará provisionalmente su <strong>RUT</strong> (sin puntos ni guión) o el usuario podrá definir su clave con el enlace del correo.
+                                </small>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-check mt-1">
+                                    <input class="form-check-input" type="checkbox" name="enviar_email_activacion" id="enviar_email_activacion" value="1" checked>
+                                    <label class="form-check-label small fw-medium" for="enviar_email_activacion">
+                                        Enviar correo institucional con enlace para crear contraseña al guardar
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -245,6 +285,31 @@
         if (rubroSelect) {
             rubroSelect.addEventListener('change', () => toggleVisibility(rubroSelect, otroRubroContainer, rubroContainer));
             toggleVisibility(rubroSelect, otroRubroContainer, rubroContainer);
+        }
+
+        const btnGen = document.getElementById('btnGenerarPassword');
+        if (btnGen) {
+            btnGen.addEventListener('click', function() {
+                const passInput = document.getElementById('{{ form.password.id_for_label }}');
+                if (passInput) {
+                    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!#$';
+                    let pass = 'Inacap.';
+                    for (let i = 0; i < 4; i++) {
+                        pass += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+                    pass += '26';
+                    passInput.type = 'text';
+                    passInput.value = pass;
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'Contraseña Generada',
+                            html: 'Se asignó: <code>' + pass + '</code><br><small class="text-muted">Se guardará al hacer clic en "Guardar Cambios" o el usuario puede crear la suya con el enlace de correo.</small>',
+                            icon: 'success',
+                            confirmButtonColor: '#B70420'
+                        });
+                    }
+                }
+            });
         }
     });
 </script>

@@ -5,6 +5,8 @@ from django.utils.encoding import force_bytes, force_str
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from .forms import PasswordResetRequestForm, SetNewPasswordForm
+from django.conf import settings
+from django.urls import reverse
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
@@ -294,17 +296,31 @@ def password_reset_request(request):
                     token = default_token_generator.make_token(user)
                     uid = urlsafe_base64_encode(force_bytes(user.pk))
                     
-                    reset_url = request.build_absolute_uri(
-                        reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
-                    )
+                    base_url = getattr(settings, 'BASE_URL', 'http://127.0.0.1:8000').rstrip('/')
+                    reset_path = reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+                    reset_url = f"{base_url}{reset_path}"
+                    logo_url = f"{base_url}/static/img/Logo_60anos.png"
                     
                     subject = 'Restablecimiento de contraseña - Eventos INACAP'
-                    message = render_to_string('password_reset_email.html', {
+                    context = {
                         'user': user,
                         'reset_url': reset_url,
-                    })
+                        'logo_url': logo_url,
+                        'remitente_nombre': 'Dirección de Comunicaciones',
+                        'remitente_cargo': 'Plataforma de Eventos y Encuentros',
+                        'remitente_sede': user.get_sede_real_display() if hasattr(user, 'get_sede_real_display') and user.sede else (user.sede or 'Sede Central'),
+                        'remitente_telefono': '(56) 2 2429 8000',
+                    }
+                    html_message = render_to_string('password_reset_email.html', context)
+                    plain_message = f"Hola {user.nombre},\n\nPara restablecer tu contraseña en la plataforma de Eventos INACAP, haz clic en el siguiente enlace:\n{reset_url}\n\nSi no solicitaste este cambio, puedes ignorar este mensaje.\n\nSaludos,\nEquipo INACAP"
                     
-                    send_mail(subject, message, None, [user.email])
+                    send_mail(
+                        subject,
+                        plain_message,
+                        getattr(settings, 'DEFAULT_FROM_EMAIL', None),
+                        [user.email],
+                        html_message=html_message
+                    )
 
             messages.success(request, 'Si tu correo electrónico está en nuestra base de datos, recibirás un enlace para restablecer tu contraseña en breve.')
             return redirect('login')

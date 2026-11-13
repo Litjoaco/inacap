@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activación de Cuenta de Administrador - INACAP</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f1f5f9;
+            font-family: Verdana, Geneva, sans-serif;
+            font-size: 10pt;
+            color: #222222;
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table {
+            border-collapse: collapse;
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        td {
+            padding: 0;
+        }
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+        }
+        .btn-activar:hover {
+            background-color: #8B0014 !important;
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 25px 10px; background-color: #f1f5f9;">
+    <!-- CONTENEDOR PRINCIPAL -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" align="center">
+        <tr>
+            <td align="center">
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+                    
+                    <!-- ENCABEZADO INSTITUCIONAL -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #B70420 0%, #8B0014 100%); padding: 24px 30px; text-align: center;">
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td align="center">
+                                        <h1 style="margin: 0; color: #ffffff; font-size: 20pt; font-weight: bold; letter-spacing: 1.5px; font-family: Verdana, sans-serif;">INACAP</h1>
+                                        <p style="margin: 4px 0 0 0; color: #fee2e2; font-size: 9pt; font-weight: normal; letter-spacing: 0.5px;">60 Años Transformando Vidas · Plataforma de Eventos</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- CUERPO DEL CORREO -->
+                    <tr>
+                        <td style="padding: 35px 35px 25px 35px; line-height: 1.6; color: #333333; font-size: 10pt;">
+                            
+                            <!-- SALUDO Y TITULO -->
+                            <h2 style="margin: 0 0 16px 0; color: #111827; font-size: 13.5pt; border-bottom: 2px solid #fee2e2; padding-bottom: 10px;">
+                                Asignación de Permisos de {{ rol_asignado|default:"Administrador" }}
+                            </h2>
+
+                            <p style="margin: 0 0 16px 0; font-size: 10.5pt;">
+                                Estimado(a) <strong>{{ usuario.nombre }} {{ usuario.apellido }}</strong>:
+                            </p>
+
+                            <p style="margin: 0 0 18px 0;">
+                                Te informamos que se te ha concedido acceso con el perfil de 
+                                <strong style="color: #B70420;">{{ rol_asignado|default:"Administrador" }}</strong> 
+                                en la plataforma institucional de <strong>Eventos y Encuentros INACAP</strong>.
+                            </p>
+
+                            <!-- TARJETA RESUMEN DE LA CUENTA -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f8fafc; border-left: 4px solid #B70420; border-radius: 6px; margin: 20px 0; padding: 16px 20px;">
+                                <tr>
+                                    <td>
+                                        <p style="margin: 0 0 6px 0; font-size: 9.5pt; color: #475569;">
+                                            <strong>Usuario / Email de acceso:</strong> 
+                                            <span style="color: #0f172a; font-family: 'Courier New', Courier, monospace;">{{ usuario.email }}</span>
+                                        </p>
+                                        <p style="margin: 0 0 6px 0; font-size: 9.5pt; color: #475569;">
+                                            <strong>RUT:</strong> 
+                                            <span style="color: #0f172a;">{{ usuario.rut }}</span>
+                                        </p>
+                                        <p style="margin: 0; font-size: 9.5pt; color: #475569;">
+                                            <strong>Rol otorgado:</strong> 
+                                            <span style="display: inline-block; background-color: #dcfce7; color: #15803d; font-weight: bold; padding: 2px 8px; border-radius: 4px; font-size: 8.5pt;">{{ rol_asignado|default:"Administrador" }}</span>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 0 0 24px 0;">
+                                Para comenzar a gestionar reuniones, asistencias, encuestas y acreditaciones, por favor activa tu cuenta haciendo clic en el siguiente botón para definir tu contraseña personal de acceso:
+                            </p>
+
+                            <!-- BOTÓN CALL TO ACTION (CTA) -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 28px 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="{{ reset_url }}" class="btn-activar" style="background-color: #B70420; color: #ffffff !important; display: inline-block; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 10.5pt; letter-spacing: 0.5px; box-shadow: 0 3px 6px rgba(183, 4, 32, 0.25);">
+                                            Definir Mi Contraseña de Acceso &rarr;
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- NOTA DE SEGURIDAD Y ENLACE ALTERNATIVO -->
+                            <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 12px 16px; margin: 22px 0; font-size: 8.5pt; color: #991b1b; line-height: 1.5;">
+                                <p style="margin: 0 0 4px 0; font-weight: bold;">🔒 Información de Seguridad:</p>
+                                <p style="margin: 0;">
+                                    Este enlace es de uso único y tiene una vigencia de <strong>48 horas</strong>. Si no solicitaste este acceso o crees que se trata de un error, por favor contacta a la administración de tu sede.
+                                </p>
+                            </div>
+
+                            <p style="margin: 0 0 6px 0; font-size: 8.5pt; color: #64748b;">
+                                Si el botón superior no funciona, copia y pega este enlace directo en tu navegador:
+                            </p>
+                            <p style="margin: 0 0 24px 0; font-size: 8pt; word-break: break-all; color: #B70420;">
+                                <a href="{{ reset_url }}" style="color: #B70420; text-decoration: underline;">{{ reset_url }}</a>
+                            </p>
+
+                            <!-- FIRMA DIGITAL OFICIAL INACAP (60 AÑOS) -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 32px; padding-top: 22px; border-top: 1px solid #e2e8f0; font-family: Verdana, Geneva, sans-serif; font-size: 9.5pt; color: #222222; line-height: 1.45;">
+                                <tr>
+                                    <td>
+                                        <p style="margin: 0 0 2px 0; font-weight: bold; font-size: 10.5pt; color: #111827;">{{ remitente_nombre|default:"Dirección de Vinculación con el Medio" }}</p>
+                                        <p style="margin: 0 0 2px 0; color: #64748b; font-size: 9pt;">{{ remitente_cargo|default:"Administración de Plataforma y Encuentros" }}</p>
+                                        <p style="margin: 0 0 2px 0; color: #334155; font-size: 9pt;"><strong>INACAP</strong> · Sede {{ remitente_sede|default:"Los Ángeles" }}</p>
+                                        <p style="margin: 0 0 6px 0; color: #64748b; font-size: 8.5pt;">Teléfono: {{ remitente_telefono|default:"(56) 2 2429 8000" }}</p>
+                                        <p style="margin: 0 0 14px 0;">
+                                            <a href="https://www.inacap.cl" target="_blank" style="color: #B70420; text-decoration: none; font-weight: bold; font-size: 9pt;">www.inacap.cl</a>
+                                        </p>
+                                        
+                                        <!-- LOGO 60 AÑOS -->
+                                        {% if logo_url %}
+                                        <img src="{{ logo_url }}" alt="INACAP | 60 Años" height="46" style="height: 46px; max-width: 220px; display: block; margin-top: 4px; border: 0;">
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+
+                    <!-- PIE LEGAL INSTITUCIONAL -->
+                    <tr>
+                        <td style="background-color: #f8fafc; padding: 16px 24px; text-align: center; font-size: 8pt; color: #64748b; border-top: 1px solid #e2e8f0; line-height: 1.5;">
+                            &copy; 2026 INACAP · Dirección de Tecnologías de la Información y Vinculación con el Medio.<br>
+                            Este es un mensaje institucional automático. Por favor no respondas directamente a esta casilla.
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
