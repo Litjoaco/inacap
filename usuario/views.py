@@ -300,12 +300,14 @@ def password_reset_request(request):
                     reset_path = reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
                     reset_url = f"{base_url}{reset_path}"
                     logo_url = f"{base_url}/static/img/Logo_60anos.png"
+                    logo_firma_url = f"{base_url}/static/img/Logo_60anos_rojo.png"
                     
                     subject = 'Restablecimiento de contraseña - Eventos INACAP'
                     context = {
                         'user': user,
                         'reset_url': reset_url,
                         'logo_url': logo_url,
+                        'logo_firma_url': logo_firma_url,
                         'remitente_nombre': 'Dirección de Comunicaciones',
                         'remitente_cargo': 'Plataforma de Eventos y Encuentros',
                         'remitente_sede': user.get_sede_real_display() if hasattr(user, 'get_sede_real_display') and user.sede else (user.sede or 'Sede Central'),

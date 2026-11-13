@@ -219,6 +219,7 @@ def enviar_correo_activacion_admin(request, usuario, remitente=None):
     reset_path = reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
     reset_url = f"{base_url}{reset_path}"
     logo_url = f"{base_url}/static/img/Logo_60anos.png"
+    logo_firma_url = f"{base_url}/static/img/Logo_60anos_rojo.png"
 
     remitente_nombre = f"{remitente.nombre} {remitente.apellido}" if remitente else "Dirección de Vinculación con el Medio"
     remitente_cargo = "Administrador de Eventos y Encuentros" if (remitente and remitente.es_admin) else "Coordinación de Eventos"
@@ -232,6 +233,7 @@ def enviar_correo_activacion_admin(request, usuario, remitente=None):
         'rol_asignado': rol_asignado,
         'reset_url': reset_url,
         'logo_url': logo_url,
+        'logo_firma_url': logo_firma_url,
         'remitente_nombre': remitente_nombre,
         'remitente_cargo': remitente_cargo,
         'remitente_sede': remitente_sede,
@@ -2293,6 +2295,7 @@ def enviar_correo_masivo_interesados(request, reunion_id):
         base_url = getattr(settings, 'BASE_URL', 'http://127.0.0.1:8000').rstrip('/')
         link_evento = f"{base_url}{reverse('panel-admin:reunion_publica', args=[reunion.id])}"
         logo_url = f"{base_url}/static/img/Logo_60anos.png"
+        logo_firma_url = f"{base_url}/static/img/Logo_60anos_rojo.png"
 
         html_content = f"""
         <!DOCTYPE html>
